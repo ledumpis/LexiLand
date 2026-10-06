@@ -2,7 +2,7 @@ EGL_Engine.register({
   id: 'unscramble',
   name: 'Unscramble',
   icon: '🔤',
-  description: 'Assemble scrambled colorful letter tiles back into the word.',
+  description: 'Sắp xếp các chữ cái xáo trộn thành từ tiếng Anh hoàn chỉnh.',
   init(container, { words, engine }) {
     this.container = container;
     this.words = words;
@@ -14,43 +14,70 @@ EGL_Engine.register({
     if (this.idx >= this.words.length) return this.engine.endSession();
     const cur = this.words[this.idx];
     const letters = EGL_Utils.shuffle(cur.word.replace(/\s+/g, '').toUpperCase().split(''));
-    let chosen = [];
+    let placedTiles = [];
 
     this.container.innerHTML = `
       <div class="unscramble-box">
-        <h3 style="color:var(--text-muted); margin-bottom:1rem;">${cur.meaning}</h3>
-        <div class="answer-slots" id="u-slots"></div>
-        <div class="tile-pool">${letters.map(ch => `<div class="cozy-tile" data-char="${ch}">${ch}</div>`).join('')}</div>
-        <div style="margin-top:1.5rem;">
-          <button class="btn btn-soft btn-sm" id="btn-u-rst">Reset Letters</button>
+        <div class="unscramble-meaning">"${cur.meaning}"</div>
+
+        <div style="font-size:0.85rem; color:var(--text-muted); margin-bottom:0.75rem;">Your word:</div>
+        <div class="answer-slots-wrap" id="u-slots-area"></div>
+
+        <div style="font-size:0.85rem; color:var(--text-muted); margin-bottom:0.75rem;">Available letters:</div>
+        <div class="tiles-pool-wrap" id="u-pool-area">
+          ${letters.map((char, i) => `<div class="cozy-letter-tile" data-idx="${i}" data-char="${char}">${char}</div>`).join('')}
+        </div>
+
+        <div class="unscramble-btn-row">
+          <button class="btn btn-secondary" id="btn-u-reset">Reset</button>
+          <button class="btn btn-primary" id="btn-u-check">Check</button>
         </div>
       </div>
     `;
 
-    const slots = this.container.querySelector('#u-slots');
-    const tiles = this.container.querySelectorAll('.cozy-tile');
+    const slotsArea = this.container.querySelector('#u-slots-area');
+    const poolTiles = this.container.querySelectorAll('#u-pool-area .cozy-letter-tile');
 
-    const updateUI = () => {
-      slots.innerHTML = chosen.map(t => `<div class="cozy-tile" style="background:var(--sky); box-shadow:0 4px 0 #0284c7;">${t.char}</div>`).join('');
-      if (chosen.length === letters.length) {
-        const ok = (chosen.map(t => t.char).join('') === cur.word.replace(/\s+/g, '').toUpperCase());
-        this.engine.recordAnswer(ok, cur);
-        setTimeout(() => { this.idx++; this.render(); }, 750);
-      }
+    const updateSlots = () => {
+      slotsArea.innerHTML = placedTiles.map((item, index) => `
+        <div class="cozy-letter-tile tile-placed" data-slot-index="${index}">${item.char}</div>
+      `).join('');
+
+      // Allow clicking placed tiles to return them to the pool
+      slotsArea.querySelectorAll('.tile-placed').forEach(tile => {
+        tile.onclick = () => {
+          const slotIdx = parseInt(tile.dataset.slotIndex);
+          const returned = placedTiles.splice(slotIdx, 1)[0];
+          returned.sourceTile.classList.remove('tile-used');
+          updateSlots();
+        };
+      });
     };
 
-    tiles.forEach(t => {
-      t.onclick = () => {
-        t.classList.add('used-up');
-        chosen.push({ char: t.dataset.char, tile: t });
-        updateUI();
+    poolTiles.forEach(tile => {
+      tile.onclick = () => {
+        tile.classList.add('tile-used');
+        placedTiles.push({ char: tile.dataset.char, sourceTile: tile });
+        updateSlots();
       };
     });
 
-    this.container.querySelector('#btn-u-rst').onclick = () => {
-      chosen = [];
-      tiles.forEach(t => t.classList.remove('used-up'));
-      updateUI();
+    this.container.querySelector('#btn-u-reset').onclick = () => {
+      placedTiles = [];
+      poolTiles.forEach(t => t.classList.remove('tile-used'));
+      updateSlots();
+    };
+
+    this.container.querySelector('#btn-u-check').onclick = () => {
+      const assembled = placedTiles.map(p => p.char).join('');
+      const target = cur.word.replace(/\s+/g, '').toUpperCase();
+      const isCorrect = (assembled === target);
+
+      this.engine.recordAnswer(isCorrect, cur);
+      setTimeout(() => {
+        this.idx++;
+        this.render();
+      }, 750);
     };
   },
   cleanup() {}

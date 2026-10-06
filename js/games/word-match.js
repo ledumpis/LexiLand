@@ -1,65 +1,81 @@
 EGL_Engine.register({
   id: 'word-match',
   name: 'Word Match',
-  icon: '🧩',
-  description: 'Match pairs of English terms and definitions across two columns.',
+  icon: '🔗',
+  description: 'Ghép cặp từ tiếng Anh và nghĩa tiếng Việt bằng màu pastel đồng bộ.',
   init(container, { words, engine }) {
     this.container = container;
     this.engine = engine;
-    this.active = words.slice(0, 5);
-    this.matched = 0;
-    this.selEn = null;
-    this.selVi = null;
+    this.activeWords = words.slice(0, 5);
+    this.matchedCount = 0;
+    this.selectedEn = null;
+    this.selectedVi = null;
 
-    const ens = EGL_Utils.shuffle(this.active.map(w => ({ id: w.word, text: w.word })));
-    const vis = EGL_Utils.shuffle(this.active.map(w => ({ id: w.word, text: w.meaning })));
+    const enList = EGL_Utils.shuffle(this.activeWords.map(w => ({ id: w.word, text: w.word })));
+    const viList = EGL_Utils.shuffle(this.activeWords.map(w => ({ id: w.word, text: w.meaning })));
 
     this.container.innerHTML = `
       <div class="match-arena-grid">
         <div class="match-column" id="col-en">
-          ${ens.map(i => `<div class="match-card" data-id="${i.id}" data-type="en">${i.text}</div>`).join('')}
+          ${enList.map(item => `<div class="match-card" data-id="${item.id}" data-type="en">${item.text}</div>`).join('')}
         </div>
         <div class="match-column" id="col-vi">
-          ${vis.map(i => `<div class="match-card" data-id="${i.id}" data-type="vi">${i.text}</div>`).join('')}
+          ${viList.map(item => `<div class="match-card" data-id="${item.id}" data-type="vi">${item.text}</div>`).join('')}
         </div>
       </div>
     `;
 
-    this.container.querySelectorAll('.match-card').forEach(c => {
-      c.onclick = () => this.handle(c);
+    this.container.querySelectorAll('.match-card').forEach(card => {
+      card.onclick = () => this.handleSelect(card);
     });
   },
-  handle(card) {
+  handleSelect(card) {
+    if (card.classList.contains('is-matched')) return;
+
     const isEn = (card.dataset.type === 'en');
     const colId = isEn ? '#col-en' : '#col-vi';
-    this.container.querySelectorAll(`${colId} .match-card`).forEach(el => el.classList.remove('active-selected'));
-    card.classList.add('active-selected');
 
-    if (isEn) this.selEn = card;
-    else this.selVi = card;
+    // Deselect other cards in same column
+    this.container.querySelectorAll(`${colId} .match-card:not(.is-matched)`).forEach(el => {
+      el.classList.remove('card-selected');
+    });
 
-    if (this.selEn && this.selVi) {
-      const ok = (this.selEn.dataset.id === this.selVi.dataset.id);
-      const raw = this.active.find(w => w.word === this.selEn.dataset.id);
-      this.engine.recordAnswer(ok, raw);
+    card.classList.add('card-selected');
+    if (isEn) this.selectedEn = card;
+    else this.selectedVi = card;
 
-      if (ok) {
-        this.selEn.classList.add('done-matched');
-        this.selVi.classList.add('done-matched');
-        this.matched++;
-        if (this.matched === this.active.length) {
-          setTimeout(() => this.engine.endSession(), 600);
+    if (this.selectedEn && this.selectedVi) {
+      const isMatch = (this.selectedEn.dataset.id === this.selectedVi.dataset.id);
+      const rawWord = this.activeWords.find(w => w.word === this.selectedEn.dataset.id);
+      const enEl = this.selectedEn;
+      const viEl = this.selectedVi;
+
+      this.engine.recordAnswer(isMatch, rawWord);
+
+      if (isMatch) {
+        // Assign a distinct matching pastel color class so pairs stay visually connected
+        const colorClass = `pair-color-${this.matchedCount % 5}`;
+        enEl.classList.remove('card-selected');
+        viEl.classList.remove('card-selected');
+        enEl.classList.add('is-matched', colorClass);
+        viEl.classList.add('is-matched', colorClass);
+
+        this.matchedCount++;
+        if (this.matchedCount === this.activeWords.length) {
+          setTimeout(() => this.engine.endSession(), 700);
         }
       } else {
-        const e = this.selEn;
-        const v = this.selVi;
+        enEl.classList.add('card-wrong');
+        viEl.classList.add('card-wrong');
+
         setTimeout(() => {
-          e.classList.remove('active-selected');
-          v.classList.remove('active-selected');
-        }, 300);
+          enEl.classList.remove('card-selected', 'card-wrong');
+          viEl.classList.remove('card-selected', 'card-wrong');
+        }, 500);
       }
-      this.selEn = null;
-      this.selVi = null;
+
+      this.selectedEn = null;
+      this.selectedVi = null;
     }
   },
   cleanup() {}

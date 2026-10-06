@@ -2,7 +2,7 @@ EGL_Engine.register({
   id: 'typing',
   name: 'Typing Challenge',
   icon: '⌨️',
-  description: 'Read the definition and type the exact English word. Press Enter.',
+  description: 'Quan sát ý nghĩa tiếng Việt và gõ chính xác từ tiếng Anh.',
   init(container, { words, engine }) {
     this.container = container;
     this.words = words;
@@ -16,26 +16,53 @@ EGL_Engine.register({
 
     this.container.innerHTML = `
       <div class="type-arena">
-        <div class="type-prompt-text">${cur.meaning}</div>
-        <p style="color:var(--text-muted); margin-bottom:1.5rem;">[${cur.type || 'term'}]</p>
-        <input type="text" class="type-glow-input" id="t-inp" placeholder="Type here..." autocomplete="off">
-        <div id="t-fb" style="margin-top:1.25rem; font-weight:800; height:24px;"></div>
+        <div class="type-question-card">
+          <div class="type-prompt-text">${cur.meaning}</div>
+          <div class="type-sub-prompt">
+            [${cur.type || 'word'}] ${cur.phonetic ? `• ${cur.phonetic}` : ''}
+          </div>
+        </div>
+
+        <div class="type-form-wrap">
+          <input type="text" class="type-cozy-input" id="type-input-field" placeholder="Type English word here..." autocomplete="off">
+          <div id="type-fb"></div>
+          <button class="btn btn-primary btn-lg" id="btn-type-submit">Check</button>
+        </div>
       </div>
     `;
 
-    const inp = this.container.querySelector('#t-inp');
-    inp.focus();
-    inp.onkeydown = (e) => {
-      if (e.key === 'Enter') {
-        const ok = (inp.value.trim().toLowerCase() === cur.word.toLowerCase());
-        const fb = this.container.querySelector('#t-fb');
-        inp.disabled = true;
+    const input = this.container.querySelector('#type-input-field');
+    const submitBtn = this.container.querySelector('#btn-type-submit');
+    const feedback = this.container.querySelector('#type-fb');
 
-        fb.innerText = ok ? '✓ Spot on!' : `✗ Correct: ${cur.word}`;
-        fb.style.color = ok ? 'var(--emerald)' : 'var(--coral)';
-        this.engine.recordAnswer(ok, cur);
-        setTimeout(() => { this.idx++; this.render(); }, 1000);
+    input.focus();
+
+    const checkAnswer = () => {
+      const val = input.value.trim().toLowerCase();
+      if (!val) return;
+
+      const isCorrect = (val === cur.word.toLowerCase());
+      input.disabled = true;
+      submitBtn.disabled = true;
+
+      if (isCorrect) {
+        feedback.innerText = '✓ Correct! Well done.';
+        feedback.style.color = 'var(--pastel-mint-dark)';
+      } else {
+        feedback.innerText = `✗ Correct word is: "${cur.word}"`;
+        feedback.style.color = 'var(--pastel-coral-dark)';
       }
+
+      this.engine.recordAnswer(isCorrect, cur);
+      setTimeout(() => {
+        this.idx++;
+        this.render();
+      }, 1000);
+    };
+
+    submitBtn.onclick = checkAnswer;
+    input.onkeydown = (e) => {
+      if (e.key === 'Enter') checkAnswer();
     };
   },
   cleanup() {}
