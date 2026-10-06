@@ -1,0 +1,397 @@
+/* Gameplay Cozy Arena */
+.game-top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-md);
+  padding: 0.85rem 1.5rem;
+  margin-bottom: 1.5rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.game-bar-left {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.game-bar-left h3 {
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+.game-bar-right {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.game-pill {
+  background-color: var(--bg-subtle);
+  border: 1px solid var(--border-soft);
+  padding: 5px 12px;
+  border-radius: var(--radius-pill);
+  font-size: 0.85rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.pill-icon {
+  font-size: 0.95rem;
+}
+
+/* Game Stage Box */
+.game-stage-container {
+  min-height: 480px;
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  padding: 2.5rem 1.75rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  box-shadow: var(--shadow-sm);
+}
+
+/* GAME 1: Multiple Choice */
+.mc-box-container {
+  width: 100%;
+  max-width: 620px;
+}
+
+.mc-question-card {
+  text-align: center;
+  background-color: var(--bg-main);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  padding: 2.25rem 1.5rem;
+  margin-bottom: 1.75rem;
+}
+
+.mc-target-word {
+  font-size: 2.4rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-bottom: 0.35rem;
+}
+
+.mc-phonetic-text {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 1.05rem;
+  color: var(--text-muted);
+}
+
+.mc-choice-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.btn-choice {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-soft);
+  color: var(--text-main);
+  padding: 1.1rem 1.25rem;
+  border-radius: var(--radius-md);
+  font-size: 1rem;
+  font-family: inherit;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+  transition: var(--transition);
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  align-items: center;
+}
+
+.btn-choice .choice-num {
+  font-weight: 700;
+  color: var(--dusty-blue);
+  margin-right: 0.5rem;
+  min-width: 1.4rem;
+}
+
+.btn-choice .choice-text {
+  flex: 1;
+}
+
+.btn-choice:hover:not(:disabled) {
+  border-color: var(--border-focus);
+  background-color: var(--bg-subtle);
+  transform: translateY(-1px);
+}
+
+.btn-choice.choice-correct {
+  background-color: var(--sage-soft) !important;
+  border-color: var(--sage) !important;
+  color: #2E4C2E !important;
+  font-weight: 600;
+}
+
+.btn-choice.choice-wrong {
+  background-color: var(--coral-soft) !important;
+  border-color: var(--coral) !important;
+  color: #6B2E24 !important;
+  animation: softShake 0.3s;
+}
+
+@keyframes softShake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  75% { transform: translateX(4px); }
+}
+
+/* GAME 2: Word Match */
+.match-arena-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  width: 100%;
+  max-width: 650px;
+}
+
+.match-column {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.match-card {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-md);
+  padding: 1rem 1.25rem;
+  font-weight: 600;
+  text-align: center;
+  cursor: pointer;
+  transition: var(--transition);
+  box-shadow: var(--shadow-sm);
+  user-select: none;
+}
+
+.match-card:hover {
+  border-color: var(--border-focus);
+  transform: translateY(-1px);
+}
+
+.match-card.card-selected {
+  border-color: var(--dusty-blue);
+  background-color: var(--blue-soft);
+  color: var(--dusty-blue);
+}
+
+.match-card.card-matched {
+  opacity: 0.3;
+  pointer-events: none;
+  border-color: var(--sage);
+  background-color: var(--sage-soft);
+}
+
+/* GAME 3 & 4: Typing & Spelling */
+.type-arena {
+  width: 100%;
+  max-width: 480px;
+  text-align: center;
+}
+
+.type-prompt-text {
+  font-size: 1.7rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-bottom: 0.4rem;
+}
+
+.type-sub-prompt {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  margin-bottom: 1.75rem;
+}
+
+.type-cozy-input {
+  width: 100%;
+  background-color: var(--bg-main);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-md);
+  padding: 1rem 1.25rem;
+  color: var(--text-main);
+  font-size: 1.3rem;
+  font-family: inherit;
+  font-weight: 600;
+  text-align: center;
+  outline: none;
+  transition: var(--transition);
+  box-shadow: inset 0 2px 4px rgba(66, 56, 52, 0.03);
+}
+
+.type-cozy-input:focus {
+  border-color: var(--sage);
+  background-color: #FFFFFF;
+  box-shadow: 0 0 0 3px var(--sage-soft);
+}
+
+/* GAME 5: Unscramble */
+.unscramble-box {
+  width: 100%;
+  max-width: 580px;
+  text-align: center;
+}
+
+.answer-slots-wrap {
+  min-height: 58px;
+  border-bottom: 2px dashed var(--border-soft);
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 2rem;
+  padding-bottom: 10px;
+}
+
+.tiles-pool-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+}
+
+.cozy-letter-tile {
+  width: 48px;
+  height: 52px;
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-soft);
+  color: var(--text-main);
+  font-size: 1.3rem;
+  font-weight: 700;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: var(--transition);
+  box-shadow: var(--shadow-sm);
+}
+
+.cozy-letter-tile:hover {
+  transform: translateY(-2px);
+  border-color: var(--dusty-blue);
+}
+
+.cozy-letter-tile.tile-used {
+  opacity: 0.25;
+  pointer-events: none;
+}
+
+/* GAME 7: 3D Flashcard */
+.flashcard-3d-wrap {
+  perspective: 1000px;
+  width: 100%;
+  max-width: 440px;
+  height: 270px;
+  cursor: pointer;
+  margin-bottom: 2rem;
+}
+
+.flashcard-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  text-align: center;
+  transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+  transform-style: preserve-3d;
+}
+
+.flashcard-3d-wrap.flipped .flashcard-inner {
+  transform: rotateY(180deg);
+}
+
+.card-face {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-soft);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+  box-shadow: var(--shadow-md);
+  background-color: var(--bg-surface);
+}
+
+.card-front {
+  background: linear-gradient(180deg, #FFFFFF, var(--bg-main));
+}
+
+.card-back {
+  background: linear-gradient(180deg, #FFFFFF, var(--sage-soft));
+  transform: rotateY(180deg);
+}
+
+.card-face h2 {
+  font-size: 2.2rem;
+  font-weight: 700;
+  margin: 0.75rem 0;
+}
+
+/* GAME 9: Memory Grid */
+.memory-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  width: 100%;
+  max-width: 580px;
+}
+
+.memory-card {
+  aspect-ratio: 4 / 3;
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  text-align: center;
+  padding: 8px;
+  cursor: pointer;
+  user-select: none;
+  font-size: 0.95rem;
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition);
+}
+
+.memory-card.face-down {
+  background-color: var(--bg-subtle);
+  color: transparent;
+  background-image: radial-gradient(var(--border-soft) 2px, transparent 2px);
+  background-size: 10px 10px;
+}
+
+/* GAME 10: Survival Fuse */
+.fuse-bar-track {
+  width: 100%;
+  height: 8px;
+  background-color: var(--bg-subtle);
+  border-radius: var(--radius-pill);
+  margin-bottom: 2rem;
+  overflow: hidden;
+}
+
+.fuse-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--coral), var(--amber));
+  width: 100%;
+  transition: width 0.1s linear;
+}
+
+@media (max-width: 600px) {
+  .mc-choice-grid { grid-template-columns: 1fr; }
+  .match-arena-grid { grid-template-columns: 1fr; }
+  .memory-grid { grid-template-columns: repeat(3, 1fr); }
+}

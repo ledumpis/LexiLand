@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LexiLand — Your little World. Your English adventure.</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/game.css">
+</head>
+<body class="theme-cozy">
+  <div class="app-layout">
+    <!-- Sidebar Cozy Panel -->
+    <aside class="sidebar">
+      <div class="brand">
+        <span class="brand-icon">⚡</span>
+        <div class="brand-info">
+          <h1>LexiLand</h1>
+          <span>Your little World. Your English adventure.</span>
+        </div>
+      </div>
+
+      <!-- Navigation -->
+      <nav class="nav-menu">
+        <button class="nav-item active" data-view="home">
+          <span class="nav-icon">🏠</span> <span>Home</span>
+        </button>
+        <button class="nav-item" data-view="games">
+          <span class="nav-icon">🎮</span> <span id="nav-games-label">Mini Games</span>
+        </button>
+        <button class="nav-item" data-view="vocabulary">
+          <span class="nav-icon">📚</span> <span>Word Decks</span>
+        </button>
+        <button class="nav-item" data-view="review">
+          <span class="nav-icon">🧠</span> <span>Review</span>
+        </button>
+        <button class="nav-item" data-view="achievements">
+          <span class="nav-icon">🏆</span> <span>Achievements</span>
+        </button>
+        <button class="nav-item" data-view="settings">
+          <span class="nav-icon">⚙️</span> <span>Settings</span>
+        </button>
+      </nav>
+
+      <!-- Sidebar Cozy HUD Footer -->
+      <div class="sidebar-footer-hud">
+        <div class="hud-stat-line">
+          <span class="hud-streak" id="hud-streak-text">🔥 0 day streak</span>
+          <span class="hud-level" id="hud-level-text">⭐ Level 1</span>
+        </div>
+        <div class="hud-progress-wrapper">
+          <div class="hud-xp-label">
+            <span id="hud-xp-display">0 / 50 XP</span>
+          </div>
+          <div class="hud-progress-track">
+            <div class="hud-progress-bar" id="hud-xp-bar" style="width: 0%"></div>
+          </div>
+        </div>
+        <div class="hud-current-deck">
+          <small>Đang chọn:</small>
+          <strong id="sidebar-active-deck-name">Daily Life Essentials</strong>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-stage">
+      <header class="top-nav">
+        <div class="greeting-box">
+          <h2 id="top-greeting">Good afternoon! 👋</h2>
+          <p id="top-subgreeting">Ready to learn a little today?</p>
+        </div>
+        <div class="header-actions">
+          <div class="chip-challenge" id="top-challenge-chip">
+            <span>🎯</span>
+            <span id="top-challenge-text">Daily: 0/20 từ</span>
+          </div>
+          <button class="btn-icon" id="btn-quick-sound" title="Bật/Tắt âm thanh">🔊</button>
+        </div>
+      </header>
+
+      <!-- VIEW: HOME -->
+      <section id="view-home" class="view-panel active">
+        <!-- Welcoming Hero / Today's Challenge -->
+        <div class="today-challenge-card">
+          <div class="challenge-content">
+            <span class="badge-tag tag-amber">🎯 Today's Challenge</span>
+            <h3 id="home-challenge-title">Learn 20 words today</h3>
+            <p>Mỗi ngày tích lũy một chút từ vựng để xây dựng thói quen học tập bền vững.</p>
+            <div class="challenge-progress-bar-wrap">
+              <div class="challenge-progress-track">
+                <div class="challenge-progress-fill" id="home-challenge-fill" style="width: 0%"></div>
+              </div>
+              <span class="challenge-count" id="home-challenge-count">0 / 20</span>
+            </div>
+          </div>
+          <div class="challenge-action">
+            <button class="btn btn-primary" id="btn-challenge-continue">Continue</button>
+          </div>
+        </div>
+
+        <!-- Quick Play Section -->
+        <div class="section-block">
+          <div class="section-header-row">
+            <h3>Quick Play</h3>
+            <span class="section-subtitle">Chơi nhanh 1 ván mini-game yêu thích</span>
+          </div>
+          <div class="quick-play-grid">
+            <button class="quick-card" data-quick-game="multiple-choice">
+              <span class="quick-icon">🎯</span>
+              <div class="quick-info">
+                <strong>Quiz</strong>
+                <small>Multiple Choice</small>
+              </div>
+            </button>
+            <button class="quick-card" data-quick-game="word-match">
+              <span class="quick-icon">🔗</span>
+              <div class="quick-info">
+                <strong>Word Match</strong>
+                <small>Ghép cặp từ vựng</small>
+              </div>
+            </button>
+            <button class="quick-card" data-quick-game="typing">
+              <span class="quick-icon">⌨️</span>
+              <div class="quick-info">
+                <strong>Typing</strong>
+                <small>Gõ từ theo nghĩa</small>
+              </div>
+            </button>
+          </div>
+        </div>
+
+        <!-- Your Word Decks Preview -->
+        <div class="section-block">
+          <div class="section-header-row">
+            <h3>📚 Your Word Decks</h3>
+            <button class="link-btn" data-view="vocabulary">Xem tất cả bộ từ →</button>
+          </div>
+          <div class="decks-grid-preview" id="home-decks-preview"></div>
+        </div>
+      </section>
+
+      <!-- VIEW: MINI GAMES -->
+      <section id="view-games" class="view-panel">
+        <div class="catalog-filter-bar">
+          <div class="filter-group">
+            <label>Bộ từ đang học:</label>
+            <select id="select-active-deck" class="cozy-select"></select>
+          </div>
+          <div class="filter-group">
+            <label>Độ khó:</label>
+            <div class="segmented-control" id="seg-difficulty">
+              <button class="seg-btn" data-diff="easy">Easy</button>
+              <button class="seg-btn active" data-diff="normal">Normal</button>
+              <button class="seg-btn" data-diff="hard">Hard</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="games-grid" id="games-catalog-container"></div>
+      </section>
+
+      <!-- VIEW: WORD DECKS -->
+      <section id="view-vocabulary" class="view-panel">
+        <div class="catalog-filter-bar">
+          <div class="search-input-wrap">
+            <input type="text" id="vocab-search" class="cozy-input" placeholder="Tìm bộ từ hoặc từ vựng...">
+          </div>
+          <div class="btn-group">
+            <label class="btn btn-secondary" for="input-import-json">📥 Import JSON</label>
+            <input type="file" id="input-import-json" accept=".json" style="display: none;">
+            <button class="btn btn-secondary" id="btn-export-vocab">📤 Export Deck</button>
+            <button class="btn btn-primary" id="btn-new-pack">+ Tạo bộ từ mới</button>
+          </div>
+        </div>
+
+        <div class="decks-grid" id="vocab-packs-container"></div>
+
+        <!-- Deck Words Inspector Modal/Drawer -->
+        <div class="deck-inspector-card" id="words-inspector" style="display:none;">
+          <div class="deck-inspector-header">
+            <div>
+              <h3 id="inspector-title">Danh sách từ vựng</h3>
+              <p id="inspector-subtitle"></p>
+            </div>
+            <button class="btn btn-secondary btn-sm" id="btn-close-inspector">Đóng lại</button>
+          </div>
+          <div class="table-scroll-wrap">
+            <table class="cozy-table">
+              <thead>
+                <tr>
+                  <th>Từ vựng</th>
+                  <th>Phiên âm</th>
+                  <th>Loại</th>
+                  <th>Ý nghĩa</th>
+                  <th>Mastery</th>
+                  <th>Phát âm</th>
+                </tr>
+              </thead>
+              <tbody id="inspector-words-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- VIEW: REVIEW (WEAK WORDS) -->
+      <section id="view-review" class="view-panel">
+        <div class="review-intro-card">
+          <div class="review-intro-text">
+            <h3>🧠 Words to Review</h3>
+            <p>Hệ thống tự động gom các từ bạn hay trả lời sai hoặc độ thành thạo còn thấp để ưu tiên ôn luyện.</p>
+          </div>
+          <button class="btn btn-primary btn-lg" id="btn-start-weak-session">⚡ Ôn tập từ yếu ngay</button>
+        </div>
+        <div class="weak-words-list" id="weak-words-container"></div>
+      </section>
+
+      <!-- VIEW: ACHIEVEMENTS -->
+      <section id="view-achievements" class="view-panel">
+        <div class="section-header-row">
+          <h3>🏆 Huy hiệu thành tích</h3>
+          <span class="section-subtitle">Ghi nhận từng chặng đường rèn luyện của bạn</span>
+        </div>
+        <div class="achievements-cozy-grid" id="achievements-container"></div>
+      </section>
+
+      <!-- VIEW: SETTINGS -->
+      <section id="view-settings" class="view-panel">
+        <div class="settings-card">
+          <h3>Cài đặt ứng dụng</h3>
+          <div class="setting-row">
+            <div>
+              <strong>Hiệu ứng âm thanh (Sound FX)</strong>
+              <p>Âm thanh nhẹ nhàng khi chọn đáp án đúng, sai hoặc lên cấp.</p>
+            </div>
+            <label class="cozy-switch">
+              <input type="checkbox" id="setting-sfx" checked>
+              <span class="switch-slider"></span>
+            </label>
+          </div>
+          <div class="setting-row">
+            <div>
+              <strong>Giọng đọc tiếng Anh (Text-to-Speech)</strong>
+              <p>Tự động phát âm chuẩn giọng bản xứ bằng Web Speech API.</p>
+            </div>
+            <label class="cozy-switch">
+              <input type="checkbox" id="setting-tts" checked>
+              <span class="switch-slider"></span>
+            </label>
+          </div>
+
+          <h3 style="margin-top:2rem;">Sao lưu & Phục hồi dữ liệu</h3>
+          <div class="setting-row">
+            <div>
+              <strong>Sao lưu toàn bộ tiến trình</strong>
+              <p>Xuất file JSON chứa toàn bộ bộ từ vựng, điểm kinh nghiệm (XP) và độ thành thạo từ.</p>
+            </div>
+            <div class="btn-group">
+              <button class="btn btn-secondary" id="btn-export-full">Tải file sao lưu</button>
+              <label class="btn btn-secondary" for="input-import-full">Phục hồi từ file</label>
+              <input type="file" id="input-import-full" accept=".json" style="display:none;">
+            </div>
+          </div>
+          <div class="setting-row danger-border">
+            <div>
+              <strong style="color:var(--coral);">Đặt lại toàn bộ tiến trình</strong>
+              <p>Xóa sạch điểm số, chuỗi ngày streak và điểm thành thạo về ban đầu.</p>
+            </div>
+            <button class="btn btn-danger" id="btn-reset-data">Xóa dữ liệu</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- VIEW: GAMEPLAY ARENA -->
+      <section id="view-gameplay" class="view-panel">
+        <div class="game-top-bar">
+          <div class="game-bar-left">
+            <button class="btn btn-secondary btn-sm" id="btn-exit-game">← Leave</button>
+            <h3 id="current-game-title">Multiple Choice</h3>
+            <span class="badge-tag tag-lavender" id="current-game-diff">NORMAL</span>
+          </div>
+          <div class="game-bar-right">
+            <div class="game-pill"><span class="pill-icon">⭐</span> <span id="game-score">0</span></div>
+            <div class="game-pill" id="combo-pill"><span class="pill-icon">🔥</span> <span id="game-combo">0</span></div>
+            <div class="game-pill" id="timer-pill" style="display:none;"><span class="pill-icon">⏱️</span> <span id="game-timer">--</span></div>
+            <div class="game-pill" id="lives-pill" style="display:none;"><span id="game-lives">❤️❤️❤️</span></div>
+          </div>
+        </div>
+
+        <div class="game-stage-container" id="game-stage"></div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Results Modal -->
+  <div class="cozy-modal-backdrop" id="results-overlay" style="display:none;">
+    <div class="cozy-modal-box">
+      <div class="results-stamp">🌿 Hoàn thành ván chơi!</div>
+      <h2 id="results-title">Bạn đã làm rất tốt!</h2>
+      
+      <div class="results-stats-row">
+        <div class="result-stat-item">
+          <span>Điểm số</span>
+          <strong id="res-score">0</strong>
+        </div>
+        <div class="result-stat-item">
+          <span>Độ chính xác</span>
+          <strong id="res-accuracy">0%</strong>
+        </div>
+        <div class="result-stat-item">
+          <span>Số câu đúng</span>
+          <strong id="res-correct">0 / 0</strong>
+        </div>
+        <div class="result-stat-item highlight-xp">
+          <span>Kinh nghiệm</span>
+          <strong id="res-xp">+0 XP</strong>
+        </div>
+      </div>
+
+      <div class="results-review-area">
+        <h4>Các từ cần chú ý thêm:</h4>
+        <div class="review-tags-list" id="res-weak-tags"></div>
+      </div>
+
+      <div class="results-btn-group">
+        <button class="btn btn-primary btn-lg" id="btn-res-play-again">Chơi lại lần nữa</button>
+        <button class="btn btn-secondary btn-lg" id="btn-res-practice-weak">Luyện các từ yếu</button>
+        <button class="btn btn-link" id="btn-res-choose-game">Chọn mini-game khác</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- New Deck Modal -->
+  <div class="cozy-modal-backdrop" id="modal-deck" style="display:none;">
+    <div class="cozy-modal-box form-modal">
+      <div class="modal-header-simple">
+        <h3>Tạo bộ từ vựng mới</h3>
+        <button class="btn-icon" id="btn-close-modal">✕</button>
+      </div>
+      <div class="modal-form-content">
+        <div class="form-group">
+          <label>Tên bộ từ</label>
+          <input type="text" id="deck-form-name" class="cozy-input" placeholder="Ví dụ: Du lịch & Khách sạn">
+        </div>
+        <div class="form-group">
+          <label>Trình độ (Level)</label>
+          <select id="deck-form-level" class="cozy-select">
+            <option value="A1">A1 - Sơ cấp</option>
+            <option value="A2" selected>A2 - Cơ bản</option>
+            <option value="B1">B1 - Trung cấp</option>
+            <option value="B2">B2 - Trung cấp trên</option>
+            <option value="C1">C1 - Cao cấp</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Mô tả ngắn</label>
+          <input type="text" id="deck-form-desc" class="cozy-input" placeholder="Những từ vựng dùng khi đi lại, nghỉ dưỡng...">
+        </div>
+        <div class="form-group">
+          <label>Dán danh sách từ JSON (Tùy chọn)</label>
+          <textarea id="deck-form-json" class="cozy-textarea" rows="4" placeholder='[{"word": "ticket", "meaning": "vé", "phonetic": "/ˈtɪkɪt/", "type": "noun"}]'></textarea>
+        </div>
+      </div>
+      <div class="modal-footer-simple">
+        <button class="btn btn-secondary" id="btn-cancel-modal">Hủy bỏ</button>
+        <button class="btn btn-primary" id="btn-save-deck">Lưu bộ từ</button>
+      </div>
+    </div>
+  </div>
+
+  <canvas id="confetti-canvas"></canvas>
+
+  <!-- JavaScript Modules Pipeline -->
+  <script src="js/utils.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/vocabulary.js"></script>
+  <script src="js/progress.js"></script>
+  <script src="js/game-engine.js"></script>
+
+  <!-- Mini Games Plugins -->
+  <script src="js/games/multiple-choice.js"></script>
+  <script src="js/games/word-match.js"></script>
+  <script src="js/games/typing.js"></script>
+  <script src="js/games/spelling.js"></script>
+  <script src="js/games/unscramble.js"></script>
+  <script src="js/games/true-false.js"></script>
+  <script src="js/games/flashcard.js"></script>
+  <script src="js/games/speed-quiz.js"></script>
+  <script src="js/games/memory.js"></script>
+  <script src="js/games/survival.js"></script>
+
+  <!-- App Orchestrator -->
+  <script src="js/app.js"></script>
+</body>
+</html>
