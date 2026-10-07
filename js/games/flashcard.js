@@ -3,82 +3,123 @@ EGL_Engine.register({
   name: 'Flashcard Challenge',
   icon: '🃏',
   description: 'Thẻ từ vựng Quizlet lật 3D hai mặt kèm phát âm và ví dụ.',
+
   init(container, { words, engine }) {
     this.container = container;
     this.words = words;
     this.engine = engine;
     this.idx = 0;
+    this.locked = false;
+    this.active = true;
+    this._timers = new Set();
+
+    // Space / Enter flips, ← still learning, → got it
+    this._onKey = (e) => {
+      if (!this.active || this.locked) return;
+      const t = e.target;
+      if (t && t.closest && t.closest('input, textarea, select, button')) return;
+      if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); this.flip(); }
+      else if (e.key === 'ArrowLeft') { e.preventDefault(); this.rate(false); }
+      else if (e.key === 'ArrowRight') { e.preventDefault(); this.rate(true); }
+    };
+    document.addEventListener('keydown', this._onKey);
+
     this.render();
   },
+
+  later(fn, ms) {
+    const t = setTimeout(() => { this._timers.delete(t); if (this.active) fn(); }, ms);
+    this._timers.add(t);
+  },
+
   render() {
-    if (this.idx >= this.words.length) return this.engine.endSession();
+    const total = this.words.length;
+    if (this.idx >= total) {
+      this.engine.setProgress(total, total);
+      return this.engine.endSession();
+    }
+
     const cur = this.words[this.idx];
+    const esc = EGL_Utils.escapeHtml;
+    const icons = EGL_Utils.icons;
+    this.locked = false;
+    this.engine.setProgress(this.idx, total, `${this.idx + 1} / ${total}`);
+
+    const sub = [cur.type, cur.phonetic].filter(Boolean).map(esc).join(' · ');
+    const example = cur.example
+      ? `<div class="fc-example">&ldquo;${esc(cur.example)}&rdquo;${cur.example_vi ? `<small>${esc(cur.example_vi)}</small>` : ''}</div>`
+      : '';
 
     this.container.innerHTML = `
-      <div class="fc-quizlet-stage">
-        <div class="fc-card-counter">
-          Card ${this.idx + 1} of ${this.words.length}
-        </div>
+      <div class="g-arena fc-arena g-anim">
+        <p class="g-hint">Tap the card to flip it, then rate how well you knew the word.</p>
 
-        <div class="flashcard-3d-wrap" id="fc-card-element">
-          <div class="flashcard-inner">
-            <!-- Front Face -->
-            <div class="card-face card-front">
-              <span class="fc-pos-tag">${cur.type || 'vocabulary'}</span>
-              <h2>${cur.word}</h2>
-              <div class="fc-phonetic">${cur.phonetic || ''}</div>
-              <button class="btn-icon" id="btn-fc-audio" style="margin-top: 1rem;">🔊</button>
-              <div class="fc-hint-flip">Click or tap anywhere to flip</div>
-            </div>
-
-            <!-- Back Face -->
-            <div class="card-face card-back">
-              <span class="fc-pos-tag">Meaning</span>
-              <h2>${cur.meaning}</h2>
-              ${cur.example ? `
-                <div class="fc-example-box">
-                  "${cur.example}"
-                  ${cur.example_vi ? `<div style="font-size:0.8rem; margin-top:4px;">${cur.example_vi}</div>` : ''}
-                </div>
-              ` : ''}
-              <div class="fc-hint-flip">Click to flip back</div>
+        <div class="fc-deck${this.idx === total - 1 ? ' is-last' : ''}">
+          <div class="fc-card" id="fc-card" role="button" tabindex="0" aria-pressed="false" aria-label="Flashcard: ${esc(cur.word)}. Press to flip.">
+            <div class="fc-inner">
+              <div class="fc-face fc-front">
+                <span class="fc-corner">English</span>
+                <span class="tag">${esc(cur.type || 'vocabulary')}</span>
+                <h2 class="fc-word">${esc(cur.word)}</h2>
+                <div class="fc-phonetic">${esc(cur.phonetic || '')}</div>
+                <button class="icon-btn fc-speak" type="button" data-speak="${esc(cur.word)}" aria-label="Pronounce ${esc(cur.word)}">${icons.speak}</button>
+                <span class="fc-flip-hint">Tap to flip</span>
+              </div>
+              <div class="fc-face fc-back">
+                <span class="fc-corner">Meaning</span>
+                <h2 class="fc-meaning">${esc(cur.meaning)}</h2>
+                ${sub ? `<div class="fc-sub">${sub}</div>` : ''}
+                ${example}
+                <span class="fc-flip-hint">Tap to flip back</span>
+              </div>
             </div>
           </div>
         </div>
 
-        <div class="fc-actions-row">
-          <button class="btn btn-learning" id="btn-fc-learning">Still Learning</button>
-          <button class="btn btn-mastered" id="btn-fc-mastered">I Got This</button>
+        <div class="fc-actions">
+          <button class="btn btn-secondary btn-lg" type="button" id="btn-fc-learning">Still learning <kbd>←</kbd></button>
+          <button class="btn btn-primary btn-lg" type="button" id="btn-fc-mastered">I got this <kbd>→</kbd></button>
         </div>
       </div>
     `;
 
-    const card = this.container.querySelector('#fc-card-element');
-    card.onclick = (e) => {
-      // Don't flip when clicking the audio button
-      if (e.target.closest('#btn-fc-audio')) return;
-      card.classList.toggle('flipped');
-    };
+    const card = this.container.querySelector('#fc-card');
+    card.addEventListener('click', (e) => {
+      if (e.target.closest('[data-speak]')) return; // speak button is handled globally
+      this.flip();
+    });
 
-    const audioBtn = this.container.querySelector('#btn-fc-audio');
-    if (audioBtn) {
-      audioBtn.onclick = (e) => {
-        e.stopPropagation();
-        EGL_Utils.speak(cur.word);
-      };
-    }
-
-    this.container.querySelector('#btn-fc-learning').onclick = () => {
-      this.engine.recordAnswer(false, cur);
-      this.idx++;
-      this.render();
-    };
-
-    this.container.querySelector('#btn-fc-mastered').onclick = () => {
-      this.engine.recordAnswer(true, cur);
-      this.idx++;
-      this.render();
-    };
+    this.container.querySelector('#btn-fc-learning').onclick = () => this.rate(false);
+    this.container.querySelector('#btn-fc-mastered').onclick = () => this.rate(true);
   },
-  cleanup() {}
+
+  flip() {
+    if (this.locked) return;
+    const card = this.container.querySelector('#fc-card');
+    if (!card) return;
+    card.classList.toggle('flipped');
+    card.setAttribute('aria-pressed', card.classList.contains('flipped') ? 'true' : 'false');
+  },
+
+  rate(isCorrect) {
+    if (this.locked) return;
+    this.locked = true;
+
+    const cur = this.words[this.idx];
+    this.engine.recordAnswer(isCorrect, cur);
+
+    const card = this.container.querySelector('#fc-card');
+    if (card) card.classList.add(isCorrect ? 'leave-right' : 'leave-left');
+
+    this.later(() => {
+      this.idx++;
+      this.render();
+    }, 280);
+  },
+
+  cleanup() {
+    this.active = false;
+    if (this._timers) { this._timers.forEach(clearTimeout); this._timers.clear(); }
+    if (this._onKey) { document.removeEventListener('keydown', this._onKey); this._onKey = null; }
+  }
 });

@@ -1,8 +1,37 @@
 /**
- * English Game Lab — Utils, Sound Synthesizer & Speech Engine
+ * LexiLand — Utils, Sound Synthesizer, Speech Engine & small UI helpers
  */
 const EGL_Utils = {
   audioCtx: null,
+  _toastTimer: null,
+
+  /* Small inline SVG icon set (stroke icons, inherit currentColor) */
+  icons: (() => {
+    const svg = (paths) =>
+      `<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${paths}</svg>`;
+    return {
+      speak: svg('<path d="M11 5L6 9H3v6h3l5 4V5z"/><path d="M15.5 8.5a5 5 0 010 7"/><path d="M18.5 5.5a9 9 0 010 13"/>'),
+      check: svg('<path d="M5 12.5l4.5 4.5L19 7.5"/>'),
+      cross: svg('<path d="M6 6l12 12M18 6L6 18"/>'),
+      arrow: svg('<path d="M5 12h14M13 6l6 6-6 6"/>'),
+      back: svg('<path d="M19 12H5M11 6l-6 6 6 6"/>')
+    };
+  })(),
+
+  escapeHtml(value) {
+    return String(value == null ? '' : value).replace(/[&<>"']/g, (c) => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    }[c]));
+  },
+
+  toast(message, duration = 2200) {
+    const el = document.getElementById('toast');
+    if (!el) return;
+    el.innerText = message;
+    el.classList.add('show');
+    clearTimeout(this._toastTimer);
+    this._toastTimer = setTimeout(() => el.classList.remove('show'), duration);
+  },
 
   initAudio() {
     if (!this.audioCtx) {
@@ -78,12 +107,13 @@ const EGL_Utils = {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
+    const palette = ['#B9533B', '#D9A441', '#4E7D5B', '#4F7CA1', '#7461A6', '#B05F74'];
     const pieces = Array.from({ length: 80 }, () => ({
       x: Math.random() * canvas.width,
       y: Math.random() * canvas.height * 0.5,
       r: Math.random() * 6 + 4,
       d: Math.random() * 20 + 10,
-      color: ['#f43f5e', '#fbbf24', '#10b981', '#38bdf8', '#a855f7'][Math.floor(Math.random() * 5)],
+      color: palette[Math.floor(Math.random() * palette.length)],
       tilt: Math.floor(Math.random() * 10) - 10,
       tiltAngle: 0,
       tiltAngleInc: Math.random() * 0.07 + 0.05

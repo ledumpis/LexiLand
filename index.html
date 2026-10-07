@@ -2,188 +2,242 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#FBF6EE">
   <title>LexiLand — Your little World. Your English adventure.</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23B9533B'/%3E%3Ctext x='16' y='23' font-size='20' font-family='Georgia,serif' font-weight='700' text-anchor='middle' fill='%23fff'%3EL%3C/text%3E%3C/svg%3E">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Noto+Serif:ital,wght@0,500;0,600;0,700;1,500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/game.css">
 </head>
 <body class="theme-cozy">
   <div class="app-layout">
-    <!-- Cozy Left Navigation Bar -->
+
+    <!-- ============ SIDEBAR / NAV ============ -->
     <aside class="sidebar">
       <div class="brand">
-        <div class="brand-avatar">⚡</div>
-        <div class="brand-info">
+        <div class="brand-mark" aria-hidden="true">L</div>
+        <div class="brand-text">
           <h1>LexiLand</h1>
           <span>Your little World. Your English adventure.</span>
         </div>
       </div>
 
-      <!-- Navigation Menu -->
-      <nav class="nav-menu">
+      <nav class="nav-menu" aria-label="Main">
         <button class="nav-item active" data-view="home">
-          <span>Home</span>
+          <span class="nav-label"><span class="nav-full">Home</span><span class="nav-short">Home</span></span>
         </button>
         <button class="nav-item" data-view="games">
-          <span id="nav-games-label">Mini Games</span>
+          <span class="nav-label"><span class="nav-full" id="nav-games-label">Mini Games</span><span class="nav-short">Games</span></span>
+          <span class="nav-count" id="nav-games-count"></span>
         </button>
         <button class="nav-item" data-view="vocabulary">
-          <span>Word Decks</span>
+          <span class="nav-label"><span class="nav-full">Word Decks</span><span class="nav-short">Decks</span></span>
         </button>
         <button class="nav-item" data-view="review">
-          <span>Review</span>
+          <span class="nav-label"><span class="nav-full">Review</span><span class="nav-short">Review</span></span>
         </button>
         <button class="nav-item" data-view="achievements">
-          <span>Achievements</span>
+          <span class="nav-label"><span class="nav-full">Achievements</span><span class="nav-short">Badges</span></span>
         </button>
         <button class="nav-item" data-view="settings">
-          <span>Settings</span>
+          <span class="nav-label"><span class="nav-full">Settings</span><span class="nav-short">Settings</span></span>
         </button>
       </nav>
 
-      <!-- Sidebar Status Card -->
-      <div class="sidebar-cozy-status">
-        <div class="cozy-mascot">
-          <span class="mascot-art">🐱</span>
-          <span class="mascot-text">Take your time and enjoy learning.</span>
+      <div class="sidebar-status">
+        <p class="sidebar-note">Take your time and enjoy learning.</p>
+        <div class="status-row">
+          <span class="status-level" id="hud-level-text">Level 1</span>
+          <span class="status-streak" id="hud-streak-text">0 day streak</span>
         </div>
-
-        <div class="hud-stat-pill">
-          <span class="hud-streak" id="hud-streak-text">🔥 0 day streak</span>
-          <span class="hud-level" id="hud-level-text">⭐ Level 1</span>
-        </div>
-
-        <div class="hud-xp-line">
+        <div class="status-xp">
+          <div class="xp-track"><div class="xp-fill" id="hud-xp-bar" style="width: 0%"></div></div>
           <span id="hud-xp-display">0 / 50 XP</span>
-          <div class="hud-progress-track">
-            <div class="hud-progress-bar" id="hud-xp-bar" style="width: 0%"></div>
-          </div>
         </div>
-
-        <div class="hud-deck-pill">
-          <small>Current Deck:</small>
+        <div class="status-deck">
+          <small>Current deck</small>
           <strong id="sidebar-active-deck-name">Daily Life Essentials</strong>
         </div>
       </div>
     </aside>
 
-    <!-- Main Content Stage -->
+    <!-- ============ MAIN ============ -->
     <main class="main-stage">
       <header class="top-nav">
         <div class="greeting-box">
-          <h2 id="top-greeting">Welcome back!</h2>
+          <h2 id="top-greeting">Welcome back</h2>
           <p id="top-subgreeting">Ready for a little English practice today?</p>
         </div>
         <div class="header-actions">
-          <div class="chip-challenge" id="top-challenge-chip">
+          <span class="chip mobile-only" id="top-level-chip">Lv 1</span>
+          <div class="chip" id="top-challenge-chip">
             <span class="chip-dot"></span>
-            <span id="top-challenge-text">Daily: 0/20 words</span>
+            <span id="top-challenge-text">Daily: 0/20 từ</span>
           </div>
-          <button class="btn-icon" id="btn-quick-sound" title="Toggle sound effects">🔊</button>
+          <button class="sound-toggle" id="btn-quick-sound" aria-pressed="true" title="Toggle sound effects">
+            <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5L6 9H3v6h3l5 4V5z"/><path d="M15.5 8.5a5 5 0 010 7"/><path d="M18.5 5.5a9 9 0 010 13"/></svg>
+            <span id="sound-label">Sound on</span>
+          </button>
         </div>
       </header>
 
-      <!-- VIEW: HOME -->
+      <!-- ======== VIEW: HOME ======== -->
       <section id="view-home" class="view-panel active">
-        <!-- Welcoming Hero Room Card -->
-        <div class="cozy-hero-card">
-          <div class="hero-text-content">
-            <span class="cozy-tag">Study Corner</span>
-            <h2>Welcome to LexiLand</h2>
+
+        <div class="hero">
+          <div class="hero-copy">
+            <span class="eyebrow">Study corner</span>
+            <h2 class="hero-title">Welcome to LexiLand</h2>
             <p class="hero-tagline">Play · Learn · Remember</p>
-            <p class="hero-desc">Take a comfortable seat, sip your favorite tea, and expand your vocabulary step-by-step through bite-sized games.</p>
-            <div class="hero-btn-row">
-              <button class="btn btn-primary btn-lg" data-view="games">Start Playing</button>
-              <button class="btn btn-secondary btn-lg" data-view="vocabulary">Explore Decks</button>
+            <p class="hero-desc">Take a comfortable seat and build your vocabulary a few words at a time, through short, friendly games.</p>
+            <div class="btn-row">
+              <button class="btn btn-primary btn-lg" data-view="games">Start playing</button>
+              <button class="btn btn-secondary btn-lg" data-view="vocabulary">Explore decks</button>
             </div>
           </div>
 
-          <div class="hero-illustration">
-            <div class="desk-scenery">
-              <span class="scenery-item">🪴</span>
-              <span class="scenery-item">📚</span>
-              <span class="scenery-item">☕</span>
-              <span class="scenery-item">🐈</span>
-            </div>
+          <svg class="hero-art" viewBox="0 0 420 300" role="img" aria-label="A desk with stacked books, a cup of tea and a small plant">
+            <circle class="il-paper" cx="215" cy="150" r="128"/>
+            <g transform="rotate(-5 140 80)">
+              <path class="il-bubble" d="M104 100l-6 22 28-22z"/>
+              <rect class="il-bubble" x="78" y="52" width="128" height="52" rx="10"/>
+              <text class="il-text" x="142" y="86" text-anchor="middle">hello</text>
+            </g>
+            <g transform="rotate(6 292 92)">
+              <rect class="il-note" x="254" y="58" width="76" height="68" rx="4"/>
+              <text class="il-text" x="292" y="104" text-anchor="middle" style="font-size:30px">Aa</text>
+            </g>
+            <rect class="il-desk" x="30" y="236" width="360" height="14" rx="3"/>
+            <rect class="il-b1" x="62" y="206" width="132" height="30" rx="3"/>
+            <rect class="il-b2" x="74" y="178" width="108" height="28" rx="3"/>
+            <rect class="il-b3" x="68" y="152" width="118" height="26" rx="3"/>
+            <path class="il-page" d="M74 221h108M86 192h84M80 165h96"/>
+            <path class="il-pot" d="M216 206h44l-6 30h-32z"/>
+            <path class="il-leaf" d="M238 206c-22-6-30-30-26-48 20 4 30 26 26 48z"/>
+            <path class="il-leaf il-leaf2" d="M238 206c4-22 20-38 40-40 2 22-14 38-40 40z"/>
+            <path class="il-leaf" d="M238 206c-2-20 2-40 10-54 10 16 8 40-10 54z"/>
+            <path class="il-steam" d="M297 196c-6-8 6-12 0-20"/>
+            <path class="il-steam s2" d="M313 196c-6-8 6-12 0-20"/>
+            <rect class="il-mug" x="282" y="204" width="46" height="32" rx="6"/>
+            <path class="il-handle" d="M328 211c14 0 14 16 0 16"/>
+          </svg>
+        </div>
+
+        <!-- Progress ledger -->
+        <div class="ledger" aria-label="Your progress">
+          <div class="ledger-item">
+            <span class="ledger-label">Level</span>
+            <strong class="ledger-value" id="home-stat-level">1</strong>
+            <div class="mini-track"><div class="mini-fill" id="home-xp-bar" style="width:0%"></div></div>
+            <span class="ledger-sub" id="home-stat-xp">0 / 50 XP</span>
+          </div>
+          <div class="ledger-item">
+            <span class="ledger-label">Streak</span>
+            <strong class="ledger-value" id="home-stat-streak">1</strong>
+            <span class="ledger-sub" id="home-stat-streak-sub">day in a row</span>
+          </div>
+          <div class="ledger-item">
+            <span class="ledger-label">Words mastered</span>
+            <strong class="ledger-value" id="home-stat-mastered">0</strong>
+            <span class="ledger-sub" id="home-stat-mastered-sub">in this deck</span>
+          </div>
+          <div class="ledger-item">
+            <span class="ledger-label">Accuracy</span>
+            <strong class="ledger-value" id="home-stat-accuracy">—</strong>
+            <span class="ledger-sub" id="home-stat-games">0 rounds played</span>
           </div>
         </div>
 
-        <!-- Today's Goal Card -->
-        <div class="today-challenge-card">
-          <div class="challenge-info">
-            <span class="cozy-pill-tag tag-yellow">Today's Goal</span>
-            <h3>Daily Vocabulary Habit</h3>
-            <p>Complete a round or practice 20 words to keep your learning streak glowing.</p>
-            <div class="challenge-progress-bar-wrap">
-              <div class="challenge-progress-track">
-                <div class="challenge-progress-fill" id="home-challenge-fill" style="width: 0%"></div>
+        <!-- Continue learning + Recommended -->
+        <div class="home-grid">
+          <section class="panel-continue">
+            <p class="eyebrow">Continue learning</p>
+            <div class="continue-head">
+              <h3 id="home-deck-name">Daily Life Essentials</h3>
+              <span class="tag tag-level" id="home-deck-level">A2</span>
+            </div>
+            <p class="muted" id="home-deck-desc"></p>
+            <div class="meter-row"><span>Deck mastery</span><strong id="home-deck-mastery">0%</strong></div>
+            <div class="meter"><div class="meter-fill" id="home-deck-bar" style="width:0%"></div></div>
+            <p class="continue-sub" id="home-deck-sub"></p>
+            <div class="btn-row">
+              <button class="btn btn-secondary" id="btn-home-weak">Practice weak words</button>
+              <button class="btn btn-ghost" data-view="vocabulary">Switch deck</button>
+            </div>
+          </section>
+
+          <section class="reco" id="home-reco">
+            <div class="game-art" id="reco-art" aria-hidden="true"></div>
+            <div class="reco-body">
+              <p class="eyebrow">Recommended next · <span id="reco-tag">Study</span></p>
+              <h3 id="reco-name">Flashcard Challenge</h3>
+              <p class="muted" id="reco-desc"></p>
+              <button class="btn btn-primary" id="btn-reco-play">Play now</button>
+              <div class="quick-links">
+                <span>Or try</span>
+                <button data-quick-game="multiple-choice">Multiple Choice</button>
+                <button data-quick-game="word-match">Word Match</button>
+                <button data-quick-game="flashcard">Flashcards</button>
               </div>
-              <span class="challenge-count" id="home-challenge-count">0 / 20</span>
             </div>
-          </div>
-          <div class="challenge-btn-box">
-            <button class="btn btn-primary" id="btn-challenge-continue">Continue</button>
-          </div>
+          </section>
         </div>
 
-        <!-- Quick Practice Section -->
-        <div class="section-block">
-          <div class="section-title-bar">
-            <div>
-              <h3>Quick Practice</h3>
-              <p class="section-hint">Hop right into one of your favorite game modes</p>
+        <!-- Daily habit + Recent activity -->
+        <div class="home-grid home-grid-even">
+          <section class="habit">
+            <p class="eyebrow">Today's goal</p>
+            <h3>Daily vocabulary habit</h3>
+            <p class="muted">Complete a round or answer 20 words correctly to keep your streak going.</p>
+            <div class="habit-meter">
+              <div class="habit-track"><div class="habit-fill" id="home-challenge-fill" style="width: 0%"></div></div>
+              <span class="habit-count" id="home-challenge-count">0 / 20</span>
             </div>
-          </div>
-          <div class="quick-play-grid">
-            <button class="quick-card" data-quick-game="multiple-choice">
-              <div class="quick-card-badge">Quiz</div>
-              <strong>Multiple Choice</strong>
-              <small>4-choice meaning test</small>
-            </button>
-            <button class="quick-card" data-quick-game="word-match">
-              <div class="quick-card-badge">Pairs</div>
-              <strong>Word Match</strong>
-              <small>Connect words and meanings</small>
-            </button>
-            <button class="quick-card" data-quick-game="flashcard">
-              <div class="quick-card-badge">Cards</div>
-              <strong>Flashcards</strong>
-              <small>Quizlet-style card flip</small>
-            </button>
-          </div>
+            <div class="habit-foot">
+              <span id="home-challenge-msg" class="muted"></span>
+              <button class="btn btn-primary" id="btn-challenge-continue">Continue</button>
+            </div>
+          </section>
+
+          <section class="recent">
+            <div class="section-head"><h3>Recent activity</h3></div>
+            <ul class="recent-list" id="home-recent-list"></ul>
+          </section>
         </div>
 
-        <!-- Word Decks Preview -->
+        <!-- Deck preview -->
         <div class="section-block">
-          <div class="section-title-bar">
+          <div class="section-head">
             <div>
-              <h3>Your Word Decks</h3>
-              <p class="section-hint">Spaced repetition decks ready for practice</p>
+              <h3>Your word decks</h3>
+              <p class="hint">Spaced repetition decks ready for practice</p>
             </div>
-            <button class="btn-link" data-view="vocabulary">All Decks →</button>
+            <button class="btn-link" data-view="vocabulary">All decks
+              <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+            </button>
           </div>
-          <div class="decks-cozy-grid" id="home-decks-preview"></div>
+          <div class="deck-grid" id="home-decks-preview"></div>
         </div>
       </section>
 
-      <!-- VIEW: ALL MINI GAMES -->
+      <!-- ======== VIEW: MINI GAMES ======== -->
       <section id="view-games" class="view-panel">
-        <div class="page-header-block">
+        <div class="page-head">
           <div>
             <h3>Mini Games</h3>
-            <p class="section-hint">All games automatically load your active vocabulary set.</p>
+            <p class="hint">Every game uses your active vocabulary deck.</p>
           </div>
-          <div class="page-header-actions">
-            <div class="filter-group">
-              <label>Deck:</label>
-              <select id="select-active-deck" class="cozy-select"></select>
+          <div class="page-controls">
+            <div class="control">
+              <label for="select-active-deck">Deck</label>
+              <select id="select-active-deck" class="field-select"></select>
             </div>
-            <div class="filter-group">
-              <label>Difficulty:</label>
-              <div class="segmented-control" id="seg-difficulty">
+            <div class="control">
+              <label>Difficulty</label>
+              <div class="segmented" id="seg-difficulty">
                 <button class="seg-btn" data-diff="easy">Easy</button>
                 <button class="seg-btn active" data-diff="normal">Normal</button>
                 <button class="seg-btn" data-diff="hard">Hard</button>
@@ -191,43 +245,43 @@
             </div>
           </div>
         </div>
+        <p class="diff-hint" id="diff-hint">Normal · 10 words per round</p>
 
-        <div class="all-games-grid" id="games-catalog-container"></div>
+        <div class="game-grid" id="games-catalog-container"></div>
       </section>
 
-      <!-- VIEW: WORD DECKS (VOCABULARY) -->
+      <!-- ======== VIEW: WORD DECKS ======== -->
       <section id="view-vocabulary" class="view-panel">
-        <div class="page-header-block">
+        <div class="page-head">
           <div>
             <h3>Word Decks</h3>
-            <p class="section-hint">Manage decks or import external vocabulary JSON files.</p>
+            <p class="hint">Manage decks or import vocabulary JSON files.</p>
           </div>
-          <div class="page-header-actions">
-            <div class="search-input-wrap">
-              <input type="text" id="vocab-search" class="cozy-input" placeholder="Search words or decks...">
+          <div class="page-controls">
+            <div class="search-wrap">
+              <input type="search" id="vocab-search" class="field-input" placeholder="Search words or decks..." autocomplete="off">
             </div>
             <div class="btn-group">
               <label class="btn btn-secondary" for="input-import-json">Import JSON</label>
               <input type="file" id="input-import-json" accept=".json" style="display: none;">
-              <button class="btn btn-secondary" id="btn-export-vocab">Export Active Deck</button>
-              <button class="btn btn-primary" id="btn-new-pack">+ New Deck</button>
+              <button class="btn btn-secondary" id="btn-export-vocab">Export active deck</button>
+              <button class="btn btn-primary" id="btn-new-pack">+ New deck</button>
             </div>
           </div>
         </div>
 
-        <div class="decks-cozy-grid" id="vocab-packs-container"></div>
+        <div class="deck-grid" id="vocab-packs-container"></div>
 
-        <!-- Deck Inspector -->
-        <div class="deck-inspector-card" id="words-inspector" style="display:none;">
-          <div class="deck-inspector-header">
+        <div class="inspector" id="words-inspector" style="display:none;">
+          <div class="inspector-head">
             <div>
-              <h3 id="inspector-title">Deck Words</h3>
-              <p id="inspector-subtitle"></p>
+              <h3 id="inspector-title">Deck words</h3>
+              <p class="hint" id="inspector-subtitle"></p>
             </div>
             <button class="btn btn-secondary btn-sm" id="btn-close-inspector">Close</button>
           </div>
-          <div class="table-scroll-wrap">
-            <table class="cozy-table">
+          <div class="table-scroll">
+            <table class="word-table">
               <thead>
                 <tr>
                   <th>Word</th>
@@ -235,7 +289,7 @@
                   <th>Type</th>
                   <th>Meaning</th>
                   <th>Mastery</th>
-                  <th>Pronounce</th>
+                  <th><span class="sr-only">Pronounce</span></th>
                 </tr>
               </thead>
               <tbody id="inspector-words-tbody"></tbody>
@@ -244,169 +298,152 @@
         </div>
       </section>
 
-      <!-- VIEW: REVIEW (SMART REPETITION) -->
+      <!-- ======== VIEW: REVIEW ======== -->
       <section id="view-review" class="view-panel">
-        <div class="cozy-card-callout">
-          <div class="callout-text">
-            <h3>Words to Review</h3>
-            <p>Words you miss frequently are prioritized here with spaced repetition. Reinforce them until they become second nature.</p>
-          </div>
-          <button class="btn btn-primary btn-lg" id="btn-start-weak-session">Practice Weak Words</button>
-        </div>
-        <div class="weak-words-list" id="weak-words-container"></div>
-      </section>
-
-      <!-- VIEW: ACHIEVEMENTS -->
-      <section id="view-achievements" class="view-panel">
-        <div class="section-title-bar">
+        <div class="review-callout">
           <div>
-            <h3>Milestones & Badges</h3>
-            <p class="section-hint">Tokens earned through consistent daily study</p>
+            <h3>Words to review</h3>
+            <p class="muted">Words you miss most often come first. Practice them until they become second nature.</p>
           </div>
+          <button class="btn btn-primary btn-lg" id="btn-start-weak-session">Practice weak words</button>
         </div>
-        <div class="stickers-grid" id="achievements-container"></div>
+        <div class="weak-list" id="weak-words-container"></div>
       </section>
 
-      <!-- VIEW: SETTINGS -->
+      <!-- ======== VIEW: ACHIEVEMENTS ======== -->
+      <section id="view-achievements" class="view-panel">
+        <div class="page-head">
+          <div>
+            <h3>Milestones &amp; Badges</h3>
+            <p class="hint">Earned through steady, daily study</p>
+          </div>
+        </div>
+        <div class="badge-grid" id="achievements-container"></div>
+      </section>
+
+      <!-- ======== VIEW: SETTINGS ======== -->
       <section id="view-settings" class="view-panel">
-        <div class="settings-card">
+        <div class="settings-wrap">
           <h3>Preferences</h3>
           <div class="setting-row">
             <div>
-              <strong>Sound Effects</strong>
-              <p>Harmonic sound chimes for answers and level milestones.</p>
+              <strong>Sound effects</strong>
+              <p>Soft chimes for answers and level milestones.</p>
             </div>
-            <label class="cozy-switch">
+            <label class="switch">
               <input type="checkbox" id="setting-sfx" checked>
               <span class="switch-slider"></span>
             </label>
           </div>
-
           <div class="setting-row">
             <div>
-              <strong>Voice Pronunciation (TTS)</strong>
-              <p>Native English pronunciation using the browser speech engine.</p>
+              <strong>Voice pronunciation</strong>
+              <p>English pronunciation using your browser's speech engine.</p>
             </div>
-            <label class="cozy-switch">
+            <label class="switch">
               <input type="checkbox" id="setting-tts" checked>
               <span class="switch-slider"></span>
             </label>
           </div>
 
-          <h3 style="margin-top:2rem;">Data Backup & Restore</h3>
+          <h3 class="settings-gap">Data backup &amp; restore</h3>
           <div class="setting-row">
             <div>
-              <strong>Full System Backup</strong>
-              <p>Export all custom decks, XP history, and mastery stats into a single JSON file.</p>
+              <strong>Full backup</strong>
+              <p>Export all decks, XP and mastery stats into a single JSON file.</p>
             </div>
             <div class="btn-group">
-              <button class="btn btn-secondary" id="btn-export-full">Export Backup</button>
-              <label class="btn btn-secondary" for="input-import-full">Import Backup</label>
+              <button class="btn btn-secondary" id="btn-export-full">Export backup</button>
+              <label class="btn btn-secondary" for="input-import-full">Import backup</label>
               <input type="file" id="input-import-full" accept=".json" style="display:none;">
             </div>
           </div>
-
-          <div class="setting-row danger-border">
+          <div class="setting-row setting-danger">
             <div>
-              <strong style="color:var(--pastel-coral-dark);">Reset Progress</strong>
-              <p>Reset XP, levels, and mastery stats back to zero.</p>
+              <strong>Reset progress</strong>
+              <p>Reset XP, level, streak and mastery back to zero.</p>
             </div>
-            <button class="btn btn-danger" id="btn-reset-data">Reset All Data</button>
+            <button class="btn btn-danger" id="btn-reset-data">Reset all data</button>
           </div>
         </div>
       </section>
 
-      <!-- VIEW: GAMEPLAY ARENA -->
+      <!-- ======== VIEW: GAMEPLAY ======== -->
       <section id="view-gameplay" class="view-panel">
-        <div class="game-top-bar">
-          <div class="game-bar-left">
-            <button class="btn btn-secondary btn-sm" id="btn-exit-game">← Leave</button>
-            <h3 id="current-game-title">Multiple Choice</h3>
-            <span class="cozy-pill-tag tag-lavender" id="current-game-diff">NORMAL</span>
+        <div class="play-shell">
+          <header class="play-bar">
+            <button class="btn btn-ghost btn-sm" id="btn-exit-game">
+              <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>
+              Leave
+            </button>
+            <div class="play-title">
+              <span class="play-kicker" id="current-game-diff">NORMAL</span>
+              <h3 id="current-game-title">Multiple Choice</h3>
+            </div>
+            <div class="play-hud">
+              <div class="hud-chip" id="timer-pill" style="display:none;"><span class="hud-label">Time</span><strong id="game-timer">--</strong></div>
+              <div class="hud-chip" id="lives-pill" style="display:none;"><span class="hud-label">Lives</span><span class="hud-lives" id="game-lives"></span></div>
+              <div class="hud-chip" id="combo-pill"><span class="hud-label">Combo</span><strong id="game-combo">0x</strong></div>
+              <div class="hud-chip hud-score"><span class="hud-label">Score</span><strong id="game-score">0</strong></div>
+            </div>
+          </header>
+
+          <div class="play-progress" id="game-progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+            <div class="play-track"><div class="play-fill" id="game-progress-fill" style="width:0%"></div></div>
+            <span class="play-count" id="game-progress-label">0 / 0</span>
           </div>
-          <div class="game-bar-right">
-            <div class="game-pill"><span class="pill-label">Score</span> <strong id="game-score">0</strong></div>
-            <div class="game-pill" id="combo-pill"><span class="pill-label">Combo</span> <strong id="game-combo">0</strong></div>
-            <div class="game-pill" id="timer-pill" style="display:none;"><span class="pill-label">Time</span> <strong id="game-timer">--</strong></div>
-            <div class="game-pill" id="lives-pill" style="display:none;"><span id="game-lives">❤️❤️❤️</span></div>
-          </div>
+
+          <div class="play-stage" id="game-stage"></div>
         </div>
-
-        <div class="game-stage-container" id="game-stage"></div>
       </section>
-
-      <!-- Hidden compatibility hooks for app.js (Prevents null pointer errors) -->
-      <div style="display:none;" aria-hidden="true">
-        <span id="user-streak-text"></span>
-        <span id="user-level-badge"></span>
-        <span id="user-xp-text"></span>
-        <span id="user-next-xp"></span>
-        <span id="user-xp-bar"></span>
-        <span id="daily-challenge-summary"></span>
-        <span id="stat-words-learned"></span>
-        <span id="stat-words-mastered"></span>
-        <span id="stat-games-played"></span>
-        <span id="stat-accuracy"></span>
-        <span id="view-title"></span>
-        <div id="featured-games-container"></div>
-      </div>
     </main>
   </div>
 
-  <!-- Results Modal -->
-  <div class="cozy-modal-backdrop" id="results-overlay" style="display:none;">
-    <div class="cozy-modal-box">
-      <div class="modal-stamp">Round Complete</div>
-      <h2 id="results-title">Well Done!</h2>
-      <p class="modal-subtext">Every small practice session strengthens your memory.</p>
-      
-      <div class="results-stats-row">
-        <div class="result-stat-item">
-          <span>Score</span>
-          <strong id="res-score">0</strong>
-        </div>
-        <div class="result-stat-item">
-          <span>Accuracy</span>
-          <strong id="res-accuracy">0%</strong>
-        </div>
-        <div class="result-stat-item">
-          <span>Correct</span>
-          <strong id="res-correct">0 / 0</strong>
-        </div>
-        <div class="result-stat-item highlight-xp">
-          <span>XP Gained</span>
-          <strong id="res-xp">+0 XP</strong>
-        </div>
+  <!-- ============ RESULTS MODAL ============ -->
+  <div class="modal-backdrop" id="results-overlay" style="display:none;" role="dialog" aria-modal="true" aria-labelledby="results-title">
+    <div class="modal-box results-box">
+      <span class="modal-stamp">Round complete</span>
+      <h2 id="results-title">Well done!</h2>
+      <p class="muted" id="results-subtext">Every small practice session strengthens your memory.</p>
+      <p class="levelup-note" id="res-levelup" style="display:none;">Level up! You reached a new level.</p>
+
+      <div class="results-stats">
+        <div class="result-stat"><span>Score</span><strong id="res-score">0</strong></div>
+        <div class="result-stat"><span>Accuracy</span><strong id="res-accuracy">0%</strong></div>
+        <div class="result-stat"><span>Correct</span><strong id="res-correct">0 / 0</strong></div>
+        <div class="result-stat result-xp"><span>XP gained</span><strong id="res-xp">+0 XP</strong></div>
       </div>
 
-      <div class="results-review-area">
-        <h4>Words to review:</h4>
-        <div class="review-tags-list" id="res-weak-tags"></div>
+      <div class="results-review">
+        <h4>Words to review</h4>
+        <div class="chip-list" id="res-weak-tags"></div>
       </div>
 
-      <div class="results-btn-group">
-        <button class="btn btn-primary btn-lg" id="btn-res-play-again">Play Again</button>
-        <button class="btn btn-secondary btn-lg" id="btn-res-practice-weak">Practice Tricky Words</button>
-        <button class="btn btn-link" id="btn-res-choose-game">Choose Another Game</button>
+      <div class="results-actions">
+        <button class="btn btn-primary btn-lg" id="btn-res-play-again">Play again</button>
+        <button class="btn btn-secondary btn-lg" id="btn-res-practice-weak">Practice tricky words</button>
+        <button class="btn-link" id="btn-res-choose-game">Choose another game</button>
       </div>
     </div>
   </div>
 
-  <!-- New Deck Modal -->
-  <div class="cozy-modal-backdrop" id="modal-deck" style="display:none;">
-    <div class="cozy-modal-box form-modal">
-      <div class="modal-header-simple">
-        <h3>Create New Word Deck</h3>
-        <button class="btn-icon" id="btn-close-modal">✕</button>
+  <!-- ============ NEW DECK MODAL ============ -->
+  <div class="modal-backdrop" id="modal-deck" style="display:none;" role="dialog" aria-modal="true" aria-labelledby="deck-modal-title">
+    <div class="modal-box">
+      <div class="modal-head">
+        <h3 id="deck-modal-title">Create new word deck</h3>
+        <button class="icon-btn" id="btn-close-modal" aria-label="Close">
+          <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+        </button>
       </div>
-      <div class="modal-form-content">
+      <div class="form-stack">
         <div class="form-group">
-          <label>Deck Title</label>
-          <input type="text" id="deck-form-name" class="cozy-input" placeholder="e.g. Travel & Transport">
+          <label for="deck-form-name">Deck title</label>
+          <input type="text" id="deck-form-name" class="field-input" placeholder="e.g. Travel & Transport">
         </div>
         <div class="form-group">
-          <label>Level</label>
-          <select id="deck-form-level" class="cozy-select">
+          <label for="deck-form-level">Level</label>
+          <select id="deck-form-level" class="field-select">
             <option value="A1">A1 - Beginner</option>
             <option value="A2" selected>A2 - Elementary</option>
             <option value="B1">B1 - Intermediate</option>
@@ -415,31 +452,44 @@
           </select>
         </div>
         <div class="form-group">
-          <label>Description</label>
-          <input type="text" id="deck-form-desc" class="cozy-input" placeholder="Vocabulary for daily commute and airports">
+          <label for="deck-form-desc">Description</label>
+          <input type="text" id="deck-form-desc" class="field-input" placeholder="Vocabulary for daily commute and airports">
         </div>
         <div class="form-group">
-          <label>Words JSON Array (Optional)</label>
-          <textarea id="deck-form-json" class="cozy-textarea" rows="4" placeholder='[{"word": "ticket", "meaning": "vé", "phonetic": "/ˈtɪkɪt/", "type": "noun"}]'></textarea>
+          <label for="deck-form-json">Words JSON array (optional)</label>
+          <textarea id="deck-form-json" class="field-textarea" rows="4" placeholder='[{"word": "ticket", "meaning": "vé", "phonetic": "/ˈtɪkɪt/", "type": "noun"}]'></textarea>
         </div>
       </div>
-      <div class="modal-footer-simple">
+      <div class="modal-actions">
         <button class="btn btn-secondary" id="btn-cancel-modal">Cancel</button>
-        <button class="btn btn-primary" id="btn-save-deck">Save Deck</button>
+        <button class="btn btn-primary" id="btn-save-deck">Save deck</button>
       </div>
     </div>
   </div>
 
+  <!-- ============ CONFIRM MODAL ============ -->
+  <div class="modal-backdrop" id="modal-confirm" style="display:none;" role="alertdialog" aria-modal="true" aria-labelledby="confirm-title">
+    <div class="modal-box modal-sm">
+      <h3 id="confirm-title">Are you sure?</h3>
+      <p class="muted" id="confirm-text"></p>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" id="btn-confirm-cancel">Cancel</button>
+        <button class="btn btn-primary" id="btn-confirm-ok">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
   <canvas id="confetti-canvas"></canvas>
 
-  <!-- JavaScript Modules Pipeline (Untouched Architecture) -->
+  <!-- Core modules -->
   <script src="js/utils.js"></script>
   <script src="js/storage.js"></script>
   <script src="js/vocabulary.js"></script>
   <script src="js/progress.js"></script>
   <script src="js/game-engine.js"></script>
 
-  <!-- Mini Games Plugins -->
+  <!-- Mini game plugins -->
   <script src="js/games/multiple-choice.js"></script>
   <script src="js/games/word-match.js"></script>
   <script src="js/games/typing.js"></script>
@@ -451,7 +501,7 @@
   <script src="js/games/memory.js"></script>
   <script src="js/games/survival.js"></script>
 
-  <!-- Main Orchestrator -->
+  <!-- Orchestrator -->
   <script src="js/app.js"></script>
 </body>
 </html>
