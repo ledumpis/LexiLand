@@ -388,3 +388,31 @@ button.un-slot { cursor: pointer; }
   .sv-bomb { width: 150px; }
   .wm-stats, .mem-stats, .sq-stats { gap: 18px; }
 }
+
+/* ===== Flashcard 3D Flip Override ===== */
+
+.fc-card {
+  perspective: 1200px !important;
+  transform: none !important;
+}
+
+.fc-card .fc-inner {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d !important;
+  -webkit-transform-style: preserve-3d !important;
+  transition: transform 0.65s cubic-bezier(.2, .75, .25, 1) !important;
+}
+
+.fc-card.flipped .fc-inner {
+  transform: rotateY(180deg) !important;
+}
+
+.fc-card .fc-face {
+  backface-visibility: hidden !important;
+  -webkit-backface-visibility: hidden !important;
+}
+
+.fc-card .fc-back {
+  transform: rotateY(180deg) !important;
+}

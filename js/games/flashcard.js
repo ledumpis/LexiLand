@@ -93,13 +93,24 @@ EGL_Engine.register({
     this.container.querySelector('#btn-fc-mastered').onclick = () => this.rate(true);
   },
 
-  flip() {
-    if (this.locked) return;
-    const card = this.container.querySelector('#fc-card');
-    if (!card) return;
-    card.classList.toggle('flipped');
-    card.setAttribute('aria-pressed', card.classList.contains('flipped') ? 'true' : 'false');
-  },
+flip() {
+  if (this.locked) return;
+
+  const card = this.container.querySelector('#fc-card');
+  const inner = card?.querySelector('.fc-inner');
+
+  if (!card || !inner) return;
+
+  const flipped = !card.classList.contains('flipped');
+
+  card.classList.toggle('flipped', flipped);
+  card.setAttribute('aria-pressed', flipped ? 'true' : 'false');
+
+  // Force the 3D transform directly so the flip cannot be overridden.
+  inner.style.transform = flipped
+    ? 'rotateY(180deg)'
+    : 'rotateY(0deg)';
+},
 
   rate(isCorrect) {
     if (this.locked) return;
