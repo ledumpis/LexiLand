@@ -1,0 +1,195 @@
+/* ==========================================================================
+   LexiLand — "World" theme layer. Loads AFTER style.css and game.css.
+   Overrides tokens and restyles the shell only (no game mechanics).
+   ========================================================================== */
+@import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700&display=swap');
+
+/* ---------- Tokens ---------- */
+:root {
+  --paper: #FFF8EC; --paper-2: #FBEFD9; --paper-3: #F1E2C6; --surface: #FFFEFA;
+  --line: #EBDDC2; --line-2: #DCC8A6;
+  --primary: #E4694A; --primary-hover: #D45B3C; --primary-edge: #A8442B; --primary-soft: #FFE0D3;
+  --sky: #3F7FB5;  --sky-soft: #D9ECFB;
+  --sage: #3F8E62; --sage-soft: #D8F0DF;
+  --lav: #7A62C0;  --lav-soft: #E9E2FA;
+  --honey: #B9810F; --honey-soft: #FFEDB5;
+  --rose: #CC5878; --rose-soft: #FFDCE6;
+  --font-display: 'Baloo 2', 'Noto Sans', 'Noto Sans Vietnamese', system-ui, sans-serif;
+  --pop: cubic-bezier(.34, 1.56, .64, 1);
+}
+
+@keyframes wFloat { 50% { translate: 0 -7px; } }
+@keyframes wFloatSm { 50% { translate: 0 -4px; } }
+@keyframes wSpin { to { rotate: 360deg; } }
+@keyframes wWobble { 0%, 100% { rotate: -3deg; } 50% { rotate: 3deg; } }
+@keyframes wRise { from { opacity: 0; translate: 0 16px; } to { opacity: 1; translate: 0 0; } }
+@keyframes wCard { from { opacity: 0; translate: 0 22px; scale: .96; } to { opacity: 1; translate: 0 0; scale: 1; } }
+
+/* ---------- Paper world background ---------- */
+body {
+  background-color: var(--paper);
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .5 0 0 0 0 .35 0 0 0 0 .2 0 0 0 .08 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"),
+    radial-gradient(rgba(150, 100, 50, .09) 1.2px, transparent 1.5px);
+  background-size: 160px 160px, 26px 26px;
+}
+h2, h3, h4 { font-family: var(--font-display); font-weight: 700; letter-spacing: 0; }
+.app-layout { position: relative; z-index: 1; }
+
+.world-deco { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
+.world-deco svg { position: absolute; opacity: .55; animation: wFloat 7s ease-in-out infinite; }
+.world-deco .d1 { width: 46px; right: 5%; top: 14%; }
+.world-deco .d2 { width: 90px; right: 3%; bottom: 12%; animation-delay: -2s; }
+.world-deco .d3 { width: 60px; left: 270px; bottom: 7%; animation-delay: -4s; }
+.world-deco .d4 { width: 34px; left: 44%; top: 3%; animation-delay: -1s; }
+body.is-playing .world-deco { opacity: .35; }
+
+/* ---------- Buttons ---------- */
+.btn { border-width: 2px; border-radius: 14px; font-family: var(--font-display); font-weight: 600; font-size: 1.02rem; transition: transform .22s var(--pop), box-shadow .12s, background .15s; }
+.btn:hover { transform: translateY(-3px) scale(1.03); }
+.btn:active { transform: translateY(3px) scale(.98); }
+.btn-ghost:hover { transform: none; }
+.icon-btn, .btn-icon { border-width: 2px; }
+.chip, .sound-toggle { border-width: 2px; border-radius: 12px; }
+.tag { border-radius: 6px; }
+
+/* ---------- Sidebar / navigation ---------- */
+.sidebar { background: var(--paper-2); border-right: 2px dashed var(--line-2); }
+.brand-mark { width: 46px; height: 46px; border-radius: 14px 16px 12px 17px; border: 2px solid var(--ink); font-size: 1.7rem; box-shadow: 3px 3px 0 var(--ink); transition: transform .3s var(--pop); }
+.brand:hover .brand-mark { animation: wWobble .6s ease-in-out; }
+.brand h1 { font-family: var(--font-display); font-size: 1.55rem; }
+
+.nav-menu { gap: 4px; }
+.nav-item { justify-content: flex-start; gap: 12px; padding: 7px 10px; border-radius: 16px; border: 2px solid transparent; font-family: var(--font-display); font-weight: 600; font-size: 1.05rem; transition: background .15s, transform .22s var(--pop), border-color .15s; }
+.nav-item:hover { background: rgba(255, 255, 255, .6); transform: translateX(4px); }
+.nav-item.active { background: var(--surface); border-color: var(--ink); box-shadow: 3px 3px 0 var(--ci, var(--ink)); }
+.nav-item.active::before { display: none; }
+.nav-count { margin-left: auto; padding: 0 8px; border-radius: 8px; background: var(--ci-soft, var(--paper-3)); }
+.nav-ico { flex: none; width: 32px; height: 32px; display: grid; place-items: center; border-radius: 11px 13px 10px 14px; background: var(--ci-soft); color: var(--ci); transition: transform .25s var(--pop); }
+.nav-ico svg { width: 19px; height: 19px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.nav-item:hover .nav-ico { transform: rotate(-9deg) scale(1.12); }
+.nav-item.active .nav-ico { background: var(--ci); color: #fff; }
+.nav-item[data-view="home"] { --ci: var(--honey); --ci-soft: var(--honey-soft); }
+.nav-item[data-view="games"] { --ci: var(--primary); --ci-soft: var(--primary-soft); }
+.nav-item[data-view="vocabulary"] { --ci: var(--sky); --ci-soft: var(--sky-soft); }
+.nav-item[data-view="review"] { --ci: var(--sage); --ci-soft: var(--sage-soft); }
+.nav-item[data-view="achievements"] { --ci: var(--rose); --ci-soft: var(--rose-soft); }
+.nav-item[data-view="settings"] { --ci: var(--lav); --ci-soft: var(--lav-soft); }
+
+.sidebar-status { padding: 14px; background: var(--surface); border: 2px solid var(--ink); border-radius: 18px 20px 16px 22px; box-shadow: 4px 4px 0 var(--honey-soft); }
+.sidebar-note { font-size: 1rem; }
+.xp-track { height: 10px; border: 1.5px solid var(--ink); border-radius: 6px; background: var(--paper-2); }
+.xp-fill { border-radius: 4px; background: repeating-linear-gradient(-45deg, var(--primary) 0 7px, #F08C6F 7px 14px); }
+
+/* ---------- Page heads ---------- */
+.greeting-box h2 { font-size: clamp(1.4rem, 2.6vw, 1.9rem); }
+.page-head h3 { font-size: 2rem; }
+.view-panel.active > * { animation: wRise .5s var(--ease) backwards; }
+.view-panel.active > :nth-child(2) { animation-delay: .06s; }
+.view-panel.active > :nth-child(3) { animation-delay: .12s; }
+.view-panel.active > :nth-child(4) { animation-delay: .18s; }
+.view-panel.active > :nth-child(5) { animation-delay: .24s; }
+
+/* ---------- Home: hero ---------- */
+.hero { position: relative; overflow: hidden; background: var(--sky-soft); border: 2px solid var(--ink); border-radius: 34px 42px 30px 46px / 40px 30px 44px 32px; box-shadow: 6px 6px 0 var(--ink); padding: clamp(26px, 4vw, 48px); }
+.hero::before, .hero::after { content: ''; position: absolute; z-index: 0; pointer-events: none; }
+.hero::before { width: 280px; height: 260px; right: -70px; top: -100px; border-radius: 58% 42% 55% 45%; background: var(--honey-soft); }
+.hero::after { width: 200px; height: 190px; left: -60px; bottom: -80px; border-radius: 45% 55% 40% 60%; background: var(--rose-soft); }
+.hero > * { position: relative; z-index: 1; }
+.eyebrow { font-family: var(--font-display); font-size: .85rem; letter-spacing: .08em; }
+.hero .eyebrow { display: inline-block; padding: 2px 12px; border: 2px solid var(--ink); border-radius: 8px; background: var(--surface); color: var(--ink); transform: rotate(-2deg); }
+.hero-title { margin: 14px 0 8px; font-size: clamp(2.4rem, 5.8vw, 4rem); line-height: 1.02; }
+.scribble { position: relative; white-space: nowrap; }
+.scribble::after { content: ''; position: absolute; left: 1%; right: 6%; bottom: 0.10em; height: .3em; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='10' viewBox='0 0 40 10'%3E%3Cpath d='M0 5Q5 0 10 5T20 5T30 5T40 5' fill='none' stroke='%23E4694A' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E") repeat-x; background-size: auto 100%; }
+.hero-tagline { font-family: var(--font-display); font-style: normal; font-size: 1.25rem; color: var(--primary-edge); }
+.hero-desc { color: var(--ink); opacity: .8; }
+.hero .btn-primary { animation: wFloatSm 3.4s ease-in-out infinite; }
+.hero .btn-primary:hover { animation: none; }
+.hero-art { max-width: 430px; overflow: visible; }
+.hw-float { animation: wFloat 5s ease-in-out infinite; }
+.hw-float.b { animation-duration: 6.4s; animation-delay: -1.5s; }
+.hw-float.c { animation-duration: 4.4s; animation-delay: -3s; }
+.hw-spin { animation: wSpin 16s linear infinite; transform-box: fill-box; transform-origin: center; }
+.hw-wob { animation: wWobble 4s ease-in-out infinite; transform-box: fill-box; transform-origin: bottom center; }
+
+/* ---------- Home: stickers & panels ---------- */
+.ledger { gap: 18px; margin: 38px 0 34px; border: 0; }
+.ledger > .ledger-item, .ledger > .ledger-item:nth-child(n) { border: 2px solid var(--ink); padding: 16px 18px; border-radius: 18px 22px 16px 24px; background: var(--c); box-shadow: 4px 4px 0 var(--ink); rotate: var(--r, -1deg); transition: rotate .25s var(--pop), translate .25s var(--pop); }
+.ledger > .ledger-item:hover { rotate: 0deg; translate: 0 -4px; }
+.ledger-item:nth-child(1) { --c: var(--primary-soft); --r: -1.4deg; }
+.ledger-item:nth-child(2) { --c: var(--honey-soft); --r: 1deg; }
+.ledger-item:nth-child(3) { --c: var(--sage-soft); --r: -.8deg; }
+.ledger-item:nth-child(4) { --c: var(--sky-soft); --r: 1.4deg; }
+.ledger-value { font-size: 2.5rem; color: var(--ink); }
+.mini-track { height: 8px; border: 1.5px solid var(--ink); border-radius: 5px; background: var(--surface); }
+
+.panel-continue { border: 2px solid var(--ink); border-left-width: 12px; box-shadow: 5px 5px 0 var(--sky-soft); }
+.reco { border: 2px solid var(--ink); box-shadow: 5px 5px 0 var(--tone-soft); rotate: .5deg; }
+.habit-track { height: 20px; border: 2px solid var(--ink); border-radius: 8px; background: var(--surface); }
+.habit-track::after { display: none; }
+.habit-fill { background: repeating-linear-gradient(-45deg, var(--primary) 0 8px, #F08C6F 8px 16px); }
+.habit.is-done .habit-fill { background: var(--sage); }
+
+/* ---------- Mini Games: the game park ---------- */
+.game-grid { gap: 30px 26px; padding-top: 10px; }
+.game-card { position: relative; overflow: visible; border: 2px solid var(--ink); border-radius: 20px 24px 18px 26px; background: var(--surface); box-shadow: 5px 5px 0 var(--tone-soft); rotate: var(--tilt, 0deg); animation: wCard .55s var(--ease) backwards; animation-delay: calc(var(--i, 0) * 55ms); transition: rotate .3s var(--pop), translate .3s var(--pop), box-shadow .2s, border-color .2s; }
+.game-card:nth-child(3n+1) { --tilt: -1.2deg; }
+.game-card:nth-child(3n+2) { --tilt: .8deg; }
+.game-card:nth-child(3n) { --tilt: -.5deg; }
+.game-card:hover, .game-card:focus-visible { rotate: 0deg; translate: 0 -8px; border-color: var(--ink); box-shadow: 8px 10px 0 var(--tone); transform: none; }
+.game-card:active { translate: 0 -2px; }
+.game-card::before { content: ''; position: absolute; z-index: 3; top: -11px; left: 50%; width: 78px; height: 22px; margin-left: -39px; background: rgba(255, 226, 150, .85); border: 1px solid rgba(185, 129, 15, .35); rotate: -3deg; }
+.game-card:nth-child(even)::before { background: rgba(190, 225, 245, .85); border-color: rgba(63, 127, 181, .35); rotate: 3deg; }
+.game-art { height: 118px; border-radius: 18px 22px 0 0; border-bottom: 2px solid var(--ink); }
+.game-art i { animation: wFloatSm 4.5s ease-in-out infinite; }
+.game-art i:nth-child(2) { animation-delay: -1.2s; }
+.game-art i:nth-child(3) { animation-delay: -2.4s; }
+.game-art::before { position: absolute; z-index: 2; right: 12px; top: 10px; padding: 1px 9px; border: 2px solid var(--tone); border-radius: 7px; background: var(--surface); color: var(--tone); font: 700 .85rem/1.4 var(--font-display); rotate: 6deg; transition: rotate .3s var(--pop); }
+.game-card:hover .game-art::before { rotate: -4deg; }
+.art-flashcard::before { content: 'Aa'; }
+.art-multiple-choice::before { content: 'A B C D'; }
+.art-typing::before { content: 'type!'; }
+.art-spelling::before { content: 'a-b-c'; }
+.art-unscramble::before { content: 'ABC?'; }
+.art-true-false::before { content: 'YES / NO'; }
+.art-speed-quiz::before { content: 'GO!'; }
+.art-memory::before { content: '?'; }
+.art-survival::before { content: '! !'; }
+.game-card-body { padding: 16px 18px 18px; }
+.game-card h4 { font-size: 1.3rem; line-height: 1.15; }
+.game-card-cta { align-self: flex-start; margin-top: auto; padding: 6px 14px; border: 2px solid var(--ink); border-radius: 12px; background: var(--tone); color: #fff; font-family: var(--font-display); font-size: 1rem; box-shadow: 0 3px 0 var(--ink); transition: transform .22s var(--pop); }
+.game-card:hover .game-card-cta { transform: scale(1.06) rotate(-2deg); }
+
+/* ---------- Other screens: small harmonising touches ---------- */
+.deck-card, .badge-card, .settings-wrap, .inspector, .review-callout { border-width: 2px; }
+.deck-card { border-color: var(--ink); border-left-color: var(--spine, var(--sky)); box-shadow: 4px 4px 0 var(--paper-3); }
+.badge-card.unlocked { border-color: var(--ink); box-shadow: 4px 4px 0 var(--tone-soft); }
+.review-callout { border-color: var(--ink); box-shadow: 5px 5px 0 var(--lav); }
+.modal-box { border-width: 2px; }
+
+/* ---------- Responsive ---------- */
+@media (max-width: 1100px) { .world-deco .d3 { left: 220px; } }
+
+@media (max-width: 900px) {
+  .sidebar { background: var(--surface); border-top: 2px solid var(--ink); border-right: 0; }
+  .nav-menu { gap: 0; }
+  .nav-item { flex-direction: column; justify-content: center; gap: 2px; padding: 5px 2px; border: 0; font-size: .74rem; }
+  .nav-item:hover { transform: none; }
+  .nav-item.active { background: transparent; box-shadow: none; }
+  .nav-item.active::before { display: block; background: var(--ci); }
+  .nav-ico { width: 30px; height: 30px; }
+  .nav-item.active .nav-ico { box-shadow: 0 0 0 2px var(--ink); }
+  .world-deco .d3 { left: 6%; bottom: 14%; }
+  .hero-art { max-width: 320px; }
+}
+
+@media (max-width: 600px) {
+  .world-deco { display: none; }
+  .hero { border-radius: 26px 30px 24px 32px / 30px 26px 32px 24px; box-shadow: 4px 4px 0 var(--ink); }
+  .page-head h3 { font-size: 1.7rem; }
+  .ledger { gap: 12px; }
+  .ledger > .ledger-item, .ledger > .ledger-item:nth-child(n) { padding: 12px 14px; }
+  .ledger-value { font-size: 2rem; }
+  .game-grid { gap: 26px 0; }
+  .game-card { rotate: 0deg; }
+}
