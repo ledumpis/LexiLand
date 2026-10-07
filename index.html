@@ -228,14 +228,10 @@
       <section id="view-games" class="view-panel">
         <div class="page-head">
           <div>
-            <h3>Mini Games</h3>
-            <p class="hint">Every game uses your active vocabulary deck.</p>
+            <h3>Game Park</h3>
+            <p class="hint">Choose a unit first — games use only that unit's words.</p>
           </div>
           <div class="page-controls">
-            <div class="control">
-              <label for="select-active-deck">Deck</label>
-              <select id="select-active-deck" class="field-select"></select>
-            </div>
             <div class="control">
               <label>Difficulty</label>
               <div class="segmented" id="seg-difficulty">
@@ -246,6 +242,14 @@
             </div>
           </div>
         </div>
+
+        <!-- Scope picker: Course → Unit -->
+        <div class="scope-picker" id="scope-picker" aria-label="Study scope">
+          <div class="scope-row" id="scope-course-row" role="group" aria-label="Choose course"></div>
+          <div class="scope-row" id="scope-unit-row" role="group" aria-label="Choose unit"></div>
+          <div class="scope-current" id="scope-current" aria-live="polite"></div>
+        </div>
+
         <p class="diff-hint" id="diff-hint">Normal · 10 words per round</p>
 
         <div class="game-grid" id="games-catalog-container"></div>
@@ -486,6 +490,7 @@
   <!-- Core modules -->
   <script src="js/utils.js"></script>
   <script src="js/storage.js"></script>
+  <script src="js/business-course.js"></script>
   <script src="js/vocabulary.js"></script>
   <script src="js/progress.js"></script>
   <script src="js/game-engine.js"></script>

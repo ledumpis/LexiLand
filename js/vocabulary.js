@@ -1,9 +1,97 @@
 /**
  * English Game Lab — Vocabulary Repository
+ * Courses: Daily Life (single deck) + English for Business Studies (8 unit decks)
+ * Business vocabulary source: window.EGL_BUSINESS_COURSE (js/business-course.js)
  */
 const EGL_Vocab = {
   decks: [],
   activeDeckId: 'daily_life_01',
+
+  // ---- Course / unit helpers ----
+  BUSINESS_COURSE_ID: 'english_for_business_studies',
+  BUSINESS_COURSE_NAME: 'English for Business Studies',
+
+  getBusinessCourse() {
+    return window.EGL_BUSINESS_COURSE || null;
+  },
+
+  getBusinessUnits() {
+    const c = this.getBusinessCourse();
+    return c && Array.isArray(c.units) ? c.units : [];
+  },
+
+  isBusinessUnitId(id) {
+    return typeof id === 'string' && id.indexOf('ebs_unit_') === 0;
+  },
+
+  getCourseForDeck(deckId) {
+    if (this.isBusinessUnitId(deckId)) return this.BUSINESS_COURSE_ID;
+    return deckId === 'daily_life_01' ? 'daily_life' : 'custom';
+  },
+
+  getBusinessDeckIds() {
+    return this.getBusinessUnits().map(u => u.id);
+  },
+
+  getRandomBusinessUnitId() {
+    const ids = this.getBusinessDeckIds();
+    return ids.length ? ids[Math.floor(Math.random() * ids.length)] : null;
+  },
+
+  // Build a deck object from a business unit
+  unitToDeck(unit) {
+    return {
+      id: unit.id,
+      name: 'Unit ' + unit.unit + ' — ' + unit.name,
+      shortName: unit.name,
+      unitNumber: unit.unit,
+      courseId: this.BUSINESS_COURSE_ID,
+      courseName: this.BUSINESS_COURSE_NAME,
+      level: 'Business English',
+      description: unit.name + ' · ' + unit.words.length + ' words',
+      words: unit.words.map(w => ({
+        word: w.word,
+        meaning: w.meaning,
+        type: w.type || 'n',
+        phonetic: w.phonetic || '',
+        note: w.note || ''
+      }))
+    };
+  },
+
+  ensureBusinessDecks() {
+    const units = this.getBusinessUnits();
+    if (!units.length) return;
+    let changed = false;
+    units.forEach(unit => {
+      const deck = this.unitToDeck(unit);
+      const idx = this.decks.findIndex(d => d.id === deck.id);
+      if (idx >= 0) {
+        // Keep user deck shell but always refresh vocabulary exactly from JSON
+        // Preserve mastery separately (progress.js keyed by word), so overwriting words is safe
+        const existing = this.decks[idx];
+        const sameWords = existing.words.length === deck.words.length &&
+          existing.words.every((w, i) => w.word === deck.words[i].word);
+        if (!sameWords || existing.name !== deck.name) {
+          this.decks[idx] = Object.assign({}, existing, {
+            name: deck.name,
+            shortName: deck.shortName,
+            unitNumber: deck.unitNumber,
+            courseId: deck.courseId,
+            courseName: deck.courseName,
+            level: deck.level,
+            description: deck.description,
+            words: deck.words
+          });
+          changed = true;
+        }
+      } else {
+        this.decks.push(deck);
+        changed = true;
+      }
+    });
+    if (changed) this.save();
+  },
 
   init() {
     const stored = EGL_Storage.get(EGL_Storage.KEYS.DECKS);
@@ -14,11 +102,23 @@ const EGL_Vocab = {
       this.save();
     }
 
+    // Merge business units (idempotent, keeps Daily Life untouched)
+    this.ensureBusinessDecks();
+
+    // Migrate old saves that have a course-level business deck (255 words) — remove it
+    const legacyCourseDeck = this.decks.find(d => d.id === this.BUSINESS_COURSE_ID);
+    if (legacyCourseDeck) {
+      this.decks = this.decks.filter(d => d.id !== this.BUSINESS_COURSE_ID);
+      this.save();
+    }
+
     const savedActive = EGL_Storage.get(EGL_Storage.KEYS.ACTIVE_DECK);
     if (savedActive && this.getDeck(savedActive)) {
       this.activeDeckId = savedActive;
     } else {
-      this.activeDeckId = this.decks[0].id;
+      // Prefer Daily Life if present, else first deck
+      const daily = this.getDeck('daily_life_01');
+      this.activeDeckId = daily ? daily.id : this.decks[0].id;
     }
   },
 
@@ -69,6 +169,8 @@ const EGL_Vocab = {
       name: "Daily Life Essentials",
       description: "Common vocabulary about everyday life",
       level: "A2",
+      courseId: "daily_life",
+      courseName: "Daily Life",
       words: [
         { word: "hospital", meaning: "bệnh viện", type: "noun", phonetic: "/ˈhɒspɪtl/" },
         { word: "restaurant", meaning: "nhà hàng", type: "noun", phonetic: "/ˈrestrɒnt/" },

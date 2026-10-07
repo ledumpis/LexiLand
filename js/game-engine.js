@@ -40,9 +40,16 @@ const EGL_Engine = {
   },
 
   getDistractors(currentWord, count = 3) {
+    // Scope distractors to the current session's word pool so units never leak into each other.
+    const pool = (this.activeSession && Array.isArray(this.activeSession.words) && this.activeSession.words.length)
+      ? this.activeSession.words
+      : (EGL_Vocab.getActiveDeck().words || []);
+    const otherWords = pool.filter(w => w.word !== currentWord.word);
+    if (otherWords.length >= count) return EGL_Utils.shuffle(otherWords).slice(0, count);
+    // Fallback: if unit pool is too small (should not happen with 27+ words), borrow from active deck
     const deck = EGL_Vocab.getActiveDeck();
-    const otherWords = deck.words.filter(w => w.word !== currentWord.word);
-    return EGL_Utils.shuffle(otherWords).slice(0, count);
+    const fallback = deck.words.filter(w => w.word !== currentWord.word && !otherWords.some(o => o.word === w.word));
+    return EGL_Utils.shuffle([...otherWords, ...fallback]).slice(0, count);
   },
 
   startSession(gameId, difficulty = 'normal', customWords = null) {

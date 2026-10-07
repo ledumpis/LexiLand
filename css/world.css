@@ -91,18 +91,18 @@ body.is-playing .world-deco { opacity: .35; }
 .view-panel.active > :nth-child(5) { animation-delay: .24s; }
 
 /* ---------- Home: hero ---------- */
-.hero { position: relative; overflow: hidden; background: var(--sky-soft); border: 2px solid var(--ink); border-radius: 34px 42px 30px 46px / 40px 30px 44px 32px; box-shadow: 6px 6px 0 var(--ink); padding: clamp(26px, 4vw, 48px); }
+.hero { position: relative; overflow: hidden; display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(280px, 420px); align-items: center; gap: clamp(18px, 3vw, 32px); background: var(--sky-soft); border: 2px solid var(--ink); border-radius: 34px 42px 30px 46px / 40px 30px 44px 32px; box-shadow: 6px 6px 0 var(--ink); padding: clamp(26px, 4vw, 46px) clamp(26px, 4vw, 42px); }
 .hero::before, .hero::after { content: ''; position: absolute; z-index: 0; pointer-events: none; }
 .hero::before { width: 280px; height: 260px; right: -70px; top: -100px; border-radius: 58% 42% 55% 45%; background: var(--honey-soft); }
 .hero::after { width: 200px; height: 190px; left: -60px; bottom: -80px; border-radius: 45% 55% 40% 60%; background: var(--rose-soft); }
 .hero > * { position: relative; z-index: 1; }
 .eyebrow { font-family: var(--font-display); font-size: .85rem; letter-spacing: .08em; }
 .hero .eyebrow { display: inline-block; padding: 2px 12px; border: 2px solid var(--ink); border-radius: 8px; background: var(--surface); color: var(--ink); transform: rotate(-2deg); }
-.hero-title { margin: 14px 0 8px; font-size: clamp(2.4rem, 5.8vw, 4rem); line-height: 1.02; }
-.scribble { position: relative; white-space: nowrap; }
-.scribble::after { content: ''; position: absolute; left: 1%; right: 6%; bottom: 0.10em; height: .3em; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='10' viewBox='0 0 40 10'%3E%3Cpath d='M0 5Q5 0 10 5T20 5T30 5T40 5' fill='none' stroke='%23E4694A' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E") repeat-x; background-size: auto 100%; }
-.hero-tagline { font-family: var(--font-display); font-style: normal; font-size: 1.25rem; color: var(--primary-edge); }
-.hero-desc { color: var(--ink); opacity: .8; }
+.hero-title { margin: 14px 0 6px; font-size: clamp(2.4rem, 5.8vw, 4rem); line-height: 1.02; letter-spacing: -.02em; }
+.scribble { position: relative; white-space: nowrap; display: inline-block; padding-right: .04em; }
+.hero-tagline { font-family: var(--font-display); font-style: normal; font-size: 1.18rem; color: var(--primary-edge); margin: 2px 0 10px; opacity: .95; }
+.hero-desc { color: var(--ink); opacity: .78; max-width: 42ch; line-height: 1.6; margin-bottom: 22px; }
+.hero-copy .btn-row { gap: 12px; margin-top: 4px; }
 .hero .btn-primary { animation: wFloatSm 3.4s ease-in-out infinite; }
 .hero .btn-primary:hover { animation: none; }
 .hero-art { max-width: 430px; overflow: visible; }
@@ -163,9 +163,18 @@ body.is-playing .world-deco { opacity: .35; }
 /* ---------- Other screens: small harmonising touches ---------- */
 .deck-card, .badge-card, .settings-wrap, .inspector, .review-callout { border-width: 2px; }
 .deck-card { border-color: var(--ink); border-left-color: var(--spine, var(--sky)); box-shadow: 4px 4px 0 var(--paper-3); }
+.deck-card--unit { border-left-color: var(--honey); }
 .badge-card.unlocked { border-color: var(--ink); box-shadow: 4px 4px 0 var(--tone-soft); }
 .review-callout { border-color: var(--ink); box-shadow: 5px 5px 0 var(--lav); }
 .modal-box { border-width: 2px; }
+
+/* Scope picker — illustrated World styling */
+.scope-picker { background: var(--surface); border: 2px solid var(--ink); border-radius: 18px 20px 16px 22px; box-shadow: 4px 4px 0 var(--honey-soft); }
+.scope-pill { border-radius: 12px; font-family: var(--font-display); border-width: 2px; }
+.scope-pill.is-active { border-color: var(--ink); box-shadow: 3px 3px 0 var(--ink); }
+.scope-current { font-family: var(--font-display); }
+.course-block { animation: wRise .45s var(--ease) backwards; }
+.course-block:nth-child(2) { animation-delay: .08s; }
 
 /* ---------- Responsive ---------- */
 @media (max-width: 1100px) { .world-deco .d3 { left: 220px; } }
@@ -180,12 +189,15 @@ body.is-playing .world-deco { opacity: .35; }
   .nav-ico { width: 30px; height: 30px; }
   .nav-item.active .nav-ico { box-shadow: 0 0 0 2px var(--ink); }
   .world-deco .d3 { left: 6%; bottom: 14%; }
-  .hero-art { max-width: 320px; }
+  .hero { grid-template-columns: 1fr; gap: 12px; }
+  .hero-art { max-width: 320px; justify-self: center; }
 }
 
 @media (max-width: 600px) {
   .world-deco { display: none; }
-  .hero { border-radius: 26px 30px 24px 32px / 30px 26px 32px 24px; box-shadow: 4px 4px 0 var(--ink); }
+  .hero { border-radius: 26px 30px 24px 32px / 30px 26px 32px 24px; box-shadow: 4px 4px 0 var(--ink); grid-template-columns: 1fr; }
+  .scribble::after { bottom: 0.16em; height: .30em; left: 2%; right: 6%; }
+  .hero-title { font-size: clamp(2rem, 9vw, 2.6rem); }
   .page-head h3 { font-size: 1.7rem; }
   .ledger { gap: 12px; }
   .ledger > .ledger-item, .ledger > .ledger-item:nth-child(n) { padding: 12px 14px; }

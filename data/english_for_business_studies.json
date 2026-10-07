@@ -1,0 +1,1595 @@
+{
+  "id": "english_for_business_studies",
+  "name": "English for Business Studies",
+  "description": "Business English vocabulary organized by unit",
+  "level": "Business English",
+  "source": "English for Business Studies, Student's Book, Third Edition — vocabulary from the provided study file",
+  "units": [
+    {
+      "id": "unit_1",
+      "unit": 1,
+      "name": "Management",
+      "words": [
+        {
+          "word": "consultant",
+          "type": "n",
+          "meaning": "chuyên gia tư vấn",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "crisis",
+          "type": "n",
+          "meaning": "khủng hoảng",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "innovation",
+          "type": "n",
+          "meaning": "đổi mới; sáng kiến",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "objective",
+          "type": "n",
+          "meaning": "mục tiêu",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "promotion",
+          "type": "n",
+          "meaning": "sự thăng chức; khuyến mãi",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "public sector",
+          "type": "n phr",
+          "meaning": "khu vực công",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "strategy",
+          "type": "n",
+          "meaning": "chiến lược",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "subordinate",
+          "type": "n",
+          "meaning": "cấp dưới",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "management",
+          "type": "n",
+          "meaning": "quản lý; công tác quản trị",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "manager",
+          "type": "n",
+          "meaning": "người quản lý",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "director",
+          "type": "n",
+          "meaning": "giám đốc",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "planning",
+          "type": "n",
+          "meaning": "hoạch định",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "organizing",
+          "type": "n",
+          "meaning": "tổ chức",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "integrating",
+          "type": "n",
+          "meaning": "phối hợp/tích hợp",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "measuring performance",
+          "type": "v-n",
+          "meaning": "đo lường hiệu suất",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "allocating resources",
+          "type": "v-n",
+          "meaning": "phân bổ nguồn lực",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "perform tasks",
+          "type": "v-n",
+          "meaning": "thực hiện nhiệm vụ",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "supervise subordinates",
+          "type": "v-n",
+          "meaning": "giám sát cấp dưới",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "set objectives",
+          "type": "v-n",
+          "meaning": "đặt mục tiêu",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "make decisions",
+          "type": "v-n",
+          "meaning": "ra quyết định",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "deal with crises",
+          "type": "v-n",
+          "meaning": "xử lý khủng hoảng",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "human skills",
+          "type": "n phr",
+          "meaning": "kỹ năng con người",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "technical skills",
+          "type": "n phr",
+          "meaning": "kỹ năng kỹ thuật",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "shareholder",
+          "type": "n",
+          "meaning": "cổ đông",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "day-to-day operations",
+          "type": "n phr",
+          "meaning": "hoạt động hằng ngày",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "efficient",
+          "type": "adj",
+          "meaning": "hiệu quả",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "effective",
+          "type": "adj",
+          "meaning": "hữu hiệu",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "revenue",
+          "type": "n",
+          "meaning": "doanh thu",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "maximize",
+          "type": "v",
+          "meaning": "tối đa hóa",
+          "note": "Business English / key term"
+        }
+      ]
+    },
+    {
+      "id": "unit_2",
+      "unit": 2,
+      "name": "Work and motivation",
+      "words": [
+        {
+          "word": "remuneration",
+          "type": "n",
+          "meaning": "thù lao",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "salary",
+          "type": "n",
+          "meaning": "lương",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "commission",
+          "type": "n",
+          "meaning": "hoa hồng",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "bonus",
+          "type": "n",
+          "meaning": "tiền thưởng",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "perk",
+          "type": "n",
+          "meaning": "phúc lợi đặc biệt/quyền lợi kèm theo",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "working relations",
+          "type": "n phr",
+          "meaning": "quan hệ làm việc",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "working conditions",
+          "type": "n phr",
+          "meaning": "điều kiện làm việc",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "job security",
+          "type": "n phr",
+          "meaning": "an toàn việc làm; sự đảm bảo việc làm",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "challenging job",
+          "type": "n phr",
+          "meaning": "công việc có tính thử thách",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "responsibility",
+          "type": "n",
+          "meaning": "trách nhiệm",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "contact with people",
+          "type": "n phr",
+          "meaning": "tiếp xúc với mọi người",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "make a difference",
+          "type": "idiom",
+          "meaning": "tạo ra sự khác biệt",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "opportunity to travel",
+          "type": "n phr",
+          "meaning": "cơ hội đi lại/công tác",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "motivation",
+          "type": "n",
+          "meaning": "động lực",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "motivator",
+          "type": "n",
+          "meaning": "yếu tố tạo động lực",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "labour relations",
+          "type": "n phr",
+          "meaning": "quan hệ lao động",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "wages",
+          "type": "n",
+          "meaning": "tiền công/tiền lương theo giờ/ngày/tuần",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "benefits",
+          "type": "n",
+          "meaning": "phúc lợi",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "dissatisfier",
+          "type": "n",
+          "meaning": "yếu tố gây bất mãn",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "recognition",
+          "type": "n",
+          "meaning": "sự ghi nhận",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "job rotation",
+          "type": "n phr",
+          "meaning": "luân chuyển công việc",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "unskilled",
+          "type": "adj",
+          "meaning": "không có tay nghề/chưa qua đào tạo chuyên môn",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "corporate culture",
+          "type": "n phr",
+          "meaning": "văn hóa doanh nghiệp",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "self-discipline",
+          "type": "n",
+          "meaning": "tính tự giác",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "self-actualization",
+          "type": "n",
+          "meaning": "sự tự hoàn thiện bản thân",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "psychological well-being",
+          "type": "n phr",
+          "meaning": "sức khỏe/tinh thần và sự an lành tâm lý",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "retention",
+          "type": "n",
+          "meaning": "sự giữ chân nhân viên",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "engage a team",
+          "type": "v phr",
+          "meaning": "gắn kết/thu hút một nhóm",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "think outside the box",
+          "type": "idiom",
+          "meaning": "tư duy khác lối mòn",
+          "note": "Cụm từ nên học theo cụm"
+        }
+      ]
+    },
+    {
+      "id": "unit_5",
+      "unit": 5,
+      "name": "Recruitment",
+      "words": [
+        {
+          "word": "recruitment",
+          "type": "n",
+          "meaning": "tuyển dụng",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "recruiter",
+          "type": "n",
+          "meaning": "nhà tuyển dụng",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "vacancy",
+          "type": "n",
+          "meaning": "vị trí trống",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "applicant",
+          "type": "n",
+          "meaning": "ứng viên/người nộp đơn",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "candidate",
+          "type": "n",
+          "meaning": "ứng viên",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "employment agency",
+          "type": "n phr",
+          "meaning": "công ty dịch vụ tuyển dụng",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "headhunter",
+          "type": "n",
+          "meaning": "đơn vị/người săn đầu người",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "give notice",
+          "type": "v phr",
+          "meaning": "báo nghỉ việc",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "job description",
+          "type": "n phr",
+          "meaning": "mô tả công việc",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "shortlist",
+          "type": "n/v",
+          "meaning": "danh sách rút gọn; đưa vào danh sách ngắn",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "reference",
+          "type": "n",
+          "meaning": "người/nguồn tham chiếu",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "interview",
+          "type": "n/v",
+          "meaning": "phỏng vấn",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "internal candidate",
+          "type": "n phr",
+          "meaning": "ứng viên nội bộ",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "promote",
+          "type": "v",
+          "meaning": "thăng chức",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "covering letter",
+          "type": "n phr",
+          "meaning": "thư xin việc/thư kèm CV",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "curriculum vitae (CV)",
+          "type": "n phr",
+          "meaning": "sơ yếu lý lịch/CV",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "resume",
+          "type": "n",
+          "meaning": "CV (cách dùng phổ biến ở Mỹ)",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "work experience",
+          "type": "n phr",
+          "meaning": "kinh nghiệm làm việc",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "qualifications",
+          "type": "n",
+          "meaning": "bằng cấp; trình độ chuyên môn",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "computer skills",
+          "type": "n phr",
+          "meaning": "kỹ năng máy tính",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "hobbies and interests",
+          "type": "n phr",
+          "meaning": "sở thích và mối quan tâm",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "references/testimonials",
+          "type": "n phr",
+          "meaning": "thư/người giới thiệu",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "professional growth",
+          "type": "n phr",
+          "meaning": "phát triển nghề nghiệp",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "advancement",
+          "type": "n",
+          "meaning": "sự thăng tiến",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "results-oriented",
+          "type": "adj",
+          "meaning": "định hướng kết quả",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "self-starter",
+          "type": "n",
+          "meaning": "người chủ động tự thúc đẩy công việc",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "team player",
+          "type": "n",
+          "meaning": "người làm việc nhóm tốt",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "adaptable",
+          "type": "adj",
+          "meaning": "linh hoạt, dễ thích nghi",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "flexible",
+          "type": "adj",
+          "meaning": "linh hoạt",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "meeting deadlines",
+          "type": "v-n",
+          "meaning": "đáp ứng thời hạn",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "bias",
+          "type": "n/v",
+          "meaning": "thiên kiến; thiên vị",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "first impression",
+          "type": "n phr",
+          "meaning": "ấn tượng ban đầu",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "confirmation bias",
+          "type": "n phr",
+          "meaning": "thiên kiến xác nhận",
+          "note": "Cụm từ nên học theo cụm"
+        }
+      ]
+    },
+    {
+      "id": "unit_8",
+      "unit": 8,
+      "name": "Production",
+      "words": [
+        {
+          "word": "inventory / stock",
+          "type": "n",
+          "meaning": "hàng tồn kho",
+          "note": "Phân biệt theo ngữ cảnh"
+        },
+        {
+          "word": "component",
+          "type": "n",
+          "meaning": "bộ phận; linh kiện",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "capacity",
+          "type": "n",
+          "meaning": "công suất; năng lực sản xuất",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "plant",
+          "type": "n",
+          "meaning": "nhà máy/cơ sở sản xuất",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "location",
+          "type": "n",
+          "meaning": "địa điểm",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "supply chain",
+          "type": "n phr",
+          "meaning": "chuỗi cung ứng",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "outsourcing",
+          "type": "n",
+          "meaning": "thuê ngoài",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "economies of scale",
+          "type": "n phr",
+          "meaning": "lợi thế kinh tế theo quy mô",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "lead time",
+          "type": "n phr",
+          "meaning": "thời gian từ đặt đến hoàn thành/giao hàng",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "raw materials",
+          "type": "n",
+          "meaning": "nguyên vật liệu thô",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "work in process",
+          "type": "n phr",
+          "meaning": "sản phẩm đang trong quá trình sản xuất",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "finished products",
+          "type": "n phr",
+          "meaning": "thành phẩm",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "production process",
+          "type": "n phr",
+          "meaning": "quy trình sản xuất",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "production run",
+          "type": "n phr",
+          "meaning": "đợt/chạy sản xuất",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "storage",
+          "type": "n",
+          "meaning": "lưu kho",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "handling",
+          "type": "n",
+          "meaning": "bốc xếp/xử lý hàng",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "insurance",
+          "type": "n",
+          "meaning": "bảo hiểm",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "depreciation",
+          "type": "n",
+          "meaning": "khấu hao",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "obsolescence",
+          "type": "n",
+          "meaning": "sự lỗi thời",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "quality discounts",
+          "type": "n phr",
+          "meaning": "chiết khấu theo số lượng",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "workforce",
+          "type": "n",
+          "meaning": "lực lượng lao động",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "raw material delivery",
+          "type": "n phr",
+          "meaning": "việc giao nguyên vật liệu",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "shortage",
+          "type": "n",
+          "meaning": "tình trạng thiếu hụt",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "strike",
+          "type": "n",
+          "meaning": "đình công",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "disruption",
+          "type": "n",
+          "meaning": "sự gián đoạn",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "supplier",
+          "type": "n",
+          "meaning": "nhà cung cấp",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "procurement",
+          "type": "n",
+          "meaning": "thu mua/cung ứng",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "embedded",
+          "type": "adj",
+          "meaning": "được gắn/liên kết chặt trong",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "standard of living",
+          "type": "n phr",
+          "meaning": "mức sống",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "founder",
+          "type": "n",
+          "meaning": "người sáng lập",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "risk premium",
+          "type": "n phr",
+          "meaning": "phần bù rủi ro",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "worth",
+          "type": "n",
+          "meaning": "giá trị",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "disrupt",
+          "type": "v",
+          "meaning": "làm gián đoạn",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "accelerate",
+          "type": "v",
+          "meaning": "tăng tốc",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "obtain supplies",
+          "type": "v phr",
+          "meaning": "thu mua/nhận nguồn cung",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "prosperity",
+          "type": "n",
+          "meaning": "sự thịnh vượng",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "stability",
+          "type": "n",
+          "meaning": "sự ổn định",
+          "note": "Business English / key term"
+        }
+      ]
+    },
+    {
+      "id": "unit_11",
+      "unit": 11,
+      "name": "Products",
+      "words": [
+        {
+          "word": "product",
+          "type": "n",
+          "meaning": "sản phẩm",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "brand",
+          "type": "n",
+          "meaning": "thương hiệu",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "product line",
+          "type": "n phr",
+          "meaning": "dòng sản phẩm",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "product mix",
+          "type": "n phr",
+          "meaning": "danh mục sản phẩm",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "outlet",
+          "type": "n",
+          "meaning": "điểm bán/cửa hàng phân phối",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "retailer",
+          "type": "n",
+          "meaning": "nhà bán lẻ",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "logo",
+          "type": "n",
+          "meaning": "biểu trưng/logo",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "packaging",
+          "type": "n",
+          "meaning": "bao bì",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "brand awareness",
+          "type": "n phr",
+          "meaning": "mức độ nhận biết thương hiệu",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "shelf",
+          "type": "n",
+          "meaning": "kệ trưng bày",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "market share",
+          "type": "n phr",
+          "meaning": "thị phần",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "brand-switcher",
+          "type": "n",
+          "meaning": "người chuyển đổi thương hiệu",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "corporate branding",
+          "type": "n phr",
+          "meaning": "xây dựng thương hiệu doanh nghiệp",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "individual branding",
+          "type": "n phr",
+          "meaning": "xây dựng thương hiệu riêng cho từng sản phẩm",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "multi-brand strategy",
+          "type": "n phr",
+          "meaning": "chiến lược đa thương hiệu",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "cannibalize",
+          "type": "v",
+          "meaning": "lấn át doanh số của sản phẩm khác cùng công ty",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "customer loyalty",
+          "type": "n phr",
+          "meaning": "lòng trung thành của khách hàng",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "market value",
+          "type": "n phr",
+          "meaning": "giá trị thị trường",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "tangible assets",
+          "type": "n phr",
+          "meaning": "tài sản hữu hình",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "brand consultancy",
+          "type": "n phr",
+          "meaning": "công ty tư vấn thương hiệu",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "product concept",
+          "type": "n phr",
+          "meaning": "ý tưởng/khái niệm sản phẩm",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "market research",
+          "type": "n phr",
+          "meaning": "nghiên cứu thị trường",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "questionnaire",
+          "type": "n",
+          "meaning": "bảng câu hỏi",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "focus group",
+          "type": "n phr",
+          "meaning": "nhóm thảo luận tập trung",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "secondary data",
+          "type": "n phr",
+          "meaning": "dữ liệu thứ cấp",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "target customer",
+          "type": "n phr",
+          "meaning": "khách hàng mục tiêu",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "pricing strategy",
+          "type": "n phr",
+          "meaning": "chiến lược định giá",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "high-frequency passage",
+          "type": "n phr",
+          "meaning": "vị trí có lưu lượng người qua lại cao",
+          "note": "Cụm từ nên học theo cụm"
+        }
+      ]
+    },
+    {
+      "id": "unit_12",
+      "unit": 12,
+      "name": "Marketing",
+      "words": [
+        {
+          "word": "distribution channel",
+          "type": "n phr",
+          "meaning": "kênh phân phối",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "wholesaler",
+          "type": "n",
+          "meaning": "nhà bán buôn",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "sales representative",
+          "type": "n phr",
+          "meaning": "đại diện bán hàng",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "market segmentation",
+          "type": "n phr",
+          "meaning": "phân khúc thị trường",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "product differentiation",
+          "type": "n phr",
+          "meaning": "khác biệt hóa sản phẩm",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "market opportunities",
+          "type": "n phr",
+          "meaning": "cơ hội thị trường",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "market skimming",
+          "type": "n phr",
+          "meaning": "hớt váng thị trường",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "market penetration",
+          "type": "n phr",
+          "meaning": "thâm nhập thị trường",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "price elasticity",
+          "type": "n phr",
+          "meaning": "độ co giãn của giá",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "product features",
+          "type": "n phr",
+          "meaning": "đặc tính sản phẩm",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "introduction stage",
+          "type": "n phr",
+          "meaning": "giai đoạn giới thiệu",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "growth stage",
+          "type": "n phr",
+          "meaning": "giai đoạn tăng trưởng",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "maturity stage",
+          "type": "n phr",
+          "meaning": "giai đoạn bão hòa/trưởng thành",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "decline stage",
+          "type": "n phr",
+          "meaning": "giai đoạn suy giảm",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "sales volume",
+          "type": "n phr",
+          "meaning": "khối lượng/doanh số bán",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "public awareness",
+          "type": "n phr",
+          "meaning": "nhận thức của công chúng",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "profitability",
+          "type": "n",
+          "meaning": "khả năng sinh lời",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "liquidate stock",
+          "type": "v phr",
+          "meaning": "thanh lý hàng tồn kho",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "sales promotion",
+          "type": "n phr",
+          "meaning": "khuyến mại/xúc tiến bán hàng",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "distribution",
+          "type": "n",
+          "meaning": "phân phối",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "market-driven",
+          "type": "adj",
+          "meaning": "định hướng theo thị trường",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "customer-driven",
+          "type": "adj",
+          "meaning": "định hướng theo khách hàng",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "marketing mix",
+          "type": "n phr",
+          "meaning": "hỗn hợp marketing",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "market share mentality",
+          "type": "n phr",
+          "meaning": "tư duy tập trung vào thị phần",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "R&D (research and development)",
+          "type": "n phr",
+          "meaning": "nghiên cứu và phát triển",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "brand image",
+          "type": "n phr",
+          "meaning": "hình ảnh thương hiệu",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "customer request",
+          "type": "n phr",
+          "meaning": "yêu cầu của khách hàng",
+          "note": "Cụm từ nên học theo cụm"
+        }
+      ]
+    },
+    {
+      "id": "unit_13",
+      "unit": 13,
+      "name": "Advertising",
+      "words": [
+        {
+          "word": "advertising agency",
+          "type": "n phr",
+          "meaning": "đại lý/công ty quảng cáo",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "advertising campaign",
+          "type": "n phr",
+          "meaning": "chiến dịch quảng cáo",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "brief",
+          "type": "n",
+          "meaning": "bản tóm tắt yêu cầu/mục tiêu gửi cho agency",
+          "note": "advertising term"
+        },
+        {
+          "word": "target customers",
+          "type": "n phr",
+          "meaning": "khách hàng mục tiêu",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "budget",
+          "type": "n",
+          "meaning": "ngân sách",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "media",
+          "type": "n",
+          "meaning": "phương tiện truyền thông",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "media selection",
+          "type": "n phr",
+          "meaning": "lựa chọn phương tiện truyền thông",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "comparative-parity method",
+          "type": "n phr",
+          "meaning": "phương pháp ngân sách theo mức chi tiêu của đối thủ",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "sales promotion",
+          "type": "n phr",
+          "meaning": "xúc tiến bán hàng",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "free sample",
+          "type": "n phr",
+          "meaning": "mẫu dùng thử miễn phí",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "word-of-mouth advertising",
+          "type": "n phr",
+          "meaning": "quảng cáo truyền miệng",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "viral marketing",
+          "type": "n phr",
+          "meaning": "marketing lan truyền",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "commercial",
+          "type": "n",
+          "meaning": "mẩu quảng cáo trên truyền hình/radio",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "poster",
+          "type": "n",
+          "meaning": "áp phích",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "billboard",
+          "type": "n",
+          "meaning": "biển quảng cáo lớn",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "direct mail",
+          "type": "n phr",
+          "meaning": "thư quảng cáo trực tiếp",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "flyer / flier / handbill",
+          "type": "n",
+          "meaning": "tờ rơi",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "coupon",
+          "type": "n",
+          "meaning": "phiếu giảm giá",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "point-of-sale display",
+          "type": "n phr",
+          "meaning": "trưng bày tại điểm bán",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "promotional item",
+          "type": "n phr",
+          "meaning": "quà/tặng phẩm quảng cáo",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "text message",
+          "type": "n phr",
+          "meaning": "tin nhắn văn bản",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "banner advertisement",
+          "type": "n phr",
+          "meaning": "quảng cáo banner",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "pop-up",
+          "type": "n",
+          "meaning": "cửa sổ quảng cáo bật lên",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "spam email",
+          "type": "n phr",
+          "meaning": "email rác/quảng cáo không mong muốn",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "persuade",
+          "type": "v",
+          "meaning": "thuyết phục",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "misleading",
+          "type": "adj",
+          "meaning": "gây hiểu lầm",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "untruthful",
+          "type": "adj",
+          "meaning": "không trung thực",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "memorable",
+          "type": "adj",
+          "meaning": "dễ nhớ",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "originality",
+          "type": "n",
+          "meaning": "tính độc đáo",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "repetition",
+          "type": "n",
+          "meaning": "sự lặp lại",
+          "note": "Business English / key term"
+        }
+      ]
+    },
+    {
+      "id": "unit_14",
+      "unit": 14,
+      "name": "Banking",
+      "words": [
+        {
+          "word": "current account / checking account",
+          "type": "n phr",
+          "meaning": "tài khoản thanh toán",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "savings account / deposit account",
+          "type": "n phr",
+          "meaning": "tài khoản tiết kiệm/tiền gửi",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "cashpoint / ATM",
+          "type": "n",
+          "meaning": "máy rút tiền tự động",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "chequebook / checkbook",
+          "type": "n",
+          "meaning": "sổ séc",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "credit card",
+          "type": "n",
+          "meaning": "thẻ tín dụng",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "debit card",
+          "type": "n",
+          "meaning": "thẻ ghi nợ",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "loan",
+          "type": "n",
+          "meaning": "khoản vay",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "foreign currency",
+          "type": "n phr",
+          "meaning": "ngoại tệ",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "mortgage",
+          "type": "n",
+          "meaning": "khoản thế chấp/vay thế chấp",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "overdraft",
+          "type": "n",
+          "meaning": "thấu chi",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "investment advice",
+          "type": "n phr",
+          "meaning": "tư vấn đầu tư",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "internet banking",
+          "type": "n phr",
+          "meaning": "ngân hàng trực tuyến",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "telephone banking",
+          "type": "n phr",
+          "meaning": "ngân hàng qua điện thoại",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "commercial bank",
+          "type": "n phr",
+          "meaning": "ngân hàng thương mại",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "investment bank",
+          "type": "n phr",
+          "meaning": "ngân hàng đầu tư",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "hedge fund",
+          "type": "n phr",
+          "meaning": "quỹ đầu cơ",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "private bank",
+          "type": "n phr",
+          "meaning": "ngân hàng tư nhân",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "stockbroker",
+          "type": "n",
+          "meaning": "nhà môi giới chứng khoán",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "Islamic bank",
+          "type": "n phr",
+          "meaning": "ngân hàng Hồi giáo",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "non-bank financial intermediary",
+          "type": "n phr",
+          "meaning": "trung gian tài chính phi ngân hàng",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "deposit",
+          "type": "n/v",
+          "meaning": "tiền gửi; gửi tiền",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "capital",
+          "type": "n",
+          "meaning": "vốn",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "stocks / shares",
+          "type": "n",
+          "meaning": "cổ phiếu",
+          "note": "Phân biệt theo ngữ cảnh"
+        },
+        {
+          "word": "bonds",
+          "type": "n",
+          "meaning": "trái phiếu",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "merger",
+          "type": "n",
+          "meaning": "sáp nhập",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "takeover",
+          "type": "n",
+          "meaning": "mua lại/thâu tóm",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "stockbroking",
+          "type": "n",
+          "meaning": "môi giới chứng khoán",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "portfolio management",
+          "type": "n phr",
+          "meaning": "quản lý danh mục đầu tư",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "returns",
+          "type": "n",
+          "meaning": "lợi nhuận/sinh lời từ đầu tư",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "default",
+          "type": "n/v",
+          "meaning": "vỡ nợ; không trả nợ",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "credit rating",
+          "type": "n phr",
+          "meaning": "xếp hạng tín dụng",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "collateralized",
+          "type": "adj",
+          "meaning": "được bảo đảm bằng tài sản thế chấp",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "cash flow",
+          "type": "n phr",
+          "meaning": "dòng tiền",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "write off",
+          "type": "v phr",
+          "meaning": "xóa sổ; ghi giảm khoản nợ/tài sản",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "deregulation",
+          "type": "n",
+          "meaning": "bãi bỏ nới lỏng quy định",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "credit crunch",
+          "type": "n phr",
+          "meaning": "khủng hoảng tín dụng/suy giảm mạnh tín dụng",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "subprime borrower",
+          "type": "n phr",
+          "meaning": "người vay dưới chuẩn",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "mortgage-backed securities (MBS)",
+          "type": "n phr",
+          "meaning": "chứng khoán đảm bảo bằng khoản thế chấp",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "collateralized debt obligations (CDOs)",
+          "type": "n phr",
+          "meaning": "nghĩa vụ nợ có tài sản đảm bảo",
+          "note": "Cụm từ nên học theo cụm"
+        },
+        {
+          "word": "securitization",
+          "type": "n",
+          "meaning": "chứng khoán hóa",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "microfinance",
+          "type": "n",
+          "meaning": "tài chính vi mô",
+          "note": "Business English / key term"
+        },
+        {
+          "word": "risk-management tool",
+          "type": "n phr",
+          "meaning": "công cụ quản trị rủi ro",
+          "note": "Cụm từ nên học theo cụm"
+        }
+      ]
+    }
+  ]
+}

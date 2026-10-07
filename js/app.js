@@ -1,6 +1,7 @@
 /**
  * LexiLand — UI Orchestrator
  * Navigation, catalog, decks, home dashboard, settings and dialogs.
+ * Courses: Daily Life + English for Business Studies (8 unit decks).
  */
 document.addEventListener('DOMContentLoaded', () => {
   // 1. Boot subsystems
@@ -38,6 +39,27 @@ document.addEventListener('DOMContentLoaded', () => {
   let inspectedDeckId = null;
   let vocabQuery = '';
   let confirmResolve = null;
+
+  // ---------- Selected scope for Game Park (persists via activeDeck) ----------
+  // selectedUnitId is a deck id (e.g. ebs_unit_12 or daily_life_01); 'random' means Random Unit
+  let selectedUnitId = EGL_Vocab.activeDeckId || 'daily_life_01';
+  let selectedRandom = false;
+  // Normalize if saved id is invalid after an update
+  if (!EGL_Vocab.getDeck(selectedUnitId)) {
+    selectedUnitId = 'daily_life_01';
+    selectedRandom = false;
+  }
+
+  function resolveGameWords() {
+    if (selectedRandom) {
+      const pick = EGL_Vocab.getRandomBusinessUnitId();
+      const deck = pick ? EGL_Vocab.getDeck(pick) : null;
+      if (deck) return { words: deck.words, scopeLabel: deck.name, unitId: pick };
+    }
+    const deck = EGL_Vocab.getDeck(selectedUnitId);
+    if (!deck) return { words: EGL_Vocab.getActiveDeck().words, scopeLabel: EGL_Vocab.getActiveDeck().name, unitId: EGL_Vocab.getActiveDeck().id };
+    return { words: deck.words, scopeLabel: deck.name, unitId: deck.id };
+  }
 
   // ---------- Settings helpers ----------
   const getSettings = () => EGL_Storage.get(EGL_Storage.KEYS.SETTINGS) || {};
@@ -102,7 +124,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const views = document.querySelectorAll('.view-panel');
 
   function switchView(viewId) {
-    // Leaving the arena mid-game: stop timers, no XP awarded
     if (currentView === 'gameplay' && viewId !== 'gameplay') EGL_Engine.abandonSession();
     currentView = viewId;
     document.body.classList.toggle('is-playing', viewId === 'gameplay');
@@ -140,16 +161,133 @@ document.addEventListener('DOMContentLoaded', () => {
     el.addEventListener('click', () => requestView(el.dataset.view));
   });
 
-  function startGame(gameId, difficulty = 'normal', words = null) {
+  function startGameScoped(gameId, difficulty = 'normal') {
+    const resolved = resolveGameWords();
+    // Persist scope as active deck for progress/home consistency (except random — pick stays random)
+    if (!selectedRandom) EGL_Vocab.setActiveDeck(resolved.unitId);
+    const flyNote = selectedRandom ? `Random Unit → ${resolved.scopeLabel}` : resolved.scopeLabel;
+    EGL_Utils.toast(`Playing with: ${flyNote}`);
     switchView('gameplay');
-    EGL_Engine.startSession(gameId, difficulty, words);
+    EGL_Engine.startSession(gameId, difficulty, resolved.words);
+    // Tag session with scope for review/XP grouping (engine already stores deckName from passed words context)
+    if (EGL_Engine.activeSession) EGL_Engine.activeSession.deckName = resolved.scopeLabel;
+  }
+
+  // Legacy wrappers still used by quick-links, reco, etc. — route through scope
+  function startGame(gameId, difficulty = 'normal', words = null) {
+    if (words) {
+      switchView('gameplay');
+      EGL_Engine.startSession(gameId, difficulty, words);
+      return;
+    }
+    startGameScoped(gameId, difficulty);
   }
 
   document.querySelectorAll('[data-quick-game]').forEach(btn => {
-    btn.addEventListener('click', () => startGame(btn.dataset.quickGame, 'normal'));
+    btn.addEventListener('click', () => startGameScoped(btn.dataset.quickGame, 'normal'));
   });
 
-  $('btn-challenge-continue')?.addEventListener('click', () => startGame('multiple-choice', 'normal'));
+  $('btn-challenge-continue')?.addEventListener('click', () => startGameScoped('multiple-choice', 'normal'));
+
+  // ---------- Scope picker (Game Park) ----------
+  function setScopeCourse(courseId) {
+    if (courseId === 'daily_life') {
+      selectedUnitId = 'daily_life_01';
+      selectedRandom = false;
+    } else {
+      // Business course — default to Unit 1 if currently on daily life
+      if (selectedUnitId === 'daily_life_01' || selectedRandom) {
+        const first = EGL_Vocab.getBusinessUnits()[0];
+        selectedUnitId = first ? first.id : EGL_Vocab.getBusinessDeckIds()[0];
+        selectedRandom = false;
+      } else if (!EGL_Vocab.isBusinessUnitId(selectedUnitId)) {
+        const first = EGL_Vocab.getBusinessUnits()[0];
+        selectedUnitId = first ? first.id : selectedUnitId;
+        selectedRandom = false;
+      }
+    }
+    renderScopePicker();
+  }
+
+  function setScopeUnit(unitId) {
+    if (unitId === '__random') {
+      selectedRandom = true;
+    } else {
+      selectedUnitId = unitId;
+      selectedRandom = false;
+      EGL_Vocab.setActiveDeck(unitId);
+    }
+    renderScopePicker();
+  }
+
+  function renderScopePicker() {
+    const courseRow = $('scope-course-row');
+    const unitRow = $('scope-unit-row');
+    const cur = $('scope-current');
+    if (!courseRow || !unitRow) return;
+
+    const isDaily = !selectedRandom && selectedUnitId === 'daily_life_01';
+    const isBusiness = !isDaily || selectedRandom || EGL_Vocab.isBusinessUnitId(selectedUnitId);
+
+    const dailyDeck = EGL_Vocab.getDeck('daily_life_01');
+    const businessUnits = EGL_Vocab.getBusinessUnits();
+
+    courseRow.innerHTML = `
+      <button class="scope-pill ${isDaily ? 'is-active' : ''}" data-course="daily_life" type="button">
+        <span class="scope-pill-kicker">Course</span>
+        <span class="scope-pill-name">Daily Life</span>
+        <span class="scope-pill-meta">${dailyDeck ? dailyDeck.words.length : 0} words</span>
+      </button>
+      <button class="scope-pill ${!isDaily ? 'is-active' : ''}" data-course="business" type="button">
+        <span class="scope-pill-kicker">Course</span>
+        <span class="scope-pill-name">Business Studies</span>
+        <span class="scope-pill-meta">8 units · 255 words</span>
+      </button>
+    `;
+
+    courseRow.querySelectorAll('[data-course]').forEach(b => {
+      b.addEventListener('click', () => {
+        if (b.dataset.course === 'daily_life') setScopeCourse('daily_life');
+        else setScopeCourse('business');
+      });
+    });
+
+    if (isDaily) {
+      unitRow.innerHTML = `
+        <button class="scope-pill is-active" data-unit="daily_life_01" type="button">
+          <span class="scope-pill-kicker">Unit</span>
+          <span class="scope-pill-name">Daily Life Essentials</span>
+          <span class="scope-pill-meta">${dailyDeck.words.length} words</span>
+        </button>
+      `;
+      unitRow.querySelectorAll('[data-unit]').forEach(b => b.addEventListener('click', () => setScopeUnit(b.dataset.unit)));
+      cur.innerHTML = `Playing with <strong>${esc(dailyDeck.name)}</strong> · ${dailyDeck.words.length} words <span class="scope-dot"></span> Games will use only this deck.`;
+    } else {
+      unitRow.innerHTML = businessUnits.map(u => {
+        const active = !selectedRandom && selectedUnitId === u.id;
+        return `<button class="scope-pill ${active ? 'is-active' : ''}" data-unit="${esc(u.id)}" type="button">
+          <span class="scope-pill-kicker">Unit ${u.unit}</span>
+          <span class="scope-pill-name">${esc(u.name)}</span>
+          <span class="scope-pill-meta">${u.words.length} words</span>
+        </button>`;
+      }).join('') + `
+        <button class="scope-pill scope-pill--random ${selectedRandom ? 'is-active' : ''}" data-unit="__random" type="button">
+          <span class="scope-pill-kicker">Surprise</span>
+          <span class="scope-pill-name">Random Unit</span>
+          <span class="scope-pill-meta">Pick 1 of 8</span>
+        </button>
+      `;
+      unitRow.querySelectorAll('[data-unit]').forEach(b => b.addEventListener('click', () => setScopeUnit(b.dataset.unit)));
+      if (selectedRandom) {
+        cur.innerHTML = `Playing with <strong>Random Unit</strong> <span class="scope-dot"></span> A random Business Studies unit will be picked when you start a game — only that unit's words.`;
+      } else {
+        const d = EGL_Vocab.getDeck(selectedUnitId);
+        cur.innerHTML = d
+          ? `Playing with <strong>${esc(d.name)}</strong> · ${d.words.length} words <span class="scope-dot"></span> Games will use only this unit.`
+          : `Choose a unit to start playing.`;
+      }
+    }
+  }
 
   // 3. Games catalog ---------------------------------------------------------
   const selectedDifficulty = () =>
@@ -181,7 +319,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }).join('');
 
     catalog.querySelectorAll('.game-card').forEach(card => {
-      const play = () => startGame(card.dataset.gid, selectedDifficulty());
+      const play = () => startGameScoped(card.dataset.gid, selectedDifficulty());
       card.addEventListener('click', play);
       card.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); play(); }
@@ -199,14 +337,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // 4. Decks & inspector -----------------------------------------------------
   const wordMatches = (w, q) =>
-    (w.word || '').toLowerCase().includes(q) || (w.meaning || '').toLowerCase().includes(q);
+    (w.word || '').toLowerCase().includes(q) || (w.meaning || '').toLowerCase().includes(q) || (w.type || '').toLowerCase().includes(q) || (w.note || '').toLowerCase().includes(q);
 
   const deckMatches = (d, q) => {
     if (!q) return true;
     return (d.name || '').toLowerCase().includes(q) ||
+           (d.shortName || '').toLowerCase().includes(q) ||
            (d.description || '').toLowerCase().includes(q) ||
            d.words.some(w => wordMatches(w, q));
   };
+
+  function courseSections() {
+    const daily = EGL_Vocab.getDeck('daily_life_01');
+    const businessUnits = EGL_Vocab.getBusinessUnits().map(u => EGL_Vocab.getDeck(u.id)).filter(Boolean);
+    return [
+      { id: 'daily_life', name: 'Daily Life', decks: daily ? [daily] : [] },
+      { id: 'english_for_business_studies', name: 'English for Business Studies', level: 'Business English', description: '8 units · 255 words — Management to Banking. Pick a unit to study.', decks: businessUnits }
+    ];
+  }
 
   function deckCardHTML(d) {
     let total = 0;
@@ -214,11 +362,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const avg = d.words.length > 0 ? Math.round(total / d.words.length) : 0;
     const isActive = (d.id === EGL_Vocab.activeDeckId);
     const level = d.level || 'A2';
+    const unitBadge = d.unitNumber ? `Unit ${d.unitNumber}` : level;
 
     return `
-      <article class="deck-card lvl-${esc(level)} ${isActive ? 'is-active' : ''}">
+      <article class="deck-card lvl-${esc(level)} ${isActive ? 'is-active' : ''} ${d.courseId === 'english_for_business_studies' ? 'deck-card--unit' : ''}">
         <div class="deck-card-top">
-          <span class="tag tag-level">${esc(level)}</span>
+          <span class="tag tag-level">${esc(unitBadge)}</span>
           <span class="deck-count">${d.words.length} từ</span>
         </div>
         <h4>${esc(d.name)}</h4>
@@ -228,7 +377,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <div class="deck-actions">
           <button class="btn btn-secondary btn-sm btn-inspect" data-id="${esc(d.id)}">Xem từ</button>
           <button class="btn btn-primary btn-sm btn-select-deck ${isActive ? 'is-current' : ''}" data-id="${esc(d.id)}">
-            ${isActive ? `${icons.check} Đang chọn` : 'Chọn học'}
+            ${isActive ? `${icons.check} Đang chọn` : 'Bắt đầu học'}
           </button>
         </div>
       </article>
@@ -238,24 +387,23 @@ document.addEventListener('DOMContentLoaded', () => {
   function renderDecksUI() {
     const list = $('vocab-packs-container');
     const homePreview = $('home-decks-preview');
-    const select = $('select-active-deck');
+    const sections = courseSections();
+    const allDecks = EGL_Vocab.decks;
+
+    // Sidebar & active deck label driven by activeDeckId
     const activeDeck = EGL_Vocab.getActiveDeck();
-
     if ($('sidebar-active-deck-name')) $('sidebar-active-deck-name').innerText = activeDeck.name;
-
-    if (select) {
-      select.innerHTML = EGL_Vocab.decks.map(d => `
-        <option value="${esc(d.id)}" ${d.id === EGL_Vocab.activeDeckId ? 'selected' : ''}>${esc(d.name)} (${d.words.length} từ)</option>
-      `).join('');
-      select.onchange = (e) => {
-        EGL_Vocab.setActiveDeck(e.target.value);
-        renderDecksUI();
-      };
-    }
 
     const bindDeckButtons = (root, onInspect) => {
       root.querySelectorAll('.btn-select-deck').forEach(b => {
-        b.onclick = () => { EGL_Vocab.setActiveDeck(b.dataset.id); renderDecksUI(); };
+        b.onclick = () => {
+          EGL_Vocab.setActiveDeck(b.dataset.id);
+          // Keep Game Park scope in sync when user picks from Word Decks
+          selectedUnitId = b.dataset.id;
+          selectedRandom = false;
+          renderDecksUI();
+          renderScopePicker();
+        };
       });
       root.querySelectorAll('.btn-inspect').forEach(b => {
         b.onclick = () => onInspect(b.dataset.id);
@@ -263,15 +411,45 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     if (list) {
-      const shown = EGL_Vocab.decks.filter(d => deckMatches(d, vocabQuery));
-      list.innerHTML = shown.length
-        ? shown.map(deckCardHTML).join('')
-        : '<div class="empty">Không tìm thấy bộ từ nào phù hợp.</div>';
-      bindDeckButtons(list, (id) => inspectDeck(id));
+      const filteredSections = sections.map(sec => ({
+        ...sec,
+        decks: sec.decks.filter(d => deckMatches(d, vocabQuery))
+      })).filter(sec => sec.decks.length > 0 || !vocabQuery);
+
+      if (vocabQuery) {
+        const flat = allDecks.filter(d => deckMatches(d, vocabQuery));
+        list.innerHTML = flat.length
+          ? flat.map(deckCardHTML).join('')
+          : '<div class="empty">Không tìm thấy bộ từ nào phù hợp.</div>';
+        bindDeckButtons(list, (id) => inspectDeck(id));
+      } else {
+        list.innerHTML = filteredSections.map(sec => {
+          const isBusiness = sec.id === 'english_for_business_studies';
+          return `
+            <div class="course-block ${isBusiness ? 'course-block--business' : ''}">
+              <div class="course-head">
+                <div>
+                  <h4 class="course-title">${esc(sec.name)}</h4>
+                  <p class="hint">${esc(sec.description || (isBusiness ? '8 units · 255 words' : 'Everyday vocabulary'))}</p>
+                </div>
+                <span class="tag ${isBusiness ? 'tag-honey' : 'tag-sky'}">${sec.decks.length} ${sec.decks.length === 1 ? 'deck' : 'units'}</span>
+              </div>
+              <div class="deck-grid">${sec.decks.map(deckCardHTML).join('')}</div>
+            </div>
+          `;
+        }).join('');
+        bindDeckButtons(list, (id) => inspectDeck(id));
+      }
     }
 
     if (homePreview) {
-      homePreview.innerHTML = EGL_Vocab.decks.slice(0, 3).map(deckCardHTML).join('');
+      // Show Daily Life + first 2 business units as preview
+      const previewDecks = [];
+      const daily = EGL_Vocab.getDeck('daily_life_01');
+      if (daily) previewDecks.push(daily);
+      const biz = EGL_Vocab.getBusinessUnits().slice(0, 2).map(u => EGL_Vocab.getDeck(u.id)).filter(Boolean);
+      previewDecks.push(...biz);
+      homePreview.innerHTML = previewDecks.slice(0, 3).map(deckCardHTML).join('');
       bindDeckButtons(homePreview, (id) => { switchView('vocabulary'); inspectDeck(id); });
     }
 
@@ -324,7 +502,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (inspectedDeckId && $('words-inspector').style.display !== 'none') inspectDeck(inspectedDeckId, false);
   });
 
-  // Pronounce buttons anywhere (delegated; avoids inline onclick with unescaped words)
   document.addEventListener('click', (e) => {
     const btn = e.target.closest('[data-speak]');
     if (btn) EGL_Utils.speak(btn.dataset.speak);
@@ -360,6 +537,7 @@ document.addEventListener('DOMContentLoaded', () => {
     ['deck-form-name', 'deck-form-desc', 'deck-form-json'].forEach(id => { $(id).value = ''; });
     closeDeckModal();
     renderDecksUI();
+    renderScopePicker();
     EGL_Utils.toast('Đã tạo bộ từ mới');
   });
 
@@ -372,6 +550,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (EGL_Vocab.importJSON(evt.target.result)) {
         EGL_Utils.toast('Đã thêm bộ từ mới thành công!');
         renderDecksUI();
+        renderScopePicker();
       } else {
         EGL_Utils.toast('File JSON không hợp lệ.');
       }
@@ -427,7 +606,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const practiced = masteries.filter(m => m > 0).length;
     const xp = xpInfo();
 
-    // Ledger
     $('home-stat-level').innerText = d.level;
     $('home-xp-bar').style.width = `${xp.pct}%`;
     $('home-stat-xp').innerText = `${xp.cur} / ${xp.need} XP`;
@@ -439,12 +617,11 @@ document.addEventListener('DOMContentLoaded', () => {
       ? `${Math.round((d.correctAnswers / d.questionsAnswered) * 100)}%` : '—';
     $('home-stat-games').innerText = `${d.gamesPlayed} ${d.gamesPlayed === 1 ? 'round' : 'rounds'} played`;
 
-    // Continue learning
     const level = deck.level || 'A2';
     $('home-deck-name').innerText = deck.name;
     $('home-deck-desc').innerText = deck.description || 'Bộ từ vựng chủ đề giao tiếp thực hành.';
     const lvlTag = $('home-deck-level');
-    lvlTag.innerText = level;
+    lvlTag.innerText = deck.unitNumber ? `Unit ${deck.unitNumber}` : level;
     lvlTag.className = `tag tag-level lvl-${level}`;
     $('home-deck-mastery').innerText = `${avg}%`;
     const bar = $('home-deck-bar');
@@ -452,7 +629,6 @@ document.addEventListener('DOMContentLoaded', () => {
     bar.className = `meter-fill ${meterClass(avg)}`;
     $('home-deck-sub').innerText = `${practiced} practiced · ${mastered} mastered · ${deck.words.length} total`;
 
-    // Recommended game
     const gid = recommendedGameId();
     const game = gid && EGL_Engine.games[gid];
     if (game) {
@@ -463,10 +639,9 @@ document.addEventListener('DOMContentLoaded', () => {
       $('reco-name').innerText = game.name;
       $('reco-desc').innerText = game.description;
       $('reco-tag').innerText = m.tag;
-      $('btn-reco-play').onclick = () => startGame(gid, 'normal');
+      $('btn-reco-play').onclick = () => startGameScoped(gid, 'normal');
     }
 
-    // Daily habit
     const dc = d.dailyChallenge;
     const pct = Math.min(100, Math.round((dc.current / dc.target) * 100));
     $('home-challenge-fill').style.width = `${pct}%`;
@@ -476,7 +651,6 @@ document.addEventListener('DOMContentLoaded', () => {
       : `${Math.max(0, dc.target - dc.current)} more correct answers to go.`;
     document.querySelector('.habit')?.classList.toggle('is-done', !!dc.completed);
 
-    // Recent activity
     const recent = d.recentSessions || [];
     $('home-recent-list').innerHTML = recent.length
       ? recent.map(r => `
@@ -496,11 +670,13 @@ document.addEventListener('DOMContentLoaded', () => {
   function renderWeakWords() {
     const box = $('weak-words-container');
     if (!box) return;
-    const sorted = EGL_Vocab.getActiveDeck().words
+    const deck = EGL_Vocab.getActiveDeck();
+    const sorted = deck.words
       .map(w => ({ ...w, mastery: EGL_Progress.getMastery(w.word) }))
       .sort((a, b) => a.mastery - b.mastery);
 
-    box.innerHTML = sorted.map(w => `
+    box.innerHTML = sorted.length
+      ? sorted.map(w => `
       <div class="weak-row">
         <div class="weak-main">
           <strong>${esc(w.word)}</strong>
@@ -512,7 +688,8 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>
         <button class="icon-btn" data-speak="${esc(w.word)}" aria-label="Pronounce ${esc(w.word)}">${icons.speak}</button>
       </div>
-    `).join('');
+    `).join('')
+      : '<div class="empty">No words in this deck.</div>';
   }
 
   function renderAchievements() {
@@ -559,14 +736,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const d = EGL_Progress.data;
     const xp = xpInfo();
 
-    // Sidebar HUD
     $('hud-streak-text').innerText = `${d.streak} day streak`;
     $('hud-level-text').innerText = `Level ${d.level}`;
     $('hud-xp-display').innerText = `${xp.cur} / ${xp.need} XP`;
     $('hud-xp-bar').style.width = `${xp.pct}%`;
     if ($('top-level-chip')) $('top-level-chip').innerText = `Lv ${d.level}`;
 
-    // Header daily chip
     const dc = d.dailyChallenge;
     $('top-challenge-text').innerText = `Daily: ${dc.current}/${dc.target} từ`;
     $('top-challenge-chip')?.classList.toggle('is-done', !!dc.completed);
@@ -582,7 +757,26 @@ document.addEventListener('DOMContentLoaded', () => {
   $('btn-res-play-again')?.addEventListener('click', () => {
     hideResults();
     const s = EGL_Engine.activeSession;
-    if (s) EGL_Engine.startSession(s.gameId, s.difficulty);
+    if (s) {
+      // Replay same scope (respect Random)
+      const gid = s.gameId;
+      const diff = s.difficulty;
+      if (selectedRandom) {
+        const pick = EGL_Vocab.getRandomBusinessUnitId();
+        const deck = pick ? EGL_Vocab.getDeck(pick) : null;
+        if (deck) {
+          EGL_Utils.toast(`Random Unit → ${deck.name}`);
+          switchView('gameplay');
+          EGL_Engine.startSession(gid, diff, deck.words);
+          if (EGL_Engine.activeSession) EGL_Engine.activeSession.deckName = deck.name;
+          return;
+        }
+      }
+      const d = EGL_Vocab.getDeck(selectedUnitId);
+      switchView('gameplay');
+      EGL_Engine.startSession(gid, diff, d ? d.words : null);
+      if (EGL_Engine.activeSession && d) EGL_Engine.activeSession.deckName = d.name;
+    }
   });
 
   $('btn-res-choose-game')?.addEventListener('click', () => {
@@ -599,7 +793,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const deck = EGL_Vocab.getActiveDeck();
     const weak = deck.words.filter(w => EGL_Progress.getMastery(w.word) < 60);
     const pool = weak.length >= 4 ? weak : deck.words;
-    startGame('multiple-choice', 'normal', pool);
+    switchView('gameplay');
+    EGL_Engine.startSession('multiple-choice', 'normal', pool);
+    if (EGL_Engine.activeSession) EGL_Engine.activeSession.deckName = deck.name + ' · weak words';
   }
   $('btn-start-weak-session')?.addEventListener('click', startWeakWordsSession);
   $('btn-home-weak')?.addEventListener('click', startWeakWordsSession);
@@ -609,7 +805,6 @@ document.addEventListener('DOMContentLoaded', () => {
     switchView('games');
   });
 
-  // Keep the HUD and home fresh as soon as a round ends
   document.addEventListener('egl:session-end', refreshUI);
 
   // 8. Settings --------------------------------------------------------------
@@ -617,7 +812,7 @@ document.addEventListener('DOMContentLoaded', () => {
   $('setting-tts')?.addEventListener('change', (e) => { saveSetting('tts', e.target.checked); });
 
   $('btn-quick-sound')?.addEventListener('click', () => {
-    const on = getSettings().sfx === false; // toggled value
+    const on = getSettings().sfx === false;
     saveSetting('sfx', on);
     syncSettingsUI();
     EGL_Utils.toast(on ? 'Đã bật âm thanh' : 'Đã tắt âm thanh');
@@ -662,7 +857,6 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    // Shortcuts 1–4 for Multiple Choice (ignored while typing in a field)
     if (e.target instanceof Element && e.target.closest('input, textarea, select')) return;
     if (['Digit1', 'Digit2', 'Digit3', 'Digit4'].includes(e.code)) {
       const idx = parseInt(e.code.replace('Digit', ''), 10) - 1;
@@ -673,6 +867,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // 10. Initial render -------------------------------------------------------
   syncSettingsUI();
+  renderScopePicker();
   renderGamesList();
   renderDecksUI();
   refreshUI();
