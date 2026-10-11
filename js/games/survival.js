@@ -10,7 +10,7 @@ EGL_Engine.register({
     this.engine = engine;
     this.lives = 3;
     this.idx = 0;
-    this.fuseTime = 5000; // ms per round, shrinks as the game goes on
+    this.fuseTime = 5000;
     this.locked = false;
     this.current = null;
     this.countdownInterval = null;
@@ -33,6 +33,8 @@ EGL_Engine.register({
       }
     };
     document.addEventListener('keydown', this._onKey);
+    this._langHandler = () => { if (this.active) this.patchLanguage(); };
+    document.addEventListener('egl:language-change', this._langHandler);
 
     this.nextRound();
   },
@@ -42,12 +44,30 @@ EGL_Engine.register({
     this._timers.add(t);
   },
 
+  patchLanguage() {
+    if (!this.active) return;
+    const i18n = (typeof EGL_I18n !== 'undefined') ? EGL_I18n : null;
+    const tt = (k, p) => i18n ? i18n.t(k, p) : k;
+    const roundEl = this.container.querySelector('#sv-round-label');
+    if (roundEl && this.current) {
+      const total = this.words.length;
+      roundEl.textContent = tt('survival.round', { current: this.idx + 1, total });
+    }
+    const fuseEl = this.container.querySelector('#sv-fuse-label');
+    if (fuseEl) fuseEl.textContent = tt('survival.fuse', { seconds: (this.fuseTime / 1000).toFixed(1) });
+    const banner = this.container.querySelector('#sv-banner');
+    if (banner && !this.locked) banner.textContent = tt('survival.banner.pick');
+    this.updateLivesDisplay();
+  },
+
   updateLivesDisplay() {
     const el = document.getElementById('game-lives');
     if (!el) return;
+    const i18n = (typeof EGL_I18n !== 'undefined') ? EGL_I18n : null;
+    const tt = (k, p) => i18n ? i18n.t(k, p) : k;
     const heart = '<svg class="life LOST" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7.5-4.6-9.6-9.3C.9 8.3 3 5 6.4 5c2.1 0 3.8 1.2 5.6 3.2C13.8 6.2 15.5 5 17.6 5 21 5 23.1 8.3 21.6 11.7 19.5 16.4 12 21 12 21z"/></svg>';
     el.innerHTML = [0, 1, 2].map(i => heart.replace('LOST', i < this.lives ? '' : 'lost')).join('');
-    el.setAttribute('aria-label', `${Math.max(0, this.lives)} lives left`);
+    el.setAttribute('aria-label', tt('survival.lives', { count: Math.max(0, this.lives) }));
   },
 
   nextRound() {
@@ -61,18 +81,20 @@ EGL_Engine.register({
     }
 
     const esc = EGL_Utils.escapeHtml;
+    const i18n = (typeof EGL_I18n !== 'undefined') ? EGL_I18n : null;
+    const tt = (k, p) => i18n ? i18n.t(k, p) : k;
     const cur = this.words[this.idx];
     const opts = EGL_Utils.shuffle([cur, ...this.engine.getDistractors(cur, 3)]);
     this.current = { cur, opts };
     this.locked = false;
-    this.engine.setProgress(this.idx, total, `Round ${this.idx + 1} / ${total}`);
+    this.engine.setProgress(this.idx, total, tt('survival.round', { current: this.idx + 1, total }));
 
     this.container.innerHTML = `
       <div class="g-arena sv-arena g-anim" id="sv-arena">
         <div class="sv-stage-card" id="bomb-card">
           <div class="sv-meta">
-            <span>Round ${this.idx + 1} / ${total}</span>
-            <span>Fuse ${(this.fuseTime / 1000).toFixed(1)}s</span>
+            <span id="sv-round-label">${esc(tt('survival.round', { current: this.idx + 1, total }))}</span>
+            <span id="sv-fuse-label">${esc(tt('survival.fuse', { seconds: (this.fuseTime / 1000).toFixed(1) }))}</span>
           </div>
 
           <svg class="sv-bomb" viewBox="0 0 220 200" role="img" aria-label="A bomb with a burning fuse">
@@ -87,7 +109,7 @@ EGL_Engine.register({
           </svg>
 
           <div class="sv-word">${esc(cur.word)}</div>
-          <div class="sv-banner" id="sv-banner">Pick the right meaning to defuse it</div>
+          <div class="sv-banner" id="sv-banner">${esc(tt('survival.banner.pick'))}</div>
         </div>
 
         <div class="sv-grid">
@@ -119,7 +141,7 @@ EGL_Engine.register({
       if (remaining <= 1800) {
         arena.classList.add('is-danger');
         const banner = this.container.querySelector('#sv-banner');
-        if (banner) banner.textContent = 'Hurry, the fuse is almost out!';
+        if (banner) banner.textContent = (typeof EGL_I18n !== 'undefined') ? EGL_I18n.t('survival.banner.hurry') : 'Hurry, the fuse is almost out!';
       }
       if (remaining <= 0) this.resolve(-1);
     };
@@ -140,14 +162,16 @@ EGL_Engine.register({
     const { cur, opts } = this.current;
     const timedOut = pickedIndex < 0;
     const isCorrect = !timedOut && opts[pickedIndex].word === cur.word;
+    const i18n = (typeof EGL_I18n !== 'undefined') ? EGL_I18n : null;
+    const tt = (k, p) => i18n ? i18n.t(k, p) : k;
 
     const arena = this.container.querySelector('#sv-arena');
     const count = this.container.querySelector('#bomb-seconds');
     const banner = this.container.querySelector('#sv-banner');
     arena.classList.remove('is-danger');
     arena.classList.add(isCorrect ? 'is-defused' : 'is-boom');
-    count.textContent = isCorrect ? 'SAFE' : 'POP!';
-    banner.textContent = isCorrect ? 'Defused!' : (timedOut ? "Time's up! You lost a life." : 'Wrong wire! You lost a life.');
+    count.textContent = isCorrect ? tt('survival.count.safe') : tt('survival.count.pop');
+    banner.textContent = isCorrect ? tt('survival.banner.defused') : (timedOut ? tt('survival.banner.timeout') : tt('survival.banner.wrong'));
 
     this.container.querySelectorAll('.btn-bomb-option').forEach((b, i) => {
       b.disabled = true;
@@ -163,7 +187,7 @@ EGL_Engine.register({
 
     this.engine.recordAnswer(isCorrect, cur);
     this.idx++;
-    this.fuseTime = Math.max(2200, this.fuseTime - 250); // progressively accelerates
+    this.fuseTime = Math.max(2200, this.fuseTime - 250);
 
     this.later(() => this.nextRound(), isCorrect ? 750 : 1400);
   },
@@ -173,6 +197,7 @@ EGL_Engine.register({
     clearInterval(this.countdownInterval);
     if (this._timers) { this._timers.forEach(clearTimeout); this._timers.clear(); }
     if (this._onKey) { document.removeEventListener('keydown', this._onKey); this._onKey = null; }
+    if (this._langHandler) { document.removeEventListener('egl:language-change', this._langHandler); this._langHandler = null; }
     const livesPill = document.getElementById('lives-pill');
     if (livesPill) livesPill.style.display = 'none';
   }

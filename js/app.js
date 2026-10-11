@@ -16,6 +16,19 @@ document.addEventListener('DOMContentLoaded', () => {
   const GAME_ORDER = ['flashcard', 'multiple-choice', 'word-match', 'typing', 'memory',
                       'unscramble', 'true-false', 'spelling', 'speed-quiz', 'survival'];
   const DEFAULT_ART = '<i></i><i></i><i></i>';
+  // Game tags/meta are driven by i18n keys (Phase 2B) — vocabulary content stays English
+  const GAME_TAG_KEYS = {
+    'flashcard': 'game.tag.study', 'multiple-choice': 'game.tag.quiz', 'word-match': 'game.tag.pairs',
+    'typing': 'game.tag.recall', 'spelling': 'game.tag.listening', 'unscramble': 'game.tag.letters',
+    'true-false': 'game.tag.quick', 'speed-quiz': 'game.tag.timed', 'memory': 'game.tag.memory',
+    'survival': 'game.tag.survival'
+  };
+  const GAME_META_KEYS = {
+    'flashcard': 'game.meta.flashcard', 'multiple-choice': 'game.meta.multipleChoice', 'word-match': 'game.meta.wordMatch',
+    'typing': 'game.meta.typing', 'spelling': 'game.meta.spelling', 'unscramble': 'game.meta.unscramble',
+    'true-false': 'game.meta.trueFalse', 'speed-quiz': 'game.meta.speedQuiz', 'memory': 'game.meta.memory',
+    'survival': 'game.meta.survival'
+  };
   const GAME_META = {
     'flashcard':       { tone: 'sage',    tag: 'Study',          meta: 'Flip & self-rate' },
     'multiple-choice': { tone: 'sky',     tag: 'Quiz',           meta: '4 choices · keys 1–4' },
@@ -28,12 +41,22 @@ document.addEventListener('DOMContentLoaded', () => {
     'memory':          { tone: 'lav',     tag: 'Memory',         meta: '6 pairs · flip cards' },
     'survival':        { tone: 'rose',    tag: 'Survival',       meta: '3 lives · shrinking fuse' }
   };
+  function i18nTag(id) {
+    const k = GAME_TAG_KEYS[id];
+    const i18n = (typeof EGL_I18n !== 'undefined') ? EGL_I18n : null;
+    return k && i18n ? i18n.t(k) : (GAME_META[id]?.tag || 'Game');
+  }
+  function i18nMeta(id) {
+    const k = GAME_META_KEYS[id];
+    const i18n = (typeof EGL_I18n !== 'undefined') ? EGL_I18n : null;
+    return k && i18n ? i18n.t(k) : (GAME_META[id]?.meta || '');
+  }
   const metaFor = (id) => GAME_META[id] || { tone: 'sky', tag: 'Game', meta: 'Vocabulary practice' };
-  const DIFF_INFO = {
-    easy: 'Easy · 8 words per round',
-    normal: 'Normal · 10 words per round',
-    hard: 'Hard · 15 words per round'
-  };
+  function diffInfo(diff) {
+    const i18n = (typeof EGL_I18n !== 'undefined') ? EGL_I18n : null;
+    const key = diff === 'easy' ? 'gamePark.diffHint.easy' : diff === 'hard' ? 'gamePark.diffHint.hard' : 'gamePark.diffHint.normal';
+    return i18n ? i18n.t(key) : (diff === 'easy' ? 'Easy · 8 words per round' : diff === 'hard' ? 'Hard · 15 words per round' : 'Normal · 10 words per round');
+  }
 
   let currentView = 'home';
   let inspectedDeckId = null;
@@ -75,7 +98,9 @@ document.addEventListener('DOMContentLoaded', () => {
     if ($('setting-tts')) $('setting-tts').checked = s.tts !== false;
     const btn = $('btn-quick-sound');
     if (btn) btn.setAttribute('aria-pressed', String(sfxOn));
-    if ($('sound-label')) $('sound-label').innerText = sfxOn ? 'Sound on' : 'Sound off';
+    const i18n = (typeof EGL_I18n !== 'undefined') ? EGL_I18n : null;
+    const labelKey = sfxOn ? 'settings.sound.on' : 'settings.sound.off';
+    if ($('sound-label')) $('sound-label').innerText = i18n ? i18n.t(labelKey) : (sfxOn ? 'Sound on' : 'Sound off');
   }
 
   // ---------- In-page confirm dialog ----------
@@ -106,10 +131,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const meterClass = (m) => (m < 40 ? 'low' : m < 70 ? 'mid' : '');
 
   function whenLabel(ts) {
+    const i18n = (typeof EGL_I18n !== 'undefined') ? EGL_I18n : null;
     const d = new Date(ts);
     const time = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    if (d.toDateString() === new Date().toDateString()) return `Today, ${time}`;
-    if (d.toDateString() === new Date(Date.now() - 86400000).toDateString()) return `Yesterday, ${time}`;
+    if (d.toDateString() === new Date().toDateString()) return i18n ? i18n.t('common.today', { time }) : `Today, ${time}`;
+    if (d.toDateString() === new Date(Date.now() - 86400000).toDateString()) return i18n ? i18n.t('common.yesterday', { time }) : `Yesterday, ${time}`;
     return d.toLocaleDateString([], { day: '2-digit', month: '2-digit' });
   }
 
@@ -142,11 +168,12 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function confirmLeaveGame() {
+    const i18n = (typeof EGL_I18n !== 'undefined') ? EGL_I18n : null;
     return askConfirm({
-      title: 'Rời khỏi ván chơi hiện tại?',
-      text: 'Điểm và XP của ván này sẽ không được tính.',
-      ok: 'Rời đi',
-      cancel: 'Ở lại'
+      title: i18n ? i18n.t('dialog.leaveGame.title') : 'Rời khỏi ván chơi hiện tại?',
+      text: i18n ? i18n.t('dialog.leaveGame.text') : 'Điểm và XP của ván này sẽ không được tính.',
+      ok: i18n ? i18n.t('dialog.leaveGame.ok') : 'Rời đi',
+      cancel: i18n ? i18n.t('dialog.leaveGame.cancel') : 'Ở lại'
     });
   }
 
@@ -162,14 +189,15 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   function startGameScoped(gameId, difficulty = 'normal') {
+    const i18n = (typeof EGL_I18n !== 'undefined') ? EGL_I18n : null;
     const resolved = resolveGameWords();
-    // Persist scope as active deck for progress/home consistency (except random — pick stays random)
     if (!selectedRandom) EGL_Vocab.setActiveDeck(resolved.unitId);
-    const flyNote = selectedRandom ? `Random Unit → ${resolved.scopeLabel}` : resolved.scopeLabel;
-    EGL_Utils.toast(`Playing with: ${flyNote}`);
+    const flyNote = selectedRandom
+      ? (i18n ? i18n.t('gameplay.playingWithRandom', { name: resolved.scopeLabel }) : `Random Unit → ${resolved.scopeLabel}`)
+      : (i18n ? i18n.t('gameplay.playingWith', { name: resolved.scopeLabel }) : `Playing with: ${resolved.scopeLabel}`);
+    EGL_Utils.toast(flyNote);
     switchView('gameplay');
     EGL_Engine.startSession(gameId, difficulty, resolved.words);
-    // Tag session with scope for review/XP grouping (engine already stores deckName from passed words context)
     if (EGL_Engine.activeSession) EGL_Engine.activeSession.deckName = resolved.scopeLabel;
   }
 
@@ -221,27 +249,28 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function renderScopePicker() {
+    const i18n = (typeof EGL_I18n !== 'undefined') ? EGL_I18n : null;
+    const tt = (k, p) => i18n ? i18n.t(k, p) : k;
     const courseRow = $('scope-course-row');
     const unitRow = $('scope-unit-row');
     const cur = $('scope-current');
     if (!courseRow || !unitRow) return;
 
     const isDaily = !selectedRandom && selectedUnitId === 'daily_life_01';
-    const isBusiness = !isDaily || selectedRandom || EGL_Vocab.isBusinessUnitId(selectedUnitId);
 
     const dailyDeck = EGL_Vocab.getDeck('daily_life_01');
     const businessUnits = EGL_Vocab.getBusinessUnits();
 
     courseRow.innerHTML = `
       <button class="scope-pill ${isDaily ? 'is-active' : ''}" data-course="daily_life" type="button">
-        <span class="scope-pill-kicker">Course</span>
-        <span class="scope-pill-name">Daily Life</span>
-        <span class="scope-pill-meta">${dailyDeck ? dailyDeck.words.length : 0} words</span>
+        <span class="scope-pill-kicker">${esc(tt('gamePark.scope.courseKicker'))}</span>
+        <span class="scope-pill-name">${esc(tt('gamePark.scope.dailyLife'))}</span>
+        <span class="scope-pill-meta">${dailyDeck ? tt('gamePark.scope.words', { count: dailyDeck.words.length }) : ''}</span>
       </button>
       <button class="scope-pill ${!isDaily ? 'is-active' : ''}" data-course="business" type="button">
-        <span class="scope-pill-kicker">Course</span>
-        <span class="scope-pill-name">Business Studies</span>
-        <span class="scope-pill-meta">8 units · 255 words</span>
+        <span class="scope-pill-kicker">${esc(tt('gamePark.scope.courseKicker'))}</span>
+        <span class="scope-pill-name">${esc(tt('gamePark.scope.businessStudies'))}</span>
+        <span class="scope-pill-meta">${esc(tt('gamePark.scope.businessMeta'))}</span>
       </button>
     `;
 
@@ -255,36 +284,36 @@ document.addEventListener('DOMContentLoaded', () => {
     if (isDaily) {
       unitRow.innerHTML = `
         <button class="scope-pill is-active" data-unit="daily_life_01" type="button">
-          <span class="scope-pill-kicker">Unit</span>
-          <span class="scope-pill-name">Daily Life Essentials</span>
-          <span class="scope-pill-meta">${dailyDeck.words.length} words</span>
+          <span class="scope-pill-kicker">${esc(tt('gamePark.scope.unitKicker'))}</span>
+          <span class="scope-pill-name">${esc(tt('gamePark.scope.dailyLifeEssentials'))}</span>
+          <span class="scope-pill-meta">${tt('gamePark.scope.words', { count: dailyDeck.words.length })}</span>
         </button>
       `;
       unitRow.querySelectorAll('[data-unit]').forEach(b => b.addEventListener('click', () => setScopeUnit(b.dataset.unit)));
-      cur.innerHTML = `Playing with <strong>${esc(dailyDeck.name)}</strong> · ${dailyDeck.words.length} words <span class="scope-dot"></span> Games will use only this deck.`;
+      cur.innerHTML = tt('gamePark.scope.playingWithDeck', { name: esc(dailyDeck.name), count: dailyDeck.words.length });
     } else {
       unitRow.innerHTML = businessUnits.map(u => {
         const active = !selectedRandom && selectedUnitId === u.id;
         return `<button class="scope-pill ${active ? 'is-active' : ''}" data-unit="${esc(u.id)}" type="button">
-          <span class="scope-pill-kicker">Unit ${u.unit}</span>
+          <span class="scope-pill-kicker">${esc(tt('gamePark.scope.unitLabel', { number: u.unit }))}</span>
           <span class="scope-pill-name">${esc(u.name)}</span>
-          <span class="scope-pill-meta">${u.words.length} words</span>
+          <span class="scope-pill-meta">${esc(tt('gamePark.scope.words', { count: u.words.length }))}</span>
         </button>`;
       }).join('') + `
         <button class="scope-pill scope-pill--random ${selectedRandom ? 'is-active' : ''}" data-unit="__random" type="button">
-          <span class="scope-pill-kicker">Surprise</span>
-          <span class="scope-pill-name">Random Unit</span>
-          <span class="scope-pill-meta">Pick 1 of 8</span>
+          <span class="scope-pill-kicker">${esc(tt('gamePark.scope.surpriseKicker'))}</span>
+          <span class="scope-pill-name">${esc(tt('gamePark.scope.randomUnit'))}</span>
+          <span class="scope-pill-meta">${esc(tt('gamePark.scope.pickOneOfEight'))}</span>
         </button>
       `;
       unitRow.querySelectorAll('[data-unit]').forEach(b => b.addEventListener('click', () => setScopeUnit(b.dataset.unit)));
       if (selectedRandom) {
-        cur.innerHTML = `Playing with <strong>Random Unit</strong> <span class="scope-dot"></span> A random Business Studies unit will be picked when you start a game — only that unit's words.`;
+        cur.innerHTML = tt('gamePark.scope.playingWithRandom');
       } else {
         const d = EGL_Vocab.getDeck(selectedUnitId);
         cur.innerHTML = d
-          ? `Playing with <strong>${esc(d.name)}</strong> · ${d.words.length} words <span class="scope-dot"></span> Games will use only this unit.`
-          : `Choose a unit to start playing.`;
+          ? tt('gamePark.scope.playingWithUnit', { name: esc(d.name), count: d.words.length })
+          : esc(tt('gamePark.scope.chooseUnit'));
       }
     }
   }
@@ -302,17 +331,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
     catalog.innerHTML = games.map(g => {
       const m = metaFor(g.id);
+      const tag = i18nTag(g.id);
+      const meta = i18nMeta(g.id);
+      const playLabel = (typeof EGL_I18n !== 'undefined') ? EGL_I18n.t('gamePark.card.play') : 'Play';
       return `
-        <article class="game-card tone-${m.tone}" data-gid="${esc(g.id)}" role="button" tabindex="0" aria-label="Play ${esc(g.name)}">
+        <article class="game-card tone-${m.tone}" data-gid="${esc(g.id)}" role="button" tabindex="0" aria-label="${esc(((typeof EGL_I18n !== 'undefined') ? EGL_I18n.t('gamePark.card.ariaPlay', { name: g.name }) : `Play ${g.name}`))}">
           <div class="game-art art-${esc(g.id)}" aria-hidden="true">${m.art || DEFAULT_ART}</div>
           <div class="game-card-body">
             <div class="game-card-tags">
-              <span class="tag">${esc(m.tag)}</span>
-              <span class="game-card-meta">${esc(m.meta)}</span>
+              <span class="tag">${esc(tag)}</span>
+              <span class="game-card-meta">${esc(meta)}</span>
             </div>
             <h4>${esc(g.name)}</h4>
             <p>${esc(g.description)}</p>
-            <span class="game-card-cta">Play ${icons.arrow}</span>
+            <span class="game-card-cta">${esc(playLabel)} ${icons.arrow}</span>
           </div>
         </article>
       `;
@@ -331,7 +363,8 @@ document.addEventListener('DOMContentLoaded', () => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('#seg-difficulty .seg-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
-      if ($('diff-hint')) $('diff-hint').innerText = DIFF_INFO[btn.dataset.diff] || '';
+      const cur = btn.dataset.diff;
+      if ($('diff-hint')) $('diff-hint').innerText = diffInfo(cur);
     });
   });
 
@@ -348,36 +381,41 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   function courseSections() {
+    const i18n = (typeof EGL_I18n !== 'undefined') ? EGL_I18n : null;
+    const tt = (k, p) => i18n ? i18n.t(k, p) : k;
     const daily = EGL_Vocab.getDeck('daily_life_01');
     const businessUnits = EGL_Vocab.getBusinessUnits().map(u => EGL_Vocab.getDeck(u.id)).filter(Boolean);
     return [
-      { id: 'daily_life', name: 'Daily Life', decks: daily ? [daily] : [] },
-      { id: 'english_for_business_studies', name: 'English for Business Studies', level: 'Business English', description: '8 units · 255 words — Management to Banking. Pick a unit to study.', decks: businessUnits }
+      { id: 'daily_life', name: tt('decks.course.dailyLife'), decks: daily ? [daily] : [] },
+      { id: 'english_for_business_studies', name: tt('decks.course.businessStudies'), level: 'Business English', description: tt('decks.course.businessDesc'), decks: businessUnits }
     ];
   }
 
   function deckCardHTML(d) {
+    const i18n = (typeof EGL_I18n !== 'undefined') ? EGL_I18n : null;
+    const tt = (k, p) => i18n ? i18n.t(k, p) : k;
     let total = 0;
     d.words.forEach(w => total += EGL_Progress.getMastery(w.word));
     const avg = d.words.length > 0 ? Math.round(total / d.words.length) : 0;
     const isActive = (d.id === EGL_Vocab.activeDeckId);
     const level = d.level || 'A2';
-    const unitBadge = d.unitNumber ? `Unit ${d.unitNumber}` : level;
+    const unitBadge = d.unitNumber ? tt('gamePark.scope.unitLabel', { number: d.unitNumber }) : level;
+    const countLabel = tt('decks.card.words', { count: d.words.length });
 
     return `
       <article class="deck-card lvl-${esc(level)} ${isActive ? 'is-active' : ''} ${d.courseId === 'english_for_business_studies' ? 'deck-card--unit' : ''}">
         <div class="deck-card-top">
           <span class="tag tag-level">${esc(unitBadge)}</span>
-          <span class="deck-count">${d.words.length} từ</span>
+          <span class="deck-count">${esc(countLabel)}</span>
         </div>
         <h4>${esc(d.name)}</h4>
-        <p>${esc(d.description || 'Bộ từ vựng chủ đề giao tiếp thực hành.')}</p>
-        <div class="meter-row"><span>Tiến độ thành thạo</span><strong>${avg}%</strong></div>
+        <p>${esc(d.description || tt('decks.card.fallbackDesc'))}</p>
+        <div class="meter-row"><span>${esc(tt('decks.card.mastery'))}</span><strong>${avg}%</strong></div>
         <div class="meter"><div class="meter-fill ${meterClass(avg)}" style="width:${avg}%"></div></div>
         <div class="deck-actions">
-          <button class="btn btn-secondary btn-sm btn-inspect" data-id="${esc(d.id)}">Xem từ</button>
+          <button class="btn btn-secondary btn-sm btn-inspect" data-id="${esc(d.id)}">${esc(tt('decks.card.viewWords'))}</button>
           <button class="btn btn-primary btn-sm btn-select-deck ${isActive ? 'is-current' : ''}" data-id="${esc(d.id)}">
-            ${isActive ? `${icons.check} Đang chọn` : 'Bắt đầu học'}
+            ${isActive ? `${icons.check} ${esc(tt('decks.card.selected'))}` : esc(tt('decks.card.startLearning'))}
           </button>
         </div>
       </article>
@@ -411,6 +449,8 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     if (list) {
+      const i18n = (typeof EGL_I18n !== 'undefined') ? EGL_I18n : null;
+      const tt = (k, p) => i18n ? i18n.t(k, p) : k;
       const filteredSections = sections.map(sec => ({
         ...sec,
         decks: sec.decks.filter(d => deckMatches(d, vocabQuery))
@@ -420,19 +460,23 @@ document.addEventListener('DOMContentLoaded', () => {
         const flat = allDecks.filter(d => deckMatches(d, vocabQuery));
         list.innerHTML = flat.length
           ? flat.map(deckCardHTML).join('')
-          : '<div class="empty">Không tìm thấy bộ từ nào phù hợp.</div>';
+          : `<div class="empty">${esc(tt('decks.empty.noMatch'))}</div>`;
         bindDeckButtons(list, (id) => inspectDeck(id));
       } else {
         list.innerHTML = filteredSections.map(sec => {
           const isBusiness = sec.id === 'english_for_business_studies';
+          const count = sec.decks.length;
+          const labelKey = isBusiness
+            ? (count === 1 ? 'decks.course.unitsLabel.one' : 'decks.course.unitsLabel.other')
+            : (count === 1 ? 'decks.course.deckLabel.one' : 'decks.course.deckLabel.other');
           return `
             <div class="course-block ${isBusiness ? 'course-block--business' : ''}">
               <div class="course-head">
                 <div>
                   <h4 class="course-title">${esc(sec.name)}</h4>
-                  <p class="hint">${esc(sec.description || (isBusiness ? '8 units · 255 words' : 'Everyday vocabulary'))}</p>
+                  <p class="hint">${esc(sec.description || tt(isBusiness ? 'decks.course.businessDesc' : 'decks.course.everydayVocab'))}</p>
                 </div>
-                <span class="tag ${isBusiness ? 'tag-honey' : 'tag-sky'}">${sec.decks.length} ${sec.decks.length === 1 ? 'deck' : 'units'}</span>
+                <span class="tag ${isBusiness ? 'tag-honey' : 'tag-sky'}">${esc(tt(labelKey, { count }))}</span>
               </div>
               <div class="deck-grid">${sec.decks.map(deckCardHTML).join('')}</div>
             </div>
@@ -460,6 +504,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const deck = EGL_Vocab.getDeck(id);
     if (!deck) return;
     inspectedDeckId = id;
+    const i18n = (typeof EGL_I18n !== 'undefined') ? EGL_I18n : null;
+    const tt = (k, p) => i18n ? i18n.t(k, p) : k;
 
     let list = deck.words;
     if (vocabQuery) {
@@ -469,8 +515,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     $('inspector-title').innerText = deck.name;
     $('inspector-subtitle').innerText = list.length === deck.words.length
-      ? `${deck.words.length} từ vựng trong bộ này`
-      : `${list.length} / ${deck.words.length} từ khớp với tìm kiếm`;
+      ? tt('decks.inspector.subtitle.all', { count: deck.words.length })
+      : tt('decks.inspector.subtitle.filtered', { filtered: list.length, total: deck.words.length });
 
     $('inspector-words-tbody').innerHTML = list.map(w => {
       const m = EGL_Progress.getMastery(w.word);
@@ -481,7 +527,7 @@ document.addEventListener('DOMContentLoaded', () => {
           <td><span class="tag tag-lav">${esc(w.type || 'n')}</span></td>
           <td>${esc(w.meaning)}</td>
           <td><div class="cell-mastery"><div class="meter meter-sm"><div class="meter-fill ${meterClass(m)}" style="width:${m}%"></div></div>${m}%</div></td>
-          <td><button class="icon-btn" data-speak="${esc(w.word)}" aria-label="Pronounce ${esc(w.word)}">${icons.speak}</button></td>
+          <td><button class="icon-btn" data-speak="${esc(w.word)}" aria-label="${esc(tt('decks.inspector.th.speak'))} ${esc(w.word)}">${icons.speak}</button></td>
         </tr>
       `;
     }).join('');
@@ -517,8 +563,10 @@ document.addEventListener('DOMContentLoaded', () => {
   deckModal.addEventListener('click', (e) => { if (e.target === deckModal) closeDeckModal(); });
 
   $('btn-save-deck')?.addEventListener('click', () => {
+    const i18n = (typeof EGL_I18n !== 'undefined') ? EGL_I18n : null;
+    const tt = (k, p) => i18n ? i18n.t(k, p) : k;
     const name = $('deck-form-name').value.trim();
-    if (!name) return EGL_Utils.toast('Vui lòng nhập tên bộ từ');
+    if (!name) return EGL_Utils.toast(tt('decks.toast.enterName'));
     const level = $('deck-form-level').value;
     const desc = $('deck-form-desc').value.trim();
     const jsonStr = $('deck-form-json').value.trim();
@@ -529,7 +577,7 @@ document.addEventListener('DOMContentLoaded', () => {
         words = JSON.parse(jsonStr);
         if (!Array.isArray(words)) throw new Error('not an array');
       } catch (err) {
-        return EGL_Utils.toast('Định dạng JSON từ vựng chưa đúng');
+        return EGL_Utils.toast(tt('decks.toast.invalidJson'));
       }
     }
 
@@ -538,21 +586,23 @@ document.addEventListener('DOMContentLoaded', () => {
     closeDeckModal();
     renderDecksUI();
     renderScopePicker();
-    EGL_Utils.toast('Đã tạo bộ từ mới');
+    EGL_Utils.toast(tt('decks.toast.created'));
   });
 
   // 5. JSON import / export --------------------------------------------------
   $('input-import-json')?.addEventListener('change', (e) => {
+    const i18n = (typeof EGL_I18n !== 'undefined') ? EGL_I18n : null;
+    const tt = (k, p) => i18n ? i18n.t(k, p) : k;
     const file = e.target.files[0];
     if (!file) return;
     const reader = new FileReader();
     reader.onload = (evt) => {
       if (EGL_Vocab.importJSON(evt.target.result)) {
-        EGL_Utils.toast('Đã thêm bộ từ mới thành công!');
+        EGL_Utils.toast(tt('decks.toast.imported'));
         renderDecksUI();
         renderScopePicker();
       } else {
-        EGL_Utils.toast('File JSON không hợp lệ.');
+        EGL_Utils.toast(tt('decks.toast.invalidFile'));
       }
     };
     reader.readAsText(file);
@@ -570,20 +620,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // 6. Greeting, home, review, achievements ---------------------------------
   function updateGreeting() {
+    const i18n = (typeof EGL_I18n !== 'undefined') ? EGL_I18n : null;
     const hour = new Date().getHours();
     const g = $('top-greeting');
     const sub = $('top-subgreeting');
     if (!g) return;
-
+    if (!i18n) {
+      if (hour < 12) { g.innerText = 'Good morning'; sub.innerText = 'Bắt đầu ngày mới với vài từ vựng nhẹ nhàng nhé?'; }
+      else if (hour < 18) { g.innerText = 'Good afternoon'; sub.innerText = 'Ready to learn a little today?'; }
+      else { g.innerText = 'Good evening'; sub.innerText = 'Thư giãn và củng cố thêm vài từ trước khi kết thúc ngày nhé?'; }
+      return;
+    }
     if (hour < 12) {
-      g.innerText = 'Good morning';
-      sub.innerText = 'Bắt đầu ngày mới với vài từ vựng nhẹ nhàng nhé?';
+      g.innerText = i18n.t('home.greeting.morning.title');
+      sub.innerText = i18n.t('home.greeting.morning.sub');
     } else if (hour < 18) {
-      g.innerText = 'Good afternoon';
-      sub.innerText = 'Ready to learn a little today?';
+      g.innerText = i18n.t('home.greeting.afternoon.title');
+      sub.innerText = i18n.t('home.greeting.afternoon.sub');
     } else {
-      g.innerText = 'Good evening';
-      sub.innerText = 'Thư giãn và củng cố thêm vài từ trước khi kết thúc ngày nhé?';
+      g.innerText = i18n.t('home.greeting.evening.title');
+      sub.innerText = i18n.t('home.greeting.evening.sub');
     }
   }
 
@@ -598,6 +654,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function renderHome() {
     if (!$('view-home')) return;
+    const i18n = (typeof EGL_I18n !== 'undefined') ? EGL_I18n : null;
+    const tt = (k, p) => i18n ? i18n.t(k, p) : k;
     const d = EGL_Progress.data;
     const deck = EGL_Vocab.getActiveDeck();
     const masteries = deck.words.map(w => EGL_Progress.getMastery(w.word));
@@ -610,16 +668,17 @@ document.addEventListener('DOMContentLoaded', () => {
     $('home-xp-bar').style.width = `${xp.pct}%`;
     $('home-stat-xp').innerText = `${xp.cur} / ${xp.need} XP`;
     $('home-stat-streak').innerText = d.streak;
-    $('home-stat-streak-sub').innerText = d.streak === 1 ? 'day in a row' : 'days in a row';
+    $('home-stat-streak-sub').innerText = tt(d.streak === 1 ? 'home.streak.one' : 'home.streak.other');
     $('home-stat-mastered').innerText = mastered;
-    $('home-stat-mastered-sub').innerText = `of ${deck.words.length} words in this deck`;
+    $('home-stat-mastered-sub').innerText = tt('home.stats.ofWords', { count: deck.words.length });
     $('home-stat-accuracy').innerText = d.questionsAnswered > 0
       ? `${Math.round((d.correctAnswers / d.questionsAnswered) * 100)}%` : '—';
-    $('home-stat-games').innerText = `${d.gamesPlayed} ${d.gamesPlayed === 1 ? 'round' : 'rounds'} played`;
+    const roundsKey = d.gamesPlayed === 1 ? 'home.stats.rounds.one' : 'home.stats.rounds.other';
+    $('home-stat-games').innerText = tt(roundsKey, { count: d.gamesPlayed });
 
     const level = deck.level || 'A2';
     $('home-deck-name').innerText = deck.name;
-    $('home-deck-desc').innerText = deck.description || 'Bộ từ vựng chủ đề giao tiếp thực hành.';
+    $('home-deck-desc').innerText = deck.description || tt('home.continue.fallbackDesc');
     const lvlTag = $('home-deck-level');
     lvlTag.innerText = deck.unitNumber ? `Unit ${deck.unitNumber}` : level;
     lvlTag.className = `tag tag-level lvl-${level}`;
@@ -627,7 +686,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const bar = $('home-deck-bar');
     bar.style.width = `${avg}%`;
     bar.className = `meter-fill ${meterClass(avg)}`;
-    $('home-deck-sub').innerText = `${practiced} practiced · ${mastered} mastered · ${deck.words.length} total`;
+    $('home-deck-sub').innerText = tt('home.continue.practicedMasteredTotal', { practiced, mastered, total: deck.words.length });
 
     const gid = recommendedGameId();
     const game = gid && EGL_Engine.games[gid];
@@ -647,8 +706,8 @@ document.addEventListener('DOMContentLoaded', () => {
     $('home-challenge-fill').style.width = `${pct}%`;
     $('home-challenge-count').innerText = `${Math.min(dc.current, dc.target)} / ${dc.target}`;
     $('home-challenge-msg').innerText = dc.completed
-      ? 'Goal complete — lovely work today.'
-      : `${Math.max(0, dc.target - dc.current)} more correct answers to go.`;
+      ? tt('home.habit.goalComplete')
+      : tt('home.habit.moreToGo', { n: Math.max(0, dc.target - dc.current) });
     document.querySelector('.habit')?.classList.toggle('is-done', !!dc.completed);
 
     const recent = d.recentSessions || [];
@@ -664,10 +723,12 @@ document.addEventListener('DOMContentLoaded', () => {
               <small>${r.accuracy}% accuracy</small>
             </div>
           </li>`).join('')
-      : '<li class="empty">No rounds yet. Your first game will show up here.</li>';
+      : `<li class="empty">${esc(tt('home.recent.empty'))}</li>`;
   }
 
   function renderWeakWords() {
+    const i18n = (typeof EGL_I18n !== 'undefined') ? EGL_I18n : null;
+    const tt = (k, p) => i18n ? i18n.t(k, p) : k;
     const box = $('weak-words-container');
     if (!box) return;
     const deck = EGL_Vocab.getActiveDeck();
@@ -686,13 +747,15 @@ document.addEventListener('DOMContentLoaded', () => {
           <div class="meter meter-sm"><div class="meter-fill ${meterClass(w.mastery)}" style="width:${w.mastery}%"></div></div>
           ${w.mastery}%
         </div>
-        <button class="icon-btn" data-speak="${esc(w.word)}" aria-label="Pronounce ${esc(w.word)}">${icons.speak}</button>
+        <button class="icon-btn" data-speak="${esc(w.word)}" aria-label="${esc(tt('review.pronounce', { word: w.word }))}">${icons.speak}</button>
       </div>
     `).join('')
-      : '<div class="empty">No words in this deck.</div>';
+      : `<div class="empty">${esc(tt('review.empty'))}</div>`;
   }
 
   function renderAchievements() {
+    const i18n = (typeof EGL_I18n !== 'undefined') ? EGL_I18n : null;
+    const tt = (k, p) => i18n ? i18n.t(k, p) : k;
     const container = $('achievements-container');
     if (!container) return;
     const d = EGL_Progress.data;
@@ -700,18 +763,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const acc = total > 0 ? d.correctAnswers / total : 0;
 
     const list = [
-      { mark: '100', tone: 'honey', title: 'First 100 Words', desc: 'Đã học trên 100 lượt từ vựng',
+      { mark: '100', tone: 'honey', key: 'first100', titleKey: 'achievements.badge.first100.title', descKey: 'achievements.badge.first100.desc',
         check: () => total >= 100,
-        progress: () => ({ cur: Math.min(total, 100), goal: 100, text: `${Math.min(total, 100)} / 100 lượt` }) },
-      { mark: '7d', tone: 'primary', title: '7 Day Streak', desc: 'Duy trì chuỗi học tập 7 ngày liên tục',
+        progress: () => ({ cur: Math.min(total, 100), goal: 100, text: tt('achievements.progress.first100', { cur: Math.min(total, 100), goal: 100 }) }) },
+      { mark: '7d', tone: 'primary', key: 'streak7', titleKey: 'achievements.badge.streak7.title', descKey: 'achievements.badge.streak7.desc',
         check: () => d.streak >= 7,
-        progress: () => ({ cur: Math.min(d.streak, 7), goal: 7, text: `${Math.min(d.streak, 7)} / 7 ngày` }) },
-      { mark: '90%', tone: 'sage', title: 'Perfect Quiz', desc: 'Đạt độ chính xác trên 90%',
+        progress: () => ({ cur: Math.min(d.streak, 7), goal: 7, text: tt('achievements.progress.streak7', { cur: Math.min(d.streak, 7), goal: 7 }) }) },
+      { mark: '90%', tone: 'sage', key: 'perfectQuiz', titleKey: 'achievements.badge.perfectQuiz.title', descKey: 'achievements.badge.perfectQuiz.desc',
         check: () => total >= 20 && acc >= 0.9,
-        progress: () => ({ cur: Math.min(total, 20), goal: 20, text: `${Math.min(total, 20)} / 20 câu · hiện tại ${Math.round(acc * 100)}%` }) },
-      { mark: '2+', tone: 'lav', title: 'Vocabulary Collector', desc: 'Sở hữu từ 2 bộ từ vựng trở lên',
+        progress: () => ({ cur: Math.min(total, 20), goal: 20, text: tt('achievements.progress.perfect', { cur: Math.min(total, 20), goal: 20, percent: Math.round(acc * 100) }) }) },
+      { mark: '2+', tone: 'lav', key: 'collector', titleKey: 'achievements.badge.collector.title', descKey: 'achievements.badge.collector.desc',
         check: () => EGL_Vocab.decks.length >= 2,
-        progress: () => ({ cur: Math.min(EGL_Vocab.decks.length, 2), goal: 2, text: `${Math.min(EGL_Vocab.decks.length, 2)} / 2 bộ` }) }
+        progress: () => ({ cur: Math.min(EGL_Vocab.decks.length, 2), goal: 2, text: tt('achievements.progress.collector', { cur: Math.min(EGL_Vocab.decks.length, 2), goal: 2 }) }) }
     ];
 
     container.innerHTML = list.map(item => {
@@ -721,11 +784,11 @@ document.addEventListener('DOMContentLoaded', () => {
       return `
         <div class="badge-card tone-${item.tone} ${unlocked ? 'unlocked' : 'locked'}">
           <div class="seal">${item.mark}</div>
-          <h4>${item.title}</h4>
-          <p>${item.desc}</p>
+          <h4>${esc(tt(item.titleKey))}</h4>
+          <p>${esc(tt(item.descKey))}</p>
           ${unlocked
-            ? '<span class="tag tag-sage">Đã đạt</span>'
-            : `<div class="meter meter-sm"><div class="meter-fill mid" style="width:${pct}%"></div></div><small class="badge-progress">${p.text}</small>`}
+            ? `<span class="tag tag-sage">${esc(tt('achievements.unlocked'))}</span>`
+            : `<div class="meter meter-sm"><div class="meter-fill mid" style="width:${pct}%"></div></div><small class="badge-progress">${esc(p.text)}</small>`}
         </div>
       `;
     }).join('');
@@ -733,17 +796,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function refreshUI() {
     updateGreeting();
+    const i18n = (typeof EGL_I18n !== 'undefined') ? EGL_I18n : null;
     const d = EGL_Progress.data;
     const xp = xpInfo();
 
-    $('hud-streak-text').innerText = `${d.streak} day streak`;
-    $('hud-level-text').innerText = `Level ${d.level}`;
+    $('hud-streak-text').innerText = i18n ? i18n.t('hud.dayStreak', { count: d.streak }) : `${d.streak} day streak`;
+    $('hud-level-text').innerText = i18n ? i18n.t('hud.level', { level: d.level }) : `Level ${d.level}`;
     $('hud-xp-display').innerText = `${xp.cur} / ${xp.need} XP`;
     $('hud-xp-bar').style.width = `${xp.pct}%`;
     if ($('top-level-chip')) $('top-level-chip').innerText = `Lv ${d.level}`;
 
     const dc = d.dailyChallenge;
-    $('top-challenge-text').innerText = `Daily: ${dc.current}/${dc.target} từ`;
+    $('top-challenge-text').innerText = i18n ? i18n.t('hud.daily', { current: dc.current, target: dc.target }) : `Daily: ${dc.current}/${dc.target} từ`;
     $('top-challenge-chip')?.classList.toggle('is-done', !!dc.completed);
 
     renderHome();
@@ -758,14 +822,14 @@ document.addEventListener('DOMContentLoaded', () => {
     hideResults();
     const s = EGL_Engine.activeSession;
     if (s) {
-      // Replay same scope (respect Random)
       const gid = s.gameId;
       const diff = s.difficulty;
       if (selectedRandom) {
         const pick = EGL_Vocab.getRandomBusinessUnitId();
         const deck = pick ? EGL_Vocab.getDeck(pick) : null;
         if (deck) {
-          EGL_Utils.toast(`Random Unit → ${deck.name}`);
+          const i18n = (typeof EGL_I18n !== 'undefined') ? EGL_I18n : null;
+          EGL_Utils.toast(i18n ? i18n.t('gameplay.playingWithRandom', { name: deck.name }) : `Random Unit → ${deck.name}`);
           switchView('gameplay');
           EGL_Engine.startSession(gid, diff, deck.words);
           if (EGL_Engine.activeSession) EGL_Engine.activeSession.deckName = deck.name;
@@ -790,12 +854,13 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   function startWeakWordsSession() {
+    const i18n = (typeof EGL_I18n !== 'undefined') ? EGL_I18n : null;
     const deck = EGL_Vocab.getActiveDeck();
     const weak = deck.words.filter(w => EGL_Progress.getMastery(w.word) < 60);
     const pool = weak.length >= 4 ? weak : deck.words;
     switchView('gameplay');
     EGL_Engine.startSession('multiple-choice', 'normal', pool);
-    if (EGL_Engine.activeSession) EGL_Engine.activeSession.deckName = deck.name + ' · weak words';
+    if (EGL_Engine.activeSession) EGL_Engine.activeSession.deckName = i18n ? i18n.t('gameplay.weakPool', { name: deck.name }) : deck.name + ' · weak words';
   }
   $('btn-start-weak-session')?.addEventListener('click', startWeakWordsSession);
   $('btn-home-weak')?.addEventListener('click', startWeakWordsSession);
@@ -812,24 +877,26 @@ document.addEventListener('DOMContentLoaded', () => {
   $('setting-tts')?.addEventListener('change', (e) => { saveSetting('tts', e.target.checked); });
 
   $('btn-quick-sound')?.addEventListener('click', () => {
+    const i18n = (typeof EGL_I18n !== 'undefined') ? EGL_I18n : null;
     const on = getSettings().sfx === false;
     saveSetting('sfx', on);
     syncSettingsUI();
-    EGL_Utils.toast(on ? 'Đã bật âm thanh' : 'Đã tắt âm thanh');
+    EGL_Utils.toast(i18n ? i18n.t(on ? 'settings.sound.on' : 'settings.sound.off') : (on ? 'Đã bật âm thanh' : 'Đã tắt âm thanh'));
   });
 
   $('btn-export-full')?.addEventListener('click', () => EGL_Storage.exportFullBackup());
 
   $('input-import-full')?.addEventListener('change', (e) => {
+    const i18n = (typeof EGL_I18n !== 'undefined') ? EGL_I18n : null;
     const f = e.target.files[0];
     if (!f) return;
     const r = new FileReader();
     r.onload = (evt) => {
       if (EGL_Storage.importFullBackup(evt.target.result)) {
-        EGL_Utils.toast('Đã phục hồi dữ liệu thành công!');
+        EGL_Utils.toast(i18n ? i18n.t('settings.backup.restored') : 'Đã khôi phục dữ liệu thành công!');
         setTimeout(() => location.reload(), 900);
       } else {
-        EGL_Utils.toast('File sao lưu không hợp lệ.');
+        EGL_Utils.toast(i18n ? i18n.t('settings.backup.invalid') : 'File sao lưu không hợp lệ.');
       }
     };
     r.readAsText(f);
@@ -837,11 +904,12 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   $('btn-reset-data')?.addEventListener('click', async () => {
+    const i18n = (typeof EGL_I18n !== 'undefined') ? EGL_I18n : null;
     const ok = await askConfirm({
-      title: 'Đặt lại toàn bộ dữ liệu?',
-      text: 'Điểm số, chuỗi streak, bộ từ và tiến độ sẽ trở về ban đầu.',
-      ok: 'Đặt lại',
-      cancel: 'Giữ lại'
+      title: i18n ? i18n.t('settings.reset.confirmTitle') : 'Đặt lại toàn bộ dữ liệu?',
+      text: i18n ? i18n.t('settings.reset.confirmText') : 'Điểm số, chuỗi streak, bộ từ và tiến độ sẽ trở về ban đầu.',
+      ok: i18n ? i18n.t('settings.reset.confirmOk') : 'Đặt lại',
+      cancel: i18n ? i18n.t('settings.reset.confirmCancel') : 'Giữ lại'
     });
     if (ok) {
       localStorage.clear();
@@ -865,7 +933,60 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // 10. Initial render -------------------------------------------------------
+  // 10. i18n live update for Home + Settings + Game Park + Word Decks + Review/Profile/Achievements + Results/Dialogs (Phase 2/2B/2C/2D — no game state reset) -----
+  document.addEventListener('egl:language-change', () => {
+    syncSettingsUI();
+    if (typeof renderHome === 'function') renderHome();
+    if (typeof renderScopePicker === 'function') renderScopePicker();
+    if (typeof renderGamesList === 'function') renderGamesList();
+    if (typeof renderDecksUI === 'function') {
+      renderDecksUI();
+    }
+    if (typeof renderWeakWords === 'function') renderWeakWords();
+    if (typeof renderAchievements === 'function') renderAchievements();
+    // Results modal — update visible results without resetting session
+    const overlay = document.getElementById('results-overlay');
+    const s = (typeof EGL_Engine !== 'undefined') ? EGL_Engine.activeSession : null;
+    if (overlay && overlay.style.display !== 'none' && s && !s.ended === false) {
+      // Re-render results labels by reusing game-engine logic without resetting score:
+      // just refresh static result chrome via i18n; dynamic values stay as-is
+      // Titles/subtitles will update on next endSession; for language switch mid-results, patch via t()
+      const i18n2 = (typeof EGL_I18n !== 'undefined') ? EGL_I18n : null;
+      if (i18n2) {
+        // Keep accuracy-based title in sync
+        const acc = s.totalAnswered > 0 ? Math.round((s.correctCount / s.totalAnswered) * 100) : 0;
+        let t2 = i18n2.t('results.title.keepPracticing'), sub2 = i18n2.t('results.sub.keepPracticing');
+        if (s.totalAnswered > 0) {
+          if (acc === 100) { t2 = i18n2.t('results.title.flawless'); sub2 = i18n2.t('results.sub.flawless'); }
+          else if (acc >= 80) { t2 = i18n2.t('results.title.greatWork'); sub2 = i18n2.t('results.sub.greatWork'); }
+          else if (acc >= 50) { t2 = i18n2.t('results.title.goodEffort'); sub2 = i18n2.t('results.sub.goodEffort'); }
+        }
+        const rt = document.getElementById('results-title');
+        const rs = document.getElementById('results-subtext');
+        if (rt) rt.innerText = t2;
+        if (rs) rs.innerText = sub2;
+        const lu = document.getElementById('res-levelup');
+        if (lu && lu.style.display !== 'none') {
+          const lvl = (typeof EGL_Progress !== 'undefined') ? EGL_Progress.data.level : '';
+          lu.innerText = i18n2.t('results.levelUp', { level: lvl });
+        }
+        const weakBox = document.getElementById('res-weak-tags');
+        if (weakBox && weakBox.querySelector('.flawless-note')) {
+          weakBox.querySelector('.flawless-note').innerText = i18n2.t('results.flawlessNote');
+        }
+      }
+    }
+    const i18n = (typeof EGL_I18n !== 'undefined') ? EGL_I18n : null;
+    if (i18n) i18n.applyTranslations();
+    // Refresh DIFF hint to translated string without relying on removed DIFF_INFO constant
+    const diffEl = document.getElementById('diff-hint');
+    if (diffEl) {
+      const cur = document.querySelector('#seg-difficulty .seg-btn.active')?.dataset.diff || 'normal';
+      diffEl.innerText = diffInfo(cur);
+    }
+  });
+
+  // 11. Initial render -------------------------------------------------------
   syncSettingsUI();
   renderScopePicker();
   renderGamesList();

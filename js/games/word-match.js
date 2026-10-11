@@ -19,28 +19,30 @@ EGL_Engine.register({
     this._timers = new Set();
 
     const esc = EGL_Utils.escapeHtml;
+    const i18n = (typeof EGL_I18n !== 'undefined') ? EGL_I18n : null;
+    const tt = (k, p) => i18n ? i18n.t(k, p) : k;
     const en = EGL_Utils.shuffle(this.activeWords.map((w, i) => ({ i, text: w.word })));
     const vi = EGL_Utils.shuffle(this.activeWords.map((w, i) => ({ i, text: w.meaning })));
 
     this.container.innerHTML = `
       <div class="g-arena wm-arena g-anim">
-        <p class="g-hint" id="wm-hint">Tap an English word, then tap its Vietnamese meaning.</p>
+        <p class="g-hint" id="wm-hint">${esc(tt('wordMatch.hint.initial'))}</p>
 
         <div class="wm-board" id="wm-board">
           <svg class="wm-lines" id="wm-lines" aria-hidden="true"></svg>
           <div class="wm-col" id="col-en">
-            <h4 class="wm-col-title">English</h4>
+            <h4 class="wm-col-title">${esc(tt('wordMatch.col.en'))}</h4>
             ${en.map(item => `<button type="button" class="match-card" data-i="${item.i}" data-type="en">${esc(item.text)}</button>`).join('')}
           </div>
           <div class="wm-col" id="col-vi">
-            <h4 class="wm-col-title">Tiếng Việt</h4>
+            <h4 class="wm-col-title">${esc(tt('wordMatch.col.vi'))}</h4>
             ${vi.map(item => `<button type="button" class="match-card" data-i="${item.i}" data-type="vi">${esc(item.text)}</button>`).join('')}
           </div>
         </div>
 
         <div class="wm-stats">
-          <span>Pairs <strong id="wm-pairs">0 / ${this.total}</strong></span>
-          <span>Misses <strong id="wm-miss">0</strong></span>
+          <span>${esc(tt('wordMatch.stats.pairs'))} <strong id="wm-pairs">0 / ${this.total}</strong></span>
+          <span>${esc(tt('wordMatch.stats.misses'))} <strong id="wm-miss">0</strong></span>
         </div>
       </div>
     `;
@@ -52,6 +54,8 @@ EGL_Engine.register({
 
     this._onResize = () => this.drawLines(false);
     window.addEventListener('resize', this._onResize);
+    this._langHandler = () => this.patchLanguage();
+    document.addEventListener('egl:language-change', this._langHandler);
 
     this.engine.setProgress(0, this.total, `0 / ${this.total} pairs`);
   },
@@ -59,6 +63,38 @@ EGL_Engine.register({
   later(fn, ms) {
     const t = setTimeout(() => { this._timers.delete(t); if (this.active) fn(); }, ms);
     this._timers.add(t);
+  },
+
+  patchLanguage() {
+    if (!this.active) return;
+    const i18n = (typeof EGL_I18n !== 'undefined') ? EGL_I18n : null;
+    const tt = (k, p) => i18n ? i18n.t(k, p) : k;
+    const colEn = this.container.querySelector('#col-en .wm-col-title');
+    const colVi = this.container.querySelector('#col-vi .wm-col-title');
+    if (colEn) colEn.textContent = tt('wordMatch.col.en');
+    if (colVi) colVi.textContent = tt('wordMatch.col.vi');
+    const pairsLabel = this.container.querySelector('.wm-stats span:first-child');
+    if (pairsLabel) {
+      const strong = pairsLabel.querySelector('#wm-pairs');
+      if (strong) {
+        const val = strong.textContent;
+        pairsLabel.innerHTML = `${this._escHtml(tt('wordMatch.stats.pairs'))} <strong id="wm-pairs">${val}</strong>`;
+      }
+    }
+    const missLabel = this.container.querySelector('.wm-stats span:last-child');
+    if (missLabel) {
+      const strong = missLabel.querySelector('#wm-miss');
+      if (strong) {
+        const val = strong.textContent;
+        missLabel.innerHTML = `${this._escHtml(tt('wordMatch.stats.misses'))} <strong id="wm-miss">${val}</strong>`;
+      }
+    }
+    // Keep current hint state but re-translate its key
+    this.updateHint();
+  },
+
+  _escHtml(s) {
+    return (typeof EGL_Utils !== 'undefined' && EGL_Utils.escapeHtml) ? EGL_Utils.escapeHtml(s) : s;
   },
 
   setHint(text, state) {
@@ -69,9 +105,11 @@ EGL_Engine.register({
   },
 
   updateHint() {
-    if (this.selectedEn && !this.selectedVi) this.setHint('Now tap the matching meaning on the right.');
-    else if (this.selectedVi && !this.selectedEn) this.setHint('Now tap the matching English word on the left.');
-    else this.setHint('Tap an English word, then tap its Vietnamese meaning.');
+    const i18n = (typeof EGL_I18n !== 'undefined') ? EGL_I18n : null;
+    const tt = (k, p) => i18n ? i18n.t(k, p) : k;
+    if (this.selectedEn && !this.selectedVi) this.setHint(tt('wordMatch.hint.needVi'));
+    else if (this.selectedVi && !this.selectedEn) this.setHint(tt('wordMatch.hint.needEn'));
+    else this.setHint(tt('wordMatch.hint.initial'));
   },
 
   handleSelect(card) {
@@ -97,6 +135,8 @@ EGL_Engine.register({
   },
 
   resolve() {
+    const i18n = (typeof EGL_I18n !== 'undefined') ? EGL_I18n : null;
+    const tt = (k, p) => i18n ? i18n.t(k, p) : k;
     const enEl = this.selectedEn;
     const viEl = this.selectedVi;
     const isMatch = (enEl.dataset.i === viEl.dataset.i);
@@ -122,10 +162,10 @@ EGL_Engine.register({
       this.drawLines(true);
 
       if (this.matchedCount === this.total) {
-        this.setHint('All pairs matched. Lovely work!', 'good');
+        this.setHint(tt('wordMatch.hint.matchedAll'), 'good');
         this.later(() => this.engine.endSession(), 900);
       } else {
-        this.setHint('Matched! Keep going.', 'good');
+        this.setHint(tt('wordMatch.hint.matchedOne'), 'good');
         this.later(() => { if (!this.selectedEn && !this.selectedVi) this.updateHint(); }, 900);
       }
     } else {
@@ -134,7 +174,7 @@ EGL_Engine.register({
       this.locked = true;
       enEl.classList.add('card-wrong');
       viEl.classList.add('card-wrong');
-      this.setHint('Not a match. Try again.', 'bad');
+      this.setHint(tt('wordMatch.hint.notMatch'), 'bad');
 
       this.later(() => {
         enEl.classList.remove('card-selected', 'card-wrong');
@@ -170,5 +210,6 @@ EGL_Engine.register({
     this.active = false;
     if (this._timers) { this._timers.forEach(clearTimeout); this._timers.clear(); }
     if (this._onResize) { window.removeEventListener('resize', this._onResize); this._onResize = null; }
+    if (this._langHandler) { document.removeEventListener('egl:language-change', this._langHandler); this._langHandler = null; }
   }
 });

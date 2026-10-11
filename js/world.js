@@ -15,6 +15,7 @@
   };
 
   // [desktop label, mobile label, original name kept as tooltip]
+  // Phase 1 i18n: labels drive from EGL_I18n when available; world.js no longer hardcodes English overrides for primary nav
   const LABELS = {
     home: ['Camp', 'Camp', 'Home'],
     games: ['Game Park', 'Games', 'Mini Games'],
@@ -87,32 +88,26 @@
     // 1. Decoration layer
     if (!document.querySelector('.world-deco')) document.body.insertAdjacentHTML('afterbegin', DECO);
 
-    // 2. Navigation: doodle icons + world names (ids, data-view and click handlers stay untouched)
+    // 2. Navigation: doodle icons (ids, data-view and click handlers stay untouched)
+    // Phase 1: do not override data-i18n-driven nav labels; only inject icons.
     document.querySelectorAll('.nav-item[data-view]').forEach(btn => {
       const key = btn.dataset.view;
       if (!ICONS[key] || btn.querySelector('.nav-ico')) return;
       btn.insertAdjacentHTML('afterbegin',
         `<span class="nav-ico" aria-hidden="true"><svg viewBox="0 0 24 24">${ICONS[key]}</svg></span>`);
-      const [full, short, original] = LABELS[key];
-      const fullEl = btn.querySelector('.nav-full');
-      const shortEl = btn.querySelector('.nav-short');
-      if (fullEl) fullEl.textContent = full;
-      if (shortEl) shortEl.textContent = short;
-      btn.title = original;
-      btn.setAttribute('aria-label', original);
+      // Keep aria-label/title in sync with visible label if not already set by markup
+      const labelEl = btn.querySelector('.nav-full');
+      if (labelEl && !btn.getAttribute('aria-label')) {
+        btn.setAttribute('aria-label', labelEl.textContent.trim());
+        btn.title = labelEl.textContent.trim();
+      }
     });
 
-    // 3. Home hero: illustration + friendly copy (hero buttons keep their data-view)
+    // 3. Home hero: illustration only (copy is now driven by data-i18n in index.html; do not overwrite translations)
     const hero = document.querySelector('.hero');
     if (hero) {
       const art = hero.querySelector('.hero-art');
       if (art) art.outerHTML = HERO_ART;
-      const title = hero.querySelector('.hero-title');
-      if (title) title.innerHTML = 'Learn <span class="scribble">English.</span><br>Play. Explore.';
-      const tagline = hero.querySelector('.hero-tagline');
-      if (tagline) tagline.textContent = 'Welcome to LexiLand, your little world of words';
-      const desc = hero.querySelector('.hero-desc');
-      if (desc) desc.textContent = 'Pick a game, flip a few cards, and grow your vocabulary one friendly round at a time.';
     }
 
     // 4. Game park: stagger entrance of the cards rendered by app.js

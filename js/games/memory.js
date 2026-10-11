@@ -20,6 +20,8 @@ EGL_Engine.register({
     this.isLocked = false;
     this.active = true;
     this._timers = new Set();
+    this._langHandler = () => { if (this.active) this.patchLanguage(); };
+    document.addEventListener('egl:language-change', this._langHandler);
 
     this.render();
   },
@@ -29,21 +31,48 @@ EGL_Engine.register({
     this._timers.add(t);
   },
 
+  patchLanguage() {
+    if (!this.active) return;
+    const i18n = (typeof EGL_I18n !== 'undefined') ? EGL_I18n : null;
+    const tt = (k) => i18n ? i18n.t(k) : k;
+    const hint = this.container.querySelector('.mem-arena .g-hint');
+    if (hint) hint.textContent = tt('memory.hint');
+    const pairsLabel = this.container.querySelector('#mem-pairs')?.parentElement;
+    if (pairsLabel) {
+      const val = this.container.querySelector('#mem-pairs')?.textContent || `${this.matchedPairs} / ${this.totalPairs}`;
+      pairsLabel.innerHTML = `${tt('memory.stats.pairs')} <strong id="mem-pairs">${val}</strong>`;
+    }
+    const movesLabel = this.container.querySelector('#mem-moves')?.parentElement;
+    if (movesLabel) {
+      const val = this.container.querySelector('#mem-moves')?.textContent || String(this.moves);
+      movesLabel.innerHTML = `${tt('memory.stats.moves')} <strong id="mem-moves">${val}</strong>`;
+    }
+    // Hidden card aria-labels
+    this.container.querySelectorAll('.mem-card[data-index]').forEach(card => {
+      if (!card.classList.contains('is-open') && !card.classList.contains('is-matched')) {
+        const idx = Number(card.dataset.index);
+        card.setAttribute('aria-label', tt('memory.card.hidden', { n: idx + 1 }));
+      }
+    });
+  },
+
   render() {
     const esc = EGL_Utils.escapeHtml;
+    const i18n = (typeof EGL_I18n !== 'undefined') ? EGL_I18n : null;
+    const tt = (k, p) => i18n ? i18n.t(k, p) : k;
 
     this.container.innerHTML = `
       <div class="g-arena mem-arena g-anim">
-        <p class="g-hint">Find the two matching cards: an English word and its meaning.</p>
+        <p class="g-hint">${esc(tt('memory.hint'))}</p>
 
         <div class="mem-stats">
-          <span>Pairs <strong id="mem-pairs">${this.matchedPairs} / ${this.totalPairs}</strong></span>
-          <span>Moves <strong id="mem-moves">${this.moves}</strong></span>
+          <span>${esc(tt('memory.stats.pairs'))} <strong id="mem-pairs">${this.matchedPairs} / ${this.totalPairs}</strong></span>
+          <span>${esc(tt('memory.stats.moves'))} <strong id="mem-moves">${this.moves}</strong></span>
         </div>
 
         <div class="mem-grid">
           ${this.cards.map((c, i) => `
-            <div class="mem-card" role="button" tabindex="0" data-index="${i}" aria-label="Hidden card ${i + 1}">
+            <div class="mem-card" role="button" tabindex="0" data-index="${i}" aria-label="${esc(tt('memory.card.hidden', { n: i + 1 }))}">
               <div class="mem-inner">
                 <div class="mem-face mem-back"><span class="mem-mark">L</span></div>
                 <div class="mem-face mem-front mem-${c.lang}">
@@ -112,5 +141,6 @@ EGL_Engine.register({
   cleanup() {
     this.active = false;
     if (this._timers) { this._timers.forEach(clearTimeout); this._timers.clear(); }
+    if (this._langHandler) { document.removeEventListener('egl:language-change', this._langHandler); this._langHandler = null; }
   }
 });

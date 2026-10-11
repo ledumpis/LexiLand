@@ -13,12 +13,32 @@ EGL_Engine.register({
     this.answered = false;
     this.advanced = false;
     this._timers = new Set();
+    this._langHandler = () => { if (this.active) this.patchLanguage(); };
+    document.addEventListener('egl:language-change', this._langHandler);
     this.render();
   },
 
   later(fn, ms) {
     const t = setTimeout(() => { this._timers.delete(t); if (this.active) fn(); }, ms);
     this._timers.add(t);
+  },
+
+  patchLanguage() {
+    if (!this.active) return;
+    const i18n = (typeof EGL_I18n !== 'undefined') ? EGL_I18n : null;
+    const tt = (k, p) => i18n ? i18n.t(k, p) : k;
+    const input = this.container.querySelector('#type-input-field');
+    const hint = this.container.querySelector('#typing-hint');
+    const submit = this.container.querySelector('#btn-type-submit');
+    const skip = this.container.querySelector('#btn-type-skip');
+    // Preserve typed value and cursor; only translate chrome
+    if (input) input.setAttribute('aria-label', tt('typing.aria'));
+    if (hint && this._curLetterCount != null && !this.answered) {
+      hint.innerHTML = tt('typing.hint', { count: this._curLetterCount });
+    }
+    if (submit) submit.textContent = tt('typing.btn.check');
+    if (skip) skip.textContent = tt('typing.btn.skip');
+    // Feedback already shown stays as-is; next question will use new language
   },
 
   render() {
@@ -30,9 +50,12 @@ EGL_Engine.register({
 
     const cur = this.words[this.idx];
     const esc = EGL_Utils.escapeHtml;
+    const i18n = (typeof EGL_I18n !== 'undefined') ? EGL_I18n : null;
+    const tt = (k, p) => i18n ? i18n.t(k, p) : k;
     const target = String(cur.word);
     const chars = Array.from(target);
     const letterCount = chars.filter(c => c !== ' ').length;
+    this._curLetterCount = letterCount;
     this.answered = false;
     this.advanced = false;
     this.engine.setProgress(this.idx, total, `${this.idx + 1} / ${total}`);
@@ -53,13 +76,13 @@ EGL_Engine.register({
           <div class="ty-slots" aria-hidden="true">${slotsHtml}</div>
           <input type="text" class="ty-input" id="type-input-field" maxlength="${chars.length}"
                  autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false"
-                 aria-label="Type the English word">
+                 aria-label="${esc(tt('typing.aria'))}">
         </div>
-        <p class="g-hint">${letterCount} letters &middot; press <kbd>Enter</kbd> to check</p>
+        <p class="g-hint" id="typing-hint">${tt('typing.hint', { count: letterCount })}</p>
 
         <div class="ty-actions">
-          <button class="btn btn-primary btn-lg" type="button" id="btn-type-submit">Check</button>
-          <button class="btn btn-ghost" type="button" id="btn-type-skip">I don't know</button>
+          <button class="btn btn-primary btn-lg" type="button" id="btn-type-submit">${esc(tt('typing.btn.check'))}</button>
+          <button class="btn btn-ghost" type="button" id="btn-type-skip">${esc(tt('typing.btn.skip'))}</button>
         </div>
 
         <div class="g-foot" id="type-fb"></div>
@@ -125,19 +148,22 @@ EGL_Engine.register({
   finish(foot, isCorrect, giveUp, cur) {
     const icons = EGL_Utils.icons;
     const esc = EGL_Utils.escapeHtml;
+    const i18n = (typeof EGL_I18n !== 'undefined') ? EGL_I18n : null;
+    const tt = (k, p) => i18n ? i18n.t(k, p) : k;
 
     if (isCorrect) {
       foot.innerHTML = `
         <div class="g-feedback is-ok">${icons.check}
-          <div class="g-feedback-text"><strong>Correct!</strong><span>Well done.</span></div>
+          <div class="g-feedback-text"><strong>${esc(tt('typing.feedback.correctTitle'))}</strong><span>${esc(tt('typing.feedback.correctSub'))}</span></div>
         </div>`;
       this.later(() => this.next(), 950);
     } else {
+      const titleKey = giveUp ? 'typing.feedback.giveUpTitle' : 'typing.feedback.wrongTitle';
       foot.innerHTML = `
         <div class="g-feedback is-bad">${icons.cross}
-          <div class="g-feedback-text"><strong>${giveUp ? 'No worries.' : 'Not quite.'}</strong><span>The word is <b>${esc(cur.word)}</b></span></div>
-          <button class="icon-btn" type="button" data-speak="${esc(cur.word)}" aria-label="Pronounce ${esc(cur.word)}">${icons.speak}</button>
-          <button class="btn btn-primary" type="button" id="btn-type-next">Continue ${icons.arrow}</button>
+          <div class="g-feedback-text"><strong>${esc(tt(titleKey))}</strong><span>${tt('typing.feedback.theWordIs', { word: esc(cur.word) })}</span></div>
+          <button class="icon-btn" type="button" data-speak="${esc(cur.word)}" aria-label="${esc(tt('typing.pronounce', { word: cur.word }))}">${icons.speak}</button>
+          <button class="btn btn-primary" type="button" id="btn-type-next">${esc(tt('typing.btn.continue'))} ${icons.arrow}</button>
         </div>`;
       const nextBtn = foot.querySelector('#btn-type-next');
       nextBtn.onclick = () => this.next();
@@ -155,5 +181,6 @@ EGL_Engine.register({
   cleanup() {
     this.active = false;
     if (this._timers) { this._timers.forEach(clearTimeout); this._timers.clear(); }
+    if (this._langHandler) { document.removeEventListener('egl:language-change', this._langHandler); this._langHandler = null; }
   }
 });

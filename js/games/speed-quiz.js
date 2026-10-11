@@ -37,6 +37,8 @@ EGL_Engine.register({
       if (btn && !btn.disabled) { e.preventDefault(); btn.click(); }
     };
     document.addEventListener('keydown', this._onKey);
+    this._langHandler = () => { if (this.active) this.patchLanguage(); };
+    document.addEventListener('egl:language-change', this._langHandler);
 
     this.timer = setInterval(() => {
       this.timeLeft--;
@@ -59,12 +61,40 @@ EGL_Engine.register({
   },
 
   syncProgress() {
-    this.engine.setProgress(this.duration - Math.max(0, this.timeLeft), this.duration, `${this.answered} answered`);
+    const i18n = (typeof EGL_I18n !== 'undefined') ? EGL_I18n : null;
+    const label = i18n ? i18n.t('speedQuiz.progress', { count: this.answered }) : `${this.answered} answered`;
+    this.engine.setProgress(this.duration - Math.max(0, this.timeLeft), this.duration, label);
+  },
+
+  patchLanguage() {
+    if (!this.active) return;
+    const i18n = (typeof EGL_I18n !== 'undefined') ? EGL_I18n : null;
+    const tt = (k, p) => i18n ? i18n.t(k, p) : k;
+    const stats = this.container.querySelector('.sq-stats');
+    if (stats) {
+      const answeredEl = stats.querySelector('#sq-answered');
+      const streakEl = stats.querySelector('#sq-streak');
+      const bestEl = stats.querySelector('#sq-best');
+      const answeredVal = answeredEl ? answeredEl.textContent : String(this.answered);
+      const streakVal = streakEl ? streakEl.textContent : String(this.streak);
+      const bestVal = bestEl ? bestEl.textContent : String(this.best);
+      stats.innerHTML = `
+          <span>${tt('speedQuiz.stats.answered')} <strong id="sq-answered">${answeredVal}</strong></span>
+          <span>${tt('speedQuiz.stats.streak')} <strong id="sq-streak">${streakVal}</strong></span>
+          <span>${tt('speedQuiz.stats.best')} <strong id="sq-best">${bestVal}</strong></span>
+      `;
+    }
+    const hint = this.container.querySelector('.sq-hint');
+    if (hint) hint.innerHTML = tt('speedQuiz.hint');
+    // progress label
+    this.syncProgress();
   },
 
   render() {
     const cur = this.words[this.idx % this.words.length];
     const esc = EGL_Utils.escapeHtml;
+    const i18n = (typeof EGL_I18n !== 'undefined') ? EGL_I18n : null;
+    const tt = (k, p) => i18n ? i18n.t(k, p) : k;
     const opts = EGL_Utils.shuffle([cur, ...this.engine.getDistractors(cur, 1)]);
     this.current = { cur, opts };
     this.locked = false;
@@ -72,9 +102,9 @@ EGL_Engine.register({
     this.container.innerHTML = `
       <div class="g-arena sq-arena sq-in">
         <div class="sq-stats">
-          <span>Answered <strong>${this.answered}</strong></span>
-          <span>Streak <strong>${this.streak}</strong></span>
-          <span>Best <strong>${this.best}</strong></span>
+          <span>${esc(tt('speedQuiz.stats.answered'))} <strong id="sq-answered">${this.answered}</strong></span>
+          <span>${esc(tt('speedQuiz.stats.streak'))} <strong id="sq-streak">${this.streak}</strong></span>
+          <span>${esc(tt('speedQuiz.stats.best'))} <strong id="sq-best">${this.best}</strong></span>
         </div>
 
         <div class="g-card sq-card">
@@ -90,7 +120,7 @@ EGL_Engine.register({
           `).join('')}
         </div>
 
-        <p class="g-hint"><kbd>1</kbd> <kbd>2</kbd> or <kbd>←</kbd> <kbd>→</kbd> to answer</p>
+        <p class="g-hint sq-hint">${tt('speedQuiz.hint')}</p>
       </div>
     `;
 
@@ -125,6 +155,7 @@ EGL_Engine.register({
     clearInterval(this.timer);
     if (this._timers) { this._timers.forEach(clearTimeout); this._timers.clear(); }
     if (this._onKey) { document.removeEventListener('keydown', this._onKey); this._onKey = null; }
+    if (this._langHandler) { document.removeEventListener('egl:language-change', this._langHandler); this._langHandler = null; }
     const timerPill = document.getElementById('timer-pill');
     if (timerPill) {
       timerPill.style.display = 'none';

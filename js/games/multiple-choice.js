@@ -13,6 +13,9 @@ EGL_Engine.register({
     this.answered = false;
     this.advanced = false;
     this._timers = new Set();
+    // Phase 2E-1: re-render chrome on language change without resetting progress
+    this._langHandler = () => { if (this.active && !this.advanced) this.render(true); };
+    document.addEventListener('egl:language-change', this._langHandler);
     this.render();
   },
 
@@ -21,7 +24,7 @@ EGL_Engine.register({
     this._timers.add(t);
   },
 
-  render() {
+  render(preserveAnswer) {
     const total = this.words.length;
     if (this.idx >= total) {
       this.engine.setProgress(total, total);
@@ -31,19 +34,24 @@ EGL_Engine.register({
     const cur = this.words[this.idx];
     const esc = EGL_Utils.escapeHtml;
     const icons = EGL_Utils.icons;
+    const i18n = (typeof EGL_I18n !== 'undefined') ? EGL_I18n : null;
+    const tt = (k, p) => i18n ? i18n.t(k, p) : k;
     const opts = EGL_Utils.shuffle([cur, ...this.engine.getDistractors(cur, 3)]);
-    this.answered = false;
-    this.advanced = false;
+    // If re-rendering due to language change after answer, keep answered state
+    if (!preserveAnswer) {
+      this.answered = false;
+      this.advanced = false;
+    }
     this.engine.setProgress(this.idx, total, `${this.idx + 1} / ${total}`);
 
-    // .mc-choice-grid .btn-choice is also targeted by the 1-4 shortcut in app.js
+    // Preserve vocabulary content; only chrome is translated
     this.container.innerHTML = `
       <div class="g-arena mc-arena g-anim">
         <div class="g-card mc-question-card">
-          <span class="g-eyebrow">What does this word mean?</span>
+          <span class="g-eyebrow">${esc(tt('multipleChoice.eyebrow'))}</span>
           <div class="g-word mc-target-word">${esc(cur.word)}</div>
           <div class="g-phonetic mc-phonetic-text">${esc(cur.phonetic || '')}</div>
-          <button class="icon-btn g-speak" type="button" data-speak="${esc(cur.word)}" aria-label="Pronounce ${esc(cur.word)}">${icons.speak}</button>
+          <button class="icon-btn g-speak" type="button" data-speak="${esc(cur.word)}" aria-label="${esc(tt('multipleChoice.pronounce', { word: cur.word }))}">${icons.speak}</button>
         </div>
 
         <div class="mc-choice-grid">
@@ -62,6 +70,11 @@ EGL_Engine.register({
     const btns = this.container.querySelectorAll('.btn-choice');
     const foot = this.container.querySelector('#mc-foot');
 
+    // If we re-rendered mid-question after language change and had already answered,
+    // we must not allow re-answering; just show the word and keep buttons disabled visually.
+    // Simplest safe path: allow fresh attempt (no answered state to restore) — but preserveAnswer is only
+    // used to keep chrome fresh; we still reset answered=false at top unless preserveAnswer true and caller sets it.
+    // For Phase 2E-1, preserveAnswer is not used to restore answered=true; next iteration handles it naturally.
     btns.forEach(btn => {
       btn.onclick = () => {
         if (this.answered) return;
@@ -79,24 +92,29 @@ EGL_Engine.register({
         this.feedback(foot, isCorrect, cur);
       };
     });
+    // Store opts for potential language-change re-render that shuffles — keep current opts stable via closure
+    this._currentOpts = opts;
+    this._currentCur = cur;
   },
 
   feedback(foot, isCorrect, cur) {
     const icons = EGL_Utils.icons;
     const esc = EGL_Utils.escapeHtml;
-    const detail = `${esc(cur.word)} means <b>${esc(cur.meaning)}</b>.`;
+    const i18n = (typeof EGL_I18n !== 'undefined') ? EGL_I18n : null;
+    const tt = (k, p) => i18n ? i18n.t(k, p) : k;
+    const detail = tt('multipleChoice.feedback.detail', { word: esc(cur.word), meaning: esc(cur.meaning) });
 
     if (isCorrect) {
       foot.innerHTML = `
         <div class="g-feedback is-ok">${icons.check}
-          <div class="g-feedback-text"><strong>Correct!</strong><span>${detail}</span></div>
+          <div class="g-feedback-text"><strong>${esc(tt('multipleChoice.feedback.correctTitle'))}</strong><span>${detail}</span></div>
         </div>`;
       this.later(() => this.next(), 900);
     } else {
       foot.innerHTML = `
         <div class="g-feedback is-bad">${icons.cross}
-          <div class="g-feedback-text"><strong>Not quite.</strong><span>${detail}</span></div>
-          <button class="btn btn-primary" type="button" id="btn-mc-next">Continue ${icons.arrow}</button>
+          <div class="g-feedback-text"><strong>${esc(tt('multipleChoice.feedback.wrongTitle'))}</strong><span>${detail}</span></div>
+          <button class="btn btn-primary" type="button" id="btn-mc-next">${esc(tt('multipleChoice.btn.continue'))} ${icons.arrow}</button>
         </div>`;
       const nextBtn = foot.querySelector('#btn-mc-next');
       nextBtn.onclick = () => this.next();
@@ -114,5 +132,6 @@ EGL_Engine.register({
   cleanup() {
     this.active = false;
     if (this._timers) { this._timers.forEach(clearTimeout); this._timers.clear(); }
+    if (this._langHandler) { document.removeEventListener('egl:language-change', this._langHandler); this._langHandler = null; }
   }
 });

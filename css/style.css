@@ -520,6 +520,13 @@ svg { max-width: 100%; }
 .switch input:checked + .switch-slider::after { transform: translateX(20px); }
 .switch input:focus-visible + .switch-slider { outline: 2px solid var(--sky); outline-offset: 2px; }
 
+/* Language switcher (Phase 1 — Settings) */
+.setting-language { align-items: flex-start; }
+.lang-switch { display: inline-flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.lang-btn { min-height: 44px; min-width: 132px; overflow-wrap: anywhere; }
+.lang-btn.is-active { --btn-bg: var(--paper-2); --btn-border: var(--ink); --btn-edge: var(--ink-3); box-shadow: 0 2px 0 var(--btn-edge); }
+.lang-btn:focus-visible { outline: 2px solid var(--sky); outline-offset: 2px; }
+
 /* ---------- 11b. PROFILE (hub on mobile) ---------- */
 .profile-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px; }
 .profile-card { padding: 22px; background: var(--surface); border: 1.5px solid var(--line); border-radius: var(--r-lg); }
@@ -550,6 +557,12 @@ svg { max-width: 100%; }
 .play-fill { height: 100%; border-radius: 5px; background: var(--primary); transition: width .45s var(--ease); }
 .play-count { min-width: 56px; text-align: right; font-size: .85rem; font-weight: 700; color: var(--ink-2); font-variant-numeric: tabular-nums; }
 .play-stage { display: block; min-height: 380px; }
+
+/* In-game language switcher (Phase 2F) — compact, cozy, non-overlapping */
+.game-lang-switch { display: flex; justify-content: flex-end; gap: 6px; margin: 8px 0 14px; }
+.game-lang-btn { min-height: 32px; min-width: 56px; padding: 4px 10px; font-size: .78rem; border-radius: 8px; }
+.game-lang-btn.is-active { --btn-bg: var(--paper-2); --btn-border: var(--ink); --btn-edge: var(--line-2); }
+@media (max-width: 900px) { .game-lang-switch { margin-top: 4px; } }
 
 body.is-playing .top-nav { display: none; }
 

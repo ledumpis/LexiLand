@@ -26,7 +26,7 @@ EGL_Engine.register({
         e.preventDefault();
         this.remove(s.placed.length - 1);
       } else if (e.key === 'Enter') {
-        if (t && t.closest && t.closest('button')) return; // let the focused button act
+        if (t && t.closest && t.closest('button')) return;
         e.preventDefault();
         this.check();
       } else if (/^[a-zA-Z]$/.test(e.key)) {
@@ -36,6 +36,8 @@ EGL_Engine.register({
       }
     };
     document.addEventListener('keydown', this._onKey);
+    this._langHandler = () => { if (this.active) this.patchLanguage(); };
+    document.addEventListener('egl:language-change', this._langHandler);
 
     this.render();
   },
@@ -43,6 +45,27 @@ EGL_Engine.register({
   later(fn, ms) {
     const t = setTimeout(() => { this._timers.delete(t); if (this.active) fn(); }, ms);
     this._timers.add(t);
+  },
+
+  patchLanguage() {
+    if (!this.active || !this.state) return;
+    const i18n = (typeof EGL_I18n !== 'undefined') ? EGL_I18n : null;
+    const tt = (k, p) => i18n ? i18n.t(k, p) : k;
+    const esc = (typeof EGL_Utils !== 'undefined' && EGL_Utils.escapeHtml) ? EGL_Utils.escapeHtml : (s => s);
+    const eyebrow = this.container.querySelector('.un-clue .g-eyebrow');
+    if (eyebrow) eyebrow.textContent = tt('unscramble.eyebrow');
+    const typeHint = this.container.querySelector('.un-clue .g-phonetic');
+    if (typeHint && this.state) {
+      typeHint.innerHTML = tt('unscramble.hint.typeLetters', { type: esc(this.state.cur.type || 'word'), count: this.state.target.length });
+    }
+    const labels = this.container.querySelectorAll('.un-label');
+    if (labels[0]) labels[0].textContent = tt('unscramble.label.yourWord');
+    if (labels[1]) labels[1].textContent = tt('unscramble.label.tapLetters');
+    const resetBtn = this.container.querySelector('#btn-u-reset');
+    if (resetBtn) resetBtn.textContent = tt('unscramble.btn.reset');
+    const checkBtn = this.container.querySelector('#btn-u-check');
+    if (checkBtn) checkBtn.textContent = tt('unscramble.btn.check');
+    // Feedback, if already shown, will be updated on next action; keep current selection
   },
 
   render() {
@@ -54,6 +77,8 @@ EGL_Engine.register({
 
     const cur = this.words[this.idx];
     const esc = EGL_Utils.escapeHtml;
+    const i18n = (typeof EGL_I18n !== 'undefined') ? EGL_I18n : null;
+    const tt = (k, p) => i18n ? i18n.t(k, p) : k;
     const target = cur.word.replace(/\s+/g, '').toUpperCase();
 
     let letters = EGL_Utils.shuffle(target.split(''));
@@ -72,26 +97,26 @@ EGL_Engine.register({
     this.container.innerHTML = `
       <div class="g-arena un-arena g-anim">
         <div class="g-card un-clue">
-          <span class="g-eyebrow">Rebuild the English word</span>
+          <span class="g-eyebrow">${esc(tt('unscramble.eyebrow'))}</span>
           <div class="g-meaning un-meaning">${esc(cur.meaning)}</div>
-          <div class="g-phonetic">${esc(cur.type || 'word')} &middot; ${target.length} letters</div>
+          <div class="g-phonetic">${esc(tt('unscramble.hint.typeLetters', { type: cur.type || 'word', count: target.length }))}</div>
         </div>
 
         <div>
-          <div class="un-label">Your word</div>
+          <div class="un-label">${esc(tt('unscramble.label.yourWord'))}</div>
           <div class="un-answer"><div class="un-slots" id="u-slots-area"></div></div>
         </div>
 
         <div>
-          <div class="un-label">Tap the letters in order</div>
+          <div class="un-label">${esc(tt('unscramble.label.tapLetters'))}</div>
           <div class="un-pool" id="u-pool-area">
             ${letters.map((ch, i) => `<button type="button" class="un-tile" data-idx="${i}">${esc(ch)}</button>`).join('')}
           </div>
         </div>
 
         <div class="un-actions">
-          <button class="btn btn-secondary" type="button" id="btn-u-reset">Reset</button>
-          <button class="btn btn-primary btn-lg" type="button" id="btn-u-check" disabled>Check</button>
+          <button class="btn btn-secondary" type="button" id="btn-u-reset">${esc(tt('unscramble.btn.reset'))}</button>
+          <button class="btn btn-primary btn-lg" type="button" id="btn-u-check" disabled>${esc(tt('unscramble.btn.check'))}</button>
         </div>
 
         <div class="g-foot" id="un-foot"></div>
@@ -105,7 +130,7 @@ EGL_Engine.register({
 
     this.poolTiles.forEach(tile => {
       tile.onclick = () => {
-        tile.blur(); // keep keyboard shortcuts working after a tap
+        tile.blur();
         this.place(Number(tile.dataset.idx));
       };
     });
@@ -141,6 +166,8 @@ EGL_Engine.register({
   update() {
     const s = this.state;
     const esc = EGL_Utils.escapeHtml;
+    const i18n = (typeof EGL_I18n !== 'undefined') ? EGL_I18n : null;
+    const tt = (k, p) => i18n ? i18n.t(k, p) : k;
     let k = 0;
 
     this.slotsEl.innerHTML = s.layout.map(ch => {
@@ -149,7 +176,7 @@ EGL_Engine.register({
       const filled = ti !== undefined;
       const stateCls = !s.done || !filled ? '' : (s.letters[ti] === s.target[k] ? ' is-ok' : ' is-bad');
       const html = filled
-        ? `<button type="button" class="un-slot filled${k === s.last ? ' pop' : ''}${stateCls}" data-slot="${k}" aria-label="Remove letter ${esc(s.letters[ti])}">${esc(s.letters[ti])}</button>`
+        ? `<button type="button" class="un-slot filled${k === s.last ? ' pop' : ''}${stateCls}" data-slot="${k}" aria-label="${esc(tt('unscramble.aria.remove', { letter: s.letters[ti] }))}">${esc(s.letters[ti])}</button>`
         : '<span class="un-slot"></span>';
       k++;
       return html;
@@ -185,19 +212,21 @@ EGL_Engine.register({
     const s = this.state;
     const icons = EGL_Utils.icons;
     const esc = EGL_Utils.escapeHtml;
+    const i18n = (typeof EGL_I18n !== 'undefined') ? EGL_I18n : null;
+    const tt = (k, p) => i18n ? i18n.t(k, p) : k;
 
     if (isCorrect) {
       this.foot.innerHTML = `
         <div class="g-feedback is-ok">${icons.check}
-          <div class="g-feedback-text"><strong>Perfect!</strong><span>${esc(s.cur.word)} means ${esc(s.cur.meaning)}.</span></div>
+          <div class="g-feedback-text"><strong>${esc(tt('unscramble.feedback.correctTitle'))}</strong><span>${tt('unscramble.feedback.detail', { word: esc(s.cur.word), meaning: esc(s.cur.meaning) })}</span></div>
         </div>`;
       this.later(() => this.next(), 1000);
     } else {
       this.foot.innerHTML = `
         <div class="g-feedback is-bad">${icons.cross}
-          <div class="g-feedback-text"><strong>Not quite.</strong><span>The word is <b>${esc(s.cur.word)}</b></span></div>
-          <button class="icon-btn" type="button" data-speak="${esc(s.cur.word)}" aria-label="Pronounce ${esc(s.cur.word)}">${icons.speak}</button>
-          <button class="btn btn-primary" type="button" id="btn-u-next">Continue ${icons.arrow}</button>
+          <div class="g-feedback-text"><strong>${esc(tt('unscramble.feedback.wrongTitle'))}</strong><span>${tt('unscramble.feedback.theWordIs', { word: esc(s.cur.word) })}</span></div>
+          <button class="icon-btn" type="button" data-speak="${esc(s.cur.word)}" aria-label="${esc(tt('unscramble.pronounce', { word: s.cur.word }))}">${icons.speak}</button>
+          <button class="btn btn-primary" type="button" id="btn-u-next">${esc(tt('unscramble.btn.continue'))} ${icons.arrow}</button>
         </div>`;
       const nextBtn = this.foot.querySelector('#btn-u-next');
       nextBtn.onclick = () => this.next();
@@ -216,5 +245,6 @@ EGL_Engine.register({
     this.active = false;
     if (this._timers) { this._timers.forEach(clearTimeout); this._timers.clear(); }
     if (this._onKey) { document.removeEventListener('keydown', this._onKey); this._onKey = null; }
+    if (this._langHandler) { document.removeEventListener('egl:language-change', this._langHandler); this._langHandler = null; }
   }
 });

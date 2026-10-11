@@ -207,13 +207,15 @@ const EGL_Engine = {
     EGL_Progress.data.recentSessions = [entry, ...(EGL_Progress.data.recentSessions || [])].slice(0, 5);
     EGL_Progress.save();
 
-    // Results modal
-    let title = 'Keep practicing!';
-    let sub = 'Every small practice session strengthens your memory.';
+    // Results modal — i18n (shared UI, not per-game)
+    const i18n = (typeof EGL_I18n !== 'undefined') ? EGL_I18n : null;
+    const t = (k, p) => i18n ? i18n.t(k, p) : k;
+    let title = t('results.title.keepPracticing');
+    let sub = t('results.sub.keepPracticing');
     if (s.totalAnswered > 0) {
-      if (accuracy === 100) { title = 'Flawless round!'; sub = 'Not a single slip. Beautifully done.'; }
-      else if (accuracy >= 80) { title = 'Great work!'; sub = 'You are building a solid memory for these words.'; }
-      else if (accuracy >= 50) { title = 'Good effort!'; sub = 'The tricky words below will come back soon.'; }
+      if (accuracy === 100) { title = t('results.title.flawless'); sub = t('results.sub.flawless'); }
+      else if (accuracy >= 80) { title = t('results.title.greatWork'); sub = t('results.sub.greatWork'); }
+      else if (accuracy >= 50) { title = t('results.title.goodEffort'); sub = t('results.sub.goodEffort'); }
     }
     document.getElementById('results-title').innerText = title;
     document.getElementById('results-subtext').innerText = sub;
@@ -225,7 +227,7 @@ const EGL_Engine = {
     const levelUp = document.getElementById('res-levelup');
     if (levelUp) {
       levelUp.style.display = (EGL_Progress.data.level > levelBefore) ? 'inline-block' : 'none';
-      levelUp.innerText = `Level up! You reached level ${EGL_Progress.data.level}.`;
+      levelUp.innerText = t('results.levelUp', { level: EGL_Progress.data.level });
     }
 
     const weakBox = document.getElementById('res-weak-tags');
@@ -234,7 +236,7 @@ const EGL_Engine = {
     if (unique.length === 0) {
       const note = document.createElement('span');
       note.className = 'flawless-note';
-      note.innerText = 'Flawless victory! No mistakes made.';
+      note.innerText = t('results.flawlessNote');
       weakBox.appendChild(note);
       EGL_Utils.triggerConfetti();
     } else {
