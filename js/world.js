@@ -10,7 +10,8 @@
     vocabulary: '<path d="M4 4h7a3 3 0 013 3v13a2 2 0 00-2-2H4z"/><path d="M20 4h-4a2 2 0 00-2 2v14a2 2 0 012-2h4z"/>',
     review: '<path d="M12 21v-9"/><path d="M12 12c0-4-3-6-7-6 0 4 3 6 7 6z"/><path d="M12 14c0-3 2-5 6-5 0 3-2 5-6 5z"/>',
     achievements: '<path d="M8 4h8v5a4 4 0 01-8 0z"/><path d="M8 6H4v1a3 3 0 003 3M16 6h4v1a3 3 0 01-3 3"/><path d="M12 13v4M8 20h8"/>',
-    settings: '<path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/>'
+    settings: '<path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/>',
+    profile: '<circle cx="12" cy="8" r="3.5"/><path d="M5 19c0-3 3.5-5 7-5s7 2 7 5"/>'
   };
 
   // [desktop label, mobile label, original name kept as tooltip]
@@ -20,7 +21,8 @@
     vocabulary: ['Library', 'Library', 'Word Decks'],
     review: ['Review Garden', 'Garden', 'Review'],
     achievements: ['Trophy Corner', 'Trophies', 'Achievements'],
-    settings: ['Settings', 'Settings', 'Settings']
+    settings: ['Settings', 'Settings', 'Settings'],
+    profile: ['Profile', 'Profile', 'Profile']
   };
 
   const DECO = `

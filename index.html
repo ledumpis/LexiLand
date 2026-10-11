@@ -27,24 +27,27 @@
       </div>
 
       <nav class="nav-menu" aria-label="Main">
-        <button class="nav-item active" data-view="home">
+        <button class="nav-item nav-primary active" data-view="home">
           <span class="nav-label"><span class="nav-full">Home</span><span class="nav-short">Home</span></span>
         </button>
-        <button class="nav-item" data-view="games">
+        <button class="nav-item nav-primary" data-view="games">
           <span class="nav-label"><span class="nav-full" id="nav-games-label">Mini Games</span><span class="nav-short">Games</span></span>
           <span class="nav-count" id="nav-games-count"></span>
         </button>
-        <button class="nav-item" data-view="vocabulary">
+        <button class="nav-item nav-primary" data-view="vocabulary">
           <span class="nav-label"><span class="nav-full">Word Decks</span><span class="nav-short">Decks</span></span>
         </button>
-        <button class="nav-item" data-view="review">
+        <button class="nav-item nav-secondary" data-view="review">
           <span class="nav-label"><span class="nav-full">Review</span><span class="nav-short">Review</span></span>
         </button>
-        <button class="nav-item" data-view="achievements">
+        <button class="nav-item nav-secondary" data-view="achievements">
           <span class="nav-label"><span class="nav-full">Achievements</span><span class="nav-short">Badges</span></span>
         </button>
-        <button class="nav-item" data-view="settings">
+        <button class="nav-item nav-secondary" data-view="settings">
           <span class="nav-label"><span class="nav-full">Settings</span><span class="nav-short">Settings</span></span>
+        </button>
+        <button class="nav-item nav-primary nav-profile" data-view="profile" aria-label="Profile">
+          <span class="nav-label"><span class="nav-full">Profile</span><span class="nav-short">Profile</span></span>
         </button>
       </nav>
 
@@ -370,6 +373,35 @@
             </div>
             <button class="btn btn-danger" id="btn-reset-data">Reset all data</button>
           </div>
+        </div>
+      </section>
+
+      <!-- ======== VIEW: PROFILE (hub) ======== -->
+      <section id="view-profile" class="view-panel">
+        <div class="page-head">
+          <div>
+            <h3>Profile</h3>
+            <p class="hint">Your words, progress and settings in one place.</p>
+          </div>
+        </div>
+        <div class="profile-grid">
+          <section class="profile-card">
+            <h4>Your progress</h4>
+            <p class="hint" style="margin-bottom:12px;">Streak, level and streak-driven daily target.</p>
+            <div class="profile-card-actions">
+              <button class="btn btn-secondary" data-view="review">Go to Review</button>
+              <button class="btn btn-secondary" data-view="achievements">View Badges</button>
+            </div>
+            <ul class="profile-links">
+              <li><button class="btn-link" data-view="review">Words to review</button><span class="hint">Weak words across every deck</span></li>
+              <li><button class="btn-link" data-view="achievements">Milestones &amp; Badges</button><span class="hint">Streaks and collections</span></li>
+            </ul>
+          </section>
+          <section class="profile-card">
+            <h4>Preferences</h4>
+            <p class="hint" style="margin-bottom:12px;">Sound, voice and stored data.</p>
+            <button class="btn btn-secondary" data-view="settings">Open Settings</button>
+          </section>
         </div>
       </section>
 

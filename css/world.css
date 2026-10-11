@@ -181,16 +181,19 @@ body.is-playing .world-deco { opacity: .35; }
 
 @media (max-width: 900px) {
   .sidebar { background: var(--surface); border-top: 2px solid var(--ink); border-right: 0; }
-  .nav-menu { gap: 0; }
-  .nav-item { flex-direction: column; justify-content: center; gap: 2px; padding: 5px 2px; border: 0; font-size: .74rem; }
+  .nav-menu { gap: 0; justify-content: space-around; }
+  .nav-item.nav-secondary { display: none !important; }
+  .nav-item.nav-primary { flex-direction: column; justify-content: center; gap: 2px; padding: 5px 2px; border: 0; font-size: .72rem; min-height: 44px; }
   .nav-item:hover { transform: none; }
   .nav-item.active { background: transparent; box-shadow: none; }
   .nav-item.active::before { display: block; background: var(--ci); }
-  .nav-ico { width: 30px; height: 30px; }
+  .nav-ico { width: 28px; height: 28px; }
   .nav-item.active .nav-ico { box-shadow: 0 0 0 2px var(--ink); }
   .world-deco .d3 { left: 6%; bottom: 14%; }
   .hero { grid-template-columns: 1fr; gap: 12px; }
-  .hero-art { max-width: 320px; justify-self: center; }
+  .hero-art { max-width: 300px; justify-self: center; }
+  .ledger { gap: 10px; }
+  .profile-card { border-radius: 14px; }
 }
 
 @media (max-width: 600px) {

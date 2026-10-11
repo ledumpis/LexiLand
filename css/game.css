@@ -366,27 +366,66 @@ button.un-slot { cursor: pointer; }
 .sp-input.is-bad { border-color: var(--error); background: var(--error-soft); }
 
 /* ---------- 13. Responsive ---------- */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .g-arena { max-width: 640px; }
+  .mc-choice-grid, .sq-grid { gap: 12px; }
+  .wm-board { column-gap: 56px; }
+  .mem-grid { gap: 12px; }
+}
+
+@media (max-width: 900px) {
+  .g-arena { gap: 14px; }
+  .g-card { padding: 20px 14px 18px; }
+  .g-word { font-size: clamp(1.6rem, 6vw, 2.4rem); }
+  .g-meaning { font-size: clamp(1.25rem, 4.5vw, 1.8rem); }
+  .g-feedback { min-width: 0; overflow-wrap: anywhere; }
+  .wm-board { column-gap: 28px; }
+  .match-card { min-height: 44px; padding: 10px 10px; font-size: .88rem; }
+  .match-card[data-type="en"] { font-size: .95rem; }
+  .mem-grid { gap: 10px; }
+}
+
 @media (max-width: 600px) {
-  .g-arena { gap: 16px; }
-  .g-card { padding: 24px 16px 22px; }
+  .g-arena { gap: 16px; overflow-x: hidden; max-width: 100%; }
+  .g-card { padding: 24px 16px 22px; overflow-wrap: anywhere; min-width: 0; }
+  .g-word, .g-meaning, .fc-word, .fc-meaning { overflow-wrap: anywhere; word-break: break-word; }
   .mc-choice-grid { grid-template-columns: 1fr; gap: 12px; }
-  .btn-choice, .btn-bomb-option { min-height: 60px; }
+  .btn-choice, .btn-bomb-option { min-height: 48px; padding: 12px 14px; min-width: 0; overflow-wrap: anywhere; }
+  .choice-text { min-width: 0; }
   .sv-grid { grid-template-columns: 1fr; gap: 12px; }
-  .g-feedback { flex-wrap: wrap; }
-  .g-feedback .btn { width: 100%; margin-left: 0; }
+  .g-feedback { flex-wrap: wrap; min-width: 0; }
+  .g-feedback .btn { width: 100%; margin-left: 0; min-height: 44px; }
+  .g-feedback-text { min-width: 0; overflow-wrap: anywhere; }
+  .fc-arena { max-width: 100%; }
+  .fc-card { height: clamp(260px, 72vw, 340px); }
   .fc-actions { gap: 10px; }
-  .fc-actions .btn { padding-inline: 10px; font-size: .9rem; }
-  .wm-col { gap: 10px; }
-  .match-card { min-height: 58px; padding: 10px 12px; font-size: .9rem; }
-  .match-card[data-type="en"] { font-size: 1rem; }
-  .mem-grid { grid-template-columns: repeat(3, 1fr); gap: 10px; }
-  .un-tile { width: 44px; height: 50px; font-size: 1.3rem; }
+  .fc-actions .btn { padding-inline: 10px; font-size: .9rem; min-height: 44px; flex: 1; min-width: 0; }
+  .wm-arena { max-width: 100%; overflow-x: hidden; }
+  .wm-board { column-gap: 14px; min-width: 0; }
+  .wm-col { gap: 10px; min-width: 0; }
+  .match-card { min-height: 48px; padding: 10px 8px; font-size: .84rem; min-width: 0; }
+  .match-card[data-type="en"] { font-size: .92rem; }
+  .mem-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+  .mem-card { min-width: 0; }
+  .un-tile { width: 44px; height: 50px; font-size: 1.3rem; min-height: 44px; }
   .un-slot { width: 38px; height: 46px; font-size: 1.25rem; }
+  .un-slots { gap: 6px; }
   .tf-controls { gap: 12px; }
-  .sq-opt { min-height: 72px; font-size: .95rem; }
+  .tf-btn { min-height: 44px; }
+  .sq-opt { min-height: 56px; font-size: .95rem; }
   .sq-grid { gap: 10px; }
   .sv-bomb { width: 150px; }
-  .wm-stats, .mem-stats, .sq-stats { gap: 18px; }
+  .wm-stats, .mem-stats, .sq-stats { gap: 14px; flex-wrap: wrap; justify-content: center; }
+  .ty-slot { min-height: 44px; }
+  .sp-input { font-size: clamp(1.2rem, 5vw, 1.6rem); min-height: 44px; }
+}
+
+@media (max-width: 390px) {
+  .g-card { padding: 18px 12px 16px; }
+  .g-word { font-size: clamp(1.4rem, 7vw, 1.9rem); }
+  .mem-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+  .wm-board { column-gap: 10px; }
+  .match-card { padding: 8px 6px; font-size: .80rem; }
 }
 
 /* ===== Flashcard 3D Flip Override ===== */
