@@ -14,20 +14,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // ---------- Static config ----------
   const GAME_ORDER = ['flashcard', 'multiple-choice', 'word-match', 'typing', 'memory',
-                      'unscramble', 'true-false', 'spelling', 'speed-quiz', 'survival'];
+                      'unscramble', 'true-false', 'spelling', 'speed-quiz', 'survival',
+                      'business-vocabulary-lab'];
   const DEFAULT_ART = '<i></i><i></i><i></i>';
   // Game tags/meta are driven by i18n keys (Phase 2B) — vocabulary content stays English
   const GAME_TAG_KEYS = {
     'flashcard': 'game.tag.study', 'multiple-choice': 'game.tag.quiz', 'word-match': 'game.tag.pairs',
     'typing': 'game.tag.recall', 'spelling': 'game.tag.listening', 'unscramble': 'game.tag.letters',
     'true-false': 'game.tag.quick', 'speed-quiz': 'game.tag.timed', 'memory': 'game.tag.memory',
-    'survival': 'game.tag.survival'
+    'survival': 'game.tag.survival',
+    'business-vocabulary-lab': 'game.tag.lab'
   };
   const GAME_META_KEYS = {
     'flashcard': 'game.meta.flashcard', 'multiple-choice': 'game.meta.multipleChoice', 'word-match': 'game.meta.wordMatch',
     'typing': 'game.meta.typing', 'spelling': 'game.meta.spelling', 'unscramble': 'game.meta.unscramble',
     'true-false': 'game.meta.trueFalse', 'speed-quiz': 'game.meta.speedQuiz', 'memory': 'game.meta.memory',
-    'survival': 'game.meta.survival'
+    'survival': 'game.meta.survival',
+    'business-vocabulary-lab': 'game.meta.businessVocabularyLab'
   };
   const GAME_META = {
     'flashcard':       { tone: 'sage',    tag: 'Study',          meta: 'Flip & self-rate' },
@@ -39,8 +42,18 @@ document.addEventListener('DOMContentLoaded', () => {
     'true-false':      { tone: 'primary', tag: 'Quick judgment', meta: 'True or false' },
     'speed-quiz':      { tone: 'primary', tag: 'Timed',          meta: '60 seconds' },
     'memory':          { tone: 'lav',     tag: 'Memory',         meta: '6 pairs · flip cards' },
-    'survival':        { tone: 'rose',    tag: 'Survival',       meta: '3 lives · shrinking fuse' }
+    'survival':        { tone: 'rose',    tag: 'Survival',       meta: '3 lives · shrinking fuse' },
+    'business-vocabulary-lab': { tone: 'honey', tag: 'Lab', meta: 'Verified textbook items' }
   };
+  const GAME_NAME_KEYS = { 'business-vocabulary-lab': 'game.name.business-vocabulary-lab' };
+  const GAME_DESC_KEYS = { 'business-vocabulary-lab': 'game.desc.business-vocabulary-lab' };
+  function i18nGameField(id, map, fallback) {
+    const k = map[id];
+    const i18n = (typeof EGL_I18n !== 'undefined') ? EGL_I18n : null;
+    if (!k || !i18n) return fallback;
+    const v = i18n.t(k);
+    return v === k ? fallback : v;
+  }
   function i18nTag(id) {
     const k = GAME_TAG_KEYS[id];
     const i18n = (typeof EGL_I18n !== 'undefined') ? EGL_I18n : null;
@@ -334,16 +347,18 @@ document.addEventListener('DOMContentLoaded', () => {
       const tag = i18nTag(g.id);
       const meta = i18nMeta(g.id);
       const playLabel = (typeof EGL_I18n !== 'undefined') ? EGL_I18n.t('gamePark.card.play') : 'Play';
+      const name = i18nGameField(g.id, GAME_NAME_KEYS, g.name);
+      const description = i18nGameField(g.id, GAME_DESC_KEYS, g.description);
       return `
-        <article class="game-card tone-${m.tone}" data-gid="${esc(g.id)}" role="button" tabindex="0" aria-label="${esc(((typeof EGL_I18n !== 'undefined') ? EGL_I18n.t('gamePark.card.ariaPlay', { name: g.name }) : `Play ${g.name}`))}">
+        <article class="game-card tone-${m.tone}" data-gid="${esc(g.id)}" role="button" tabindex="0" aria-label="${esc(((typeof EGL_I18n !== 'undefined') ? EGL_I18n.t('gamePark.card.ariaPlay', { name: name }) : `Play ${name}`))}">
           <div class="game-art art-${esc(g.id)}" aria-hidden="true">${m.art || DEFAULT_ART}</div>
           <div class="game-card-body">
             <div class="game-card-tags">
               <span class="tag">${esc(tag)}</span>
               <span class="game-card-meta">${esc(meta)}</span>
             </div>
-            <h4>${esc(g.name)}</h4>
-            <p>${esc(g.description)}</p>
+            <h4>${esc(name)}</h4>
+            <p>${esc(description)}</p>
             <span class="game-card-cta">${esc(playLabel)} ${icons.arrow}</span>
           </div>
         </article>

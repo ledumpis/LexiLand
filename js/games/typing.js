@@ -54,15 +54,22 @@ EGL_Engine.register({
     const tt = (k, p) => i18n ? i18n.t(k, p) : k;
     const target = String(cur.word);
     const chars = Array.from(target);
-    const letterCount = chars.filter(c => c !== ' ').length;
+    // Spaces are visual gaps, not tiles. The hint counts only letters the player types.
+    const letters = chars.filter(c => c !== ' ');
+    const letterCount = letters.length;
     this._curLetterCount = letterCount;
+    this._letters = letters;
     this.answered = false;
     this.advanced = false;
     this.engine.setProgress(this.idx, total, `${this.idx + 1} / ${total}`);
 
-    const slotsHtml = chars.map((ch, i) =>
-      ch === ' ' ? '<span class="ty-gap"></span>' : `<span class="ty-slot" data-i="${i}"></span>`
-    ).join('');
+    let letterIndex = 0;
+    const slotsHtml = chars.map(ch => {
+      if (ch === ' ') return '<span class="ty-gap"></span>';
+      const html = `<span class="ty-slot" data-i="${letterIndex}"></span>`;
+      letterIndex += 1;
+      return html;
+    }).join('');
 
     this.container.innerHTML = `
       <div class="g-arena ty-arena g-anim">
@@ -74,7 +81,7 @@ EGL_Engine.register({
 
         <div class="ty-field" id="ty-field">
           <div class="ty-slots" aria-hidden="true">${slotsHtml}</div>
-          <input type="text" class="ty-input" id="type-input-field" maxlength="${chars.length}"
+          <input type="text" class="ty-input" id="type-input-field" maxlength="${Math.max(letterCount * 3, target.length + 12)}"
                  autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false"
                  aria-label="${esc(tt('typing.aria'))}">
         </div>
@@ -96,13 +103,23 @@ EGL_Engine.register({
     const submit = this.container.querySelector('#btn-type-submit');
     const skip = this.container.querySelector('#btn-type-skip');
 
+    const typedLetters = () => input.value.replace(/\s+/g, '').slice(0, letterCount);
+
     const paint = () => {
+      const compact = typedLetters();
+      if (compact !== input.value) {
+        const caret = input.selectionStart || 0;
+        const before = input.value.slice(0, caret).replace(/\s+/g, '').length;
+        input.value = compact;
+        const next = Math.min(before, compact.length);
+        if (input.setSelectionRange) input.setSelectionRange(next, next);
+      }
       const v = input.value;
       const cursorEl = this.answered ? null : slotEls.find(el => Number(el.dataset.i) >= v.length);
       slotEls.forEach(el => {
         const i = Number(el.dataset.i);
         const ch = v[i];
-        const has = !!(ch && ch !== ' ');
+        const has = !!ch;
         el.textContent = has ? ch : '';
         el.classList.toggle('filled', has);
         el.classList.toggle('is-cursor', el === cursorEl);
@@ -115,20 +132,20 @@ EGL_Engine.register({
 
     const check = (giveUp) => {
       if (this.answered) return;
-      const val = input.value.trim().toLowerCase().replace(/\s+/g, ' ');
+      const val = typedLetters();
       if (!val && !giveUp) return;
 
       this.answered = true;
-      const isCorrect = !giveUp && val === target.toLowerCase();
+      const isCorrect = !giveUp && this.answersMatch(val, target);
       input.disabled = true;
       submit.disabled = true;
       skip.disabled = true;
 
       slotEls.forEach(el => {
         const i = Number(el.dataset.i);
-        const typed = (input.value[i] || '').toLowerCase();
+        const typed = (val[i] || '').toLowerCase();
         el.classList.remove('is-cursor');
-        el.classList.add(typed === chars[i].toLowerCase() ? 'is-ok' : 'is-bad');
+        el.classList.add(typed && typed === letters[i].toLowerCase() ? 'is-ok' : 'is-bad');
       });
 
       this.engine.recordAnswer(isCorrect, cur);
@@ -143,6 +160,13 @@ EGL_Engine.register({
 
     paint();
     input.focus();
+  },
+
+  /** Spaces are not tiles. Case and extra spaces are not a different answer. Hyphens stay. */
+  answersMatch(typed, expected) {
+    const key = (value) => String(value == null ? '' : value).toLowerCase().replace(/\s+/g, '');
+    const got = key(typed);
+    return got.length > 0 && got === key(expected);
   },
 
   finish(foot, isCorrect, giveUp, cur) {
