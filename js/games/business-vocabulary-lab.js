@@ -281,7 +281,7 @@ EGL_Engine.register({
         ${note}
         <section class="bvl-step">
           <h3 class="bvl-label">${this.esc(this.tt("bvl.setup.stepUnit"))}</h3>
-          <div class="bvl-unit-grid">
+          <div class="bvl-index">
             ${bank.units.map((u) => {
               const modes = this.playableModes(bank, u.number);
               const locked = modes.length === 0;
@@ -305,7 +305,8 @@ EGL_Engine.register({
           ${unit ? `<p class="bvl-now">${this.esc(this.tt("bvl.setup.nowPlaying", { name: unit.name }))}</p>` : ""}
           ${unitReady ? `<div class="bvl-mode-grid">${modeCards}</div>` : `<p class="bvl-aside">${this.esc(this.tt("bvl.setup.pickUnit"))}</p>`}
         </section>
-        <div class="bvl-actions">
+        <div class="bvl-dock">
+          <p class="bvl-current">${unit && this.mode ? this.esc(unit.name) + " · " + this.esc(this.tt("bvl.mode." + this.mode)) : this.esc(this.tt(unit ? "bvl.setup.stepMode" : "bvl.setup.pickUnit"))}</p>
           <button type="button" class="btn btn-primary bvl-start" data-act="start" ${canStart ? "" : "disabled"}>${this.esc(this.tt("bvl.setup.start"))}</button>
         </div>
       </div>`;
@@ -367,21 +368,21 @@ EGL_Engine.register({
       </div>`;
     }
     this.container.innerHTML = `
-      <div class="g-arena bvl-arena g-anim">
+      <div class="g-arena bvl-arena bvl-play">
         <div class="bvl-bar">
           <div>
-            <span class="g-eyebrow">${this.esc(this.tt("gamePark.scope.unitLabel", { number: unit.number }))} · ${this.esc(unit.name)}</span>
+            <span class="bvl-kicker">${this.esc(this.tt("gamePark.scope.unitLabel", { number: unit.number }))} · ${this.esc(unit.name)}</span>
             <strong class="bvl-mode-name">${this.esc(this.tt("bvl.mode." + this.mode))}</strong>
           </div>
-          <button type="button" class="btn btn-secondary btn-sm" data-act="setup">${this.esc(this.tt("bvl.play.back"))}</button>
+          <button type="button" class="bvl-back" data-act="setup">${this.esc(this.tt("bvl.play.back"))}</button>
         </div>
-        <div class="g-card">
-          <span class="g-eyebrow">${this.esc(q.exercise)} · ${this.esc(this.tt("bvl.play.progress", { current: this.idx + 1, total: total }))}</span>
-          <p class="bvl-label">${this.esc(this.tt(q.labelKey))}</p>
+        <article class="bvl-sheet">
+          <p class="bvl-kicker">${this.esc(q.exercise)} · ${this.esc(this.tt("bvl.play.progress", { current: this.idx + 1, total: total }))}</p>
+          <p class="bvl-q-label">${this.esc(this.tt(q.labelKey))}</p>
           <p class="bvl-prompt">${this.esc(q.prompt)}</p>
           ${body}
           ${feedback}
-        </div>
+        </article>
       </div>`;
   },
 
