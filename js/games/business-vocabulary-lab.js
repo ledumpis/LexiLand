@@ -69,7 +69,7 @@ EGL_Engine.register({
     }
   },
 
-  modeIds: ["read-fill", "match", "quick", "sort", "mixed"],
+  modeIds: ["read-fill", "match", "define", "quick", "sort", "mixed"],
 
   playableModes(bank, unit) {
     if (!bank || unit == null) return [];
@@ -227,6 +227,7 @@ EGL_Engine.register({
     const paths = {
       "read-fill": '<path d="M5 19V5h9l5 5v9H5z"/><path d="M14 5v5h5"/><path d="M8 13h8M8 16h5"/>',
       "match": '<rect x="3.5" y="6" width="7" height="12" rx="1.5"/><rect x="13.5" y="6" width="7" height="12" rx="1.5"/>',
+      "define": '<path d="M7 5h8a3 3 0 013 3v5H10l-3 3V5z"/>',
       "quick": '<path d="M13 2.5L5.5 13H11l-1 8.5L18.5 10H13l0-7.5z"/>',
       "sort": '<path d="M4 7h16M7 12h10M10 17h4"/>',
       "mixed": '<path d="M7 4.5h8.5A2.5 2.5 0 0118 7v12.5H9.5A2.5 2.5 0 017 17V4.5z"/><path d="M7 7H5.5A2.5 2.5 0 003 9.5V18"/>'
@@ -379,7 +380,7 @@ EGL_Engine.register({
         <article class="bvl-sheet">
           <p class="bvl-kicker">${this.esc(q.exercise)} · ${this.esc(this.tt("bvl.play.progress", { current: this.idx + 1, total: total }))}</p>
           <p class="bvl-q-label">${this.esc(this.tt(q.labelKey))}</p>
-          <p class="bvl-prompt">${this.esc(q.prompt)}</p>
+          <p class="bvl-prompt${q.mode === "define" ? " bvl-definition" : ""}">${this.esc(q.prompt)}</p>
           ${body}
           ${feedback}
         </article>

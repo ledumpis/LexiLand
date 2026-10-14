@@ -11,8 +11,10 @@
  *   read-fill ← U1-V2 COLLOCATION_GAP, U14-R1 GAP_FILL_FROM_BOX
  *   match     ← U1-V1, U12-V1, U14-V3 MATCH_DEFINITION; U8-V1 HALF_SENTENCE_MATCH; U14-V2 attested pairs
  *   quick     ← U2-V1, U8-V2 (except item 6), U11-V1, U13-V1, U14-V1 FIND_IN_TEXT
+ *   define    ← definition → word, four verified choices, from U1-V1, U2-V1,
+ *               U8-V2, U11-V1, U12-V1, U13-V1, U14-V1, U14-V3
  *   sort      ← none (U8-R1 and U12-R1 are MANUAL_VERIFICATION)
- *   mixed     ← read-fill + match + quick for that unit, no duplicates
+ *   mixed     ← read-fill + match + quick only, so a definition is not repeated
  */
 (function () {
   const UNITS = [
@@ -33,14 +35,14 @@
   };
 
   const EXPECTED = {
-    1: { "read-fill": 6, match: 8, quick: 0, sort: 0, mixed: 14 },
-    2: { "read-fill": 0, match: 0, quick: 9, sort: 0, mixed: 9 },
-    5: { "read-fill": 0, match: 0, quick: 0, sort: 0, mixed: 0 },
-    8: { "read-fill": 0, match: 9, quick: 9, sort: 0, mixed: 18 },
-    11: { "read-fill": 0, match: 0, quick: 9, sort: 0, mixed: 9 },
-    12: { "read-fill": 0, match: 10, quick: 0, sort: 0, mixed: 10 },
-    13: { "read-fill": 0, match: 0, quick: 10, sort: 0, mixed: 10 },
-    14: { "read-fill": 7, match: 18, quick: 14, sort: 0, mixed: 39 }
+    1: { "read-fill": 6, match: 8, define: 8, quick: 0, sort: 0, mixed: 14 },
+    2: { "read-fill": 0, match: 0, define: 9, quick: 9, sort: 0, mixed: 9 },
+    5: { "read-fill": 0, match: 0, define: 0, quick: 0, sort: 0, mixed: 0 },
+    8: { "read-fill": 0, match: 9, define: 9, quick: 9, sort: 0, mixed: 18 },
+    11: { "read-fill": 0, match: 0, define: 9, quick: 9, sort: 0, mixed: 9 },
+    12: { "read-fill": 0, match: 10, define: 10, quick: 0, sort: 0, mixed: 10 },
+    13: { "read-fill": 0, match: 0, define: 10, quick: 10, sort: 0, mixed: 10 },
+    14: { "read-fill": 7, match: 18, define: 19, quick: 14, sort: 0, mixed: 39 }
   };
 
   const questions = [];
@@ -280,6 +282,38 @@
     option: (r) => r.definition, prompt: (r) => r.word, term: (r) => r.word, answer: (r) => r.definition
   });
 
+  // Definition Match reuses a verified gloss or definition with the inventory word.
+  // Half-sentences are skipped: the term is already written in the prompt.
+  // Four options only, all from the same verified set. Mixed keeps the original pool.
+  function addDefinitionSet(exercise) {
+    const source = questions.filter((q) => q.exercise === exercise && q.kind === "single");
+    const pairs = [];
+    source.forEach((q) => {
+      if (q.labelKey === "bvl.prompt.word") pairs.push({ id: q.id, definition: q.answer, word: q.prompt, term: q.term });
+      else if (q.labelKey === "bvl.prompt.definition" || q.labelKey === "bvl.prompt.gloss") pairs.push({ id: q.id, definition: q.prompt, word: q.answer, term: q.term });
+    });
+    if (pairs.length < 4) return;
+    const words = pairs.map((p) => p.word);
+    pairs.forEach((pair, index) => {
+      const options = [pair.word];
+      for (let step = 1; options.length < 4; step++) options.push(words[(index + step) % words.length]);
+      questions.push({
+        id: pair.id + "-def",
+        unit: source[0].unit,
+        exercise: exercise,
+        mode: "define",
+        kind: "single",
+        labelKey: "bvl.prompt.define",
+        prompt: pair.definition,
+        term: pair.term,
+        options: options,
+        answer: pair.word,
+        resolved: ""
+      });
+    });
+  }
+  ["U1-V1", "U2-V1", "U8-V2", "U11-V1", "U12-V1", "U13-V1", "U14-V1", "U14-V3"].forEach(addDefinitionSet);
+
   function unitByNumber(n) {
     for (let i = 0; i < UNITS.length; i++) if (UNITS[i].number === n) return UNITS[i];
     return null;
@@ -287,7 +321,7 @@
 
   function questionsFor(unit, mode) {
     const inUnit = questions.filter((q) => q.unit === unit);
-    if (mode === "mixed") return inUnit.slice();
+    if (mode === "mixed") return inUnit.filter((q) => q.mode !== "define");
     if (mode === "sort") return [];
     return inUnit.filter((q) => q.mode === mode);
   }
@@ -316,6 +350,7 @@
       out[u.number] = {
         "read-fill": questionsFor(u.number, "read-fill").length,
         match: questionsFor(u.number, "match").length,
+        define: questionsFor(u.number, "define").length,
         quick: questionsFor(u.number, "quick").length,
         sort: questionsFor(u.number, "sort").length,
         mixed: questionsFor(u.number, "mixed").length
@@ -331,7 +366,7 @@
       if (!q.id || ids[q.id]) errors.push("duplicate or empty id: " + q.id);
       ids[q.id] = 1;
       if (!unitByNumber(q.unit)) errors.push(q.id + " unknown unit");
-      if (q.mode !== "read-fill" && q.mode !== "match" && q.mode !== "quick") errors.push(q.id + " bad mode");
+      if (q.mode !== "read-fill" && q.mode !== "match" && q.mode !== "quick" && q.mode !== "define") errors.push(q.id + " bad mode");
       if (!ALLOWED_EXERCISES[q.exercise]) errors.push(q.id + " exercise not verified");
       if (!q.prompt || !q.term) errors.push(q.id + " missing prompt or term");
       if (!Array.isArray(q.options) || q.options.length < 2) errors.push(q.id + " options");
@@ -343,14 +378,14 @@
       answerList(q).forEach((a) => {
         if (q.options.indexOf(a) === -1) errors.push(q.id + " answer not in options: " + a);
       });
-      if (q.kind === "ordered" && (!q.answers || q.answers.length < 2)) errors.push(q.id + " ordered");
+      if (q.mode === "define" && q.options.length !== 4) errors.push(q.id + " define options");
       const blob = (q.answer || "") + " " + (q.answers || []).join(" ");
       if (/\bdisrupt/.test(blob)) errors.push(q.id + " blocked disrupt form");
       if (q.answer === "shared values") errors.push(q.id + " unofficial key");
     });
     const got = counts();
     Object.keys(EXPECTED).forEach((unit) => {
-      ["read-fill", "match", "quick", "sort", "mixed"].forEach((mode) => {
+      ["read-fill", "match", "define", "quick", "sort", "mixed"].forEach((mode) => {
         if (got[unit][mode] !== EXPECTED[unit][mode]) {
           errors.push("count " + unit + " " + mode + " = " + got[unit][mode] + " expected " + EXPECTED[unit][mode]);
         }

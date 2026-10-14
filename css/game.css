@@ -680,13 +680,12 @@ button.un-slot { cursor: pointer; }
   box-shadow: 0 10px 22px rgba(138, 107, 82, .08);
 }
 .bvl-start:disabled { opacity: .45; cursor: not-allowed; transform: none; box-shadow: none; }
-.bvl-prompt {
-  margin: 4px 0 12px;
-  font-family: var(--font-display);
-  font-size: 1.28rem;
-  font-weight: 600;
-  letter-spacing: 0;
-  line-height: 1.4;
+.bvl-prompt.bvl-definition {
+  padding: 14px 16px;
+  background: var(--paper-2);
+  border-radius: 14px;
+  font-size: 1.12rem;
+  line-height: 1.5;
 }
 .bvl-options { display: flex; flex-direction: column; gap: 8px; }
 .bvl-options .btn-choice {
