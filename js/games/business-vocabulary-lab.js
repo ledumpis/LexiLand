@@ -338,6 +338,9 @@ EGL_Engine.register({
     const answerText = answers.join(" · ");
     let body = "";
     if (q.kind === "ordered") {
+      // Slot i displays the i-th pick, so the player sees their chosen order.
+      // Grading compares per slot (picked[i] vs answers[i]); verdict styling
+      // marks each slot ok/bad by position, never by set membership.
       const slots = answers.map((_, i) => {
         const value = this.picked[i] || "";
         const cls = this.verdict ? (value === answers[i] ? "is-ok" : "is-bad") : "";
@@ -350,7 +353,10 @@ EGL_Engine.register({
       let cls = "btn-choice bvl-opt";
       if (this.verdict) {
         if (q.kind === "ordered") {
-          if (answers.indexOf(opt) !== -1 && this.picked.indexOf(opt) !== -1 && this.verdict.ok) cls += " choice-correct";
+          // Correct pick in the correct slot stays green; any other picked
+          // option (wrong phrase or wrong position) is marked wrong.
+          const slotOf = this.picked.indexOf(opt);
+          if (this.verdict.ok && slotOf !== -1 && this.picked[slotOf] === answers[slotOf] && opt === answers[slotOf]) cls += " choice-correct";
           else if (picked && !this.verdict.ok) cls += " choice-wrong";
           else cls += " is-dim";
         } else if (opt === q.answer) cls += " choice-correct";
@@ -361,10 +367,13 @@ EGL_Engine.register({
     }).join("")}</div>`;
     let feedback = "";
     if (this.verdict) {
+      const explainKey = q.explainKey || null;
+      const explain = explainKey ? this.tt(explainKey) : "";
       feedback = `<div class="bvl-feedback ${this.verdict.ok ? "is-ok" : "is-bad"}">
         <strong>${this.esc(this.tt(this.verdict.ok ? "bvl.feedback.correct" : "bvl.feedback.wrong"))}</strong>
         <p>${this.esc(this.tt("bvl.feedback.answer", { answer: answerText }))}</p>
         ${q.resolved ? `<p>${this.esc(this.tt("bvl.feedback.resolved", { text: q.resolved }))}</p>` : ""}
+        ${explain ? `<p class="bvl-why">${this.esc(explain)}</p>` : ""}
         <button type="button" class="btn btn-primary" data-act="next">${this.esc(this.tt("bvl.play.continue"))}</button>
       </div>`;
     }

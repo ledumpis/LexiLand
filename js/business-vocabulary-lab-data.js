@@ -61,7 +61,8 @@
         term: build.term(row),
         options: options.slice(),
         answer: build.answer(row),
-        resolved: build.resolved ? build.resolved(row) : ""
+        resolved: build.resolved ? build.resolved(row) : "",
+        explainKey: "bvl.why." + row.id
       });
     });
   }
@@ -97,7 +98,8 @@
     questions.push({
       id: r[0], unit: 1, exercise: "U1-V2", mode: "read-fill", kind: "single",
       labelKey: "bvl.prompt.collocation", prompt: r[2], term: r[1],
-      options: U1_BOX.slice(), answer: r[1], resolved: r[3]
+      options: U1_BOX.slice(), answer: r[1], resolved: r[3],
+      explainKey: "bvl.why." + r[0]
     });
   });
   questions.push({
@@ -107,7 +109,8 @@
     term: "deal with crises",
     options: U1_BOX.slice(),
     answers: ["deal with crises", "make decisions"],
-    resolved: "Top managers have to be prepared to deal with crises if they occur and then have to make quick decisions."
+    resolved: "Top managers have to be prepared to deal with crises if they occur and then have to make quick decisions.",
+    explainKey: "bvl.why.u1-v2-06"
   });
 
   addClosed([
@@ -218,7 +221,8 @@
     questions.push({
       id: r[0], unit: 14, exercise: "U14-R1", mode: "read-fill", kind: "single",
       labelKey: "bvl.prompt.collocation", prompt: r[2], term: r[1],
-      options: U14_BOX.slice(), answer: r[1], resolved: r[3]
+      options: U14_BOX.slice(), answer: r[1], resolved: r[3],
+      explainKey: "bvl.why." + r[0]
     });
   });
 
@@ -267,7 +271,8 @@
       id: r[0], unit: 14, exercise: "U14-V2", mode: "match", kind: "single",
       labelKey: "bvl.prompt.pair", prompt: r[1] + " _____", term: r[1] + " " + r[2],
       options: U14_NOUNS.filter((n) => blocked.indexOf(n) === -1),
-      answer: r[2], resolved: ""
+      answer: r[2], resolved: "",
+      explainKey: "bvl.why." + r[0]
     });
   });
 
@@ -308,7 +313,8 @@
         term: pair.term,
         options: options,
         answer: pair.word,
-        resolved: ""
+        resolved: "",
+        explainKey: "bvl.why." + pair.id
       });
     });
   }

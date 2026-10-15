@@ -13,7 +13,13 @@ EGL_Engine.register({
     this.answered = false;
     this.advanced = false;
     this._timers = new Set();
-    // Phase 2E-1: re-render chrome on language change without resetting progress
+    // Smart Retry: missed words resurface after a few others (no new questions).
+    this.retry = (typeof EGL_Retry !== 'undefined') ? EGL_Retry.create({ gap: 4, maxRetries: 2 }) : null;
+    this.retryEntry = null;
+    this.isRetry = false;
+    // Phase 2E-1: re-render chrome on language change without resetting progress.
+    // NOTE: render(true) reshuffles options; on a retry question the word stays
+    // the same (isRetry/retryEntry preserved), so no progress is lost.
     this._langHandler = () => { if (this.active && !this.advanced) this.render(true); };
     document.addEventListener('egl:language-change', this._langHandler);
     this.render();
@@ -24,14 +30,62 @@ EGL_Engine.register({
     this._timers.add(t);
   },
 
+  // Next item: due retry first (after gap), else next unseen word.
+  // Returns false when the round is over.
+  advance() {
+    if (this.advanced) return false;
+    this.advanced = true;
+    const remaining = this.words.length - (this.idx + 1);
+    const dueKey = this.retry ? this.retry.due(Math.max(0, remaining)) : null;
+    if (dueKey) {
+      const entry = this.retry.takeDue(dueKey);
+      const w = this.words.find(x => x.word === dueKey);
+      if (w && entry) {
+        this.retryEntry = entry;
+        this.isRetry = true;
+        this.render();
+        return true;
+      }
+    }
+    this.retryEntry = null;
+    this.isRetry = false;
+    this.idx++;
+    this.render();
+    return true;
+  },
+
   render(preserveAnswer) {
     const total = this.words.length;
+    // Retry items reuse renderQuestion; the tail case below only handles
+    // retries pending after all unseen words are done.
     if (this.idx >= total) {
+      if (this.retry && this.retry.pending.length) {
+        const dueKey = this.retry.due(0);
+        if (dueKey) {
+          const entry = this.retry.takeDue(dueKey);
+          const w = this.words.find(x => x.word === dueKey);
+          if (w && entry) {
+            this.retryEntry = entry;
+            this.isRetry = true;
+            this.renderQuestion(w);
+            return;
+          }
+        }
+      }
       this.engine.setProgress(total, total);
       return this.engine.endSession();
     }
 
-    const cur = this.words[this.idx];
+    const cur = this.isRetry && this.retryEntry
+      ? this.words.find(x => x.word === this.retryEntry.key) || this.words[this.idx]
+      : this.words[this.idx];
+    this.renderQuestion(cur, preserveAnswer);
+  },
+
+  // Single question render shared by new words and retries.
+  // Options are always reshuffled, so retry answers move positions.
+  renderQuestion(cur, preserveAnswer) {
+    const total = this.words.length;
     const esc = EGL_Utils.escapeHtml;
     const icons = EGL_Utils.icons;
     const i18n = (typeof EGL_I18n !== 'undefined') ? EGL_I18n : null;
@@ -88,13 +142,45 @@ EGL_Engine.register({
           else b.classList.add('is-dim');
         });
 
-        this.engine.recordAnswer(isCorrect, cur);
+        this.answerCurrent(isCorrect, cur);
         this.feedback(foot, isCorrect, cur);
       };
     });
     // Store opts for potential language-change re-render that shuffles — keep current opts stable via closure
     this._currentOpts = opts;
     this._currentCur = cur;
+  },
+
+  // Records the answer with retry-aware scoring, then schedules/fixes retries.
+  // First-try answers use the normal engine path (full score/combo/mastery).
+  // Retry answers still update mastery via the engine, but score/combo are
+  // restored so a fix does not farm points like a new question.
+  answerCurrent(isCorrect, cur) {
+    const s = this.engine.activeSession;
+    if (!this.retry || !this.isRetry) {
+      if (!isCorrect && this.retry) this.retry.schedule(cur.word);
+      else if (this.retry) this.retry.noteFirstTryCorrect();
+      this.engine.recordAnswer(isCorrect, cur);
+      if (!isCorrect && this.retry) this.retryNote(cur);
+      return;
+    }
+    const prevScore = s ? s.score : 0;
+    const prevCombo = s ? s.combo : 0;
+    this.engine.recordAnswer(isCorrect, cur);
+    if (s) { s.score = prevScore; s.combo = isCorrect ? prevCombo : 0; this.engine.updateStatsUI(); }
+    this.retry.resolve(cur.word, isCorrect, this.retryEntry);
+    if (isCorrect) this.retryToast('retry.toast.fixed');
+    else this.retryNote(cur);
+  },
+
+  retryNote(cur) {
+    const i18n = (typeof EGL_I18n !== 'undefined') ? EGL_I18n : null;
+    if (i18n) EGL_Utils.toast(i18n.t('retry.toast.soon'));
+  },
+
+  retryToast(key) {
+    const i18n = (typeof EGL_I18n !== 'undefined') ? EGL_I18n : null;
+    if (i18n) EGL_Utils.toast(i18n.t(key));
   },
 
   feedback(foot, isCorrect, cur) {
@@ -109,7 +195,7 @@ EGL_Engine.register({
         <div class="g-feedback is-ok">${icons.check}
           <div class="g-feedback-text"><strong>${esc(tt('multipleChoice.feedback.correctTitle'))}</strong><span>${detail}</span></div>
         </div>`;
-      this.later(() => this.next(), 900);
+      this.later(() => this.advance(), 900);
     } else {
       foot.innerHTML = `
         <div class="g-feedback is-bad">${icons.cross}
@@ -117,16 +203,14 @@ EGL_Engine.register({
           <button class="btn btn-primary" type="button" id="btn-mc-next">${esc(tt('multipleChoice.btn.continue'))} ${icons.arrow}</button>
         </div>`;
       const nextBtn = foot.querySelector('#btn-mc-next');
-      nextBtn.onclick = () => this.next();
+      nextBtn.onclick = () => this.advance();
       this.later(() => nextBtn.focus(), 80);
     }
   },
 
   next() {
-    if (this.advanced) return;
-    this.advanced = true;
-    this.idx++;
-    this.render();
+    // Back-compat alias (keyboard/tests may call next()).
+    return this.advance();
   },
 
   cleanup() {

@@ -13,6 +13,10 @@ EGL_Engine.register({
     this.answered = false;
     this.advanced = false;
     this._timers = new Set();
+    // Smart Retry: missed words resurface after a few others (no new questions).
+    this.retry = (typeof EGL_Retry !== 'undefined') ? EGL_Retry.create({ gap: 4, maxRetries: 2 }) : null;
+    this.retryEntry = null;
+    this.isRetry = false;
     this._langHandler = () => { if (this.active) this.patchLanguage(); };
     document.addEventListener('egl:language-change', this._langHandler);
     this.render();
@@ -45,14 +49,58 @@ EGL_Engine.register({
     function escPatch(s) { return (typeof EGL_Utils !== 'undefined' && EGL_Utils.escapeHtml) ? EGL_Utils.escapeHtml(s) : s; }
   },
 
+  // Next item: due retry first (after gap), else next unseen word.
+  advance() {
+    if (this.advanced) return false;
+    this.advanced = true;
+    const remaining = this.words.length - (this.idx + 1);
+    const dueKey = this.retry ? this.retry.due(Math.max(0, remaining)) : null;
+    if (dueKey) {
+      const entry = this.retry.takeDue(dueKey);
+      const w = this.words.find(x => x.word === dueKey);
+      if (w && entry) {
+        this.retryEntry = entry;
+        this.isRetry = true;
+        this.render();
+        return true;
+      }
+    }
+    this.retryEntry = null;
+    this.isRetry = false;
+    this.idx++;
+    this.render();
+    return true;
+  },
+
   render() {
     const total = this.words.length;
     if (this.idx >= total) {
+      if (this.retry && this.retry.pending.length) {
+        const dueKey = this.retry.due(0);
+        if (dueKey) {
+          const entry = this.retry.takeDue(dueKey);
+          const w = this.words.find(x => x.word === dueKey);
+          if (w && entry) {
+            this.retryEntry = entry;
+            this.isRetry = true;
+            this.renderQuestion(w);
+            return;
+          }
+        }
+      }
       this.engine.setProgress(total, total);
       return this.engine.endSession();
     }
 
-    const cur = this.words[this.idx];
+    const cur = this.isRetry && this.retryEntry
+      ? this.words.find(x => x.word === this.retryEntry.key) || this.words[this.idx]
+      : this.words[this.idx];
+    this.renderQuestion(cur);
+  },
+
+  // Single question render shared by new words and retries (retype from scratch).
+  renderQuestion(cur) {
+    const total = this.words.length;
     const esc = EGL_Utils.escapeHtml;
     const icons = EGL_Utils.icons;
     const i18n = (typeof EGL_I18n !== 'undefined') ? EGL_I18n : null;
@@ -110,7 +158,7 @@ EGL_Engine.register({
       skipBtn.disabled = true;
       inp.classList.add(isCorrect ? 'is-ok' : 'is-bad');
 
-      this.engine.recordAnswer(isCorrect, cur);
+      this.answerCurrent(isCorrect, cur);
       this.feedback(foot, isCorrect, giveUp, cur);
     };
 
@@ -121,6 +169,36 @@ EGL_Engine.register({
     };
 
     inp.focus();
+  },
+
+  // Retry-aware scoring: first-try uses the normal engine path;
+  // retry fixes update mastery but restore score/combo (no point farming).
+  answerCurrent(isCorrect, cur) {
+    const s = this.engine.activeSession;
+    if (!this.retry || !this.isRetry) {
+      if (!isCorrect && this.retry) this.retry.schedule(cur.word);
+      else if (this.retry) this.retry.noteFirstTryCorrect();
+      this.engine.recordAnswer(isCorrect, cur);
+      if (!isCorrect && this.retry) this.retryNote();
+      return;
+    }
+    const prevScore = s ? s.score : 0;
+    const prevCombo = s ? s.combo : 0;
+    this.engine.recordAnswer(isCorrect, cur);
+    if (s) { s.score = prevScore; s.combo = isCorrect ? prevCombo : 0; this.engine.updateStatsUI(); }
+    this.retry.resolve(cur.word, isCorrect, this.retryEntry);
+    if (isCorrect) this.retryToast('retry.toast.fixed');
+    else this.retryNote();
+  },
+
+  retryNote() {
+    const i18n = (typeof EGL_I18n !== 'undefined') ? EGL_I18n : null;
+    if (i18n) EGL_Utils.toast(i18n.t('retry.toast.soon'));
+  },
+
+  retryToast(key) {
+    const i18n = (typeof EGL_I18n !== 'undefined') ? EGL_I18n : null;
+    if (i18n) EGL_Utils.toast(i18n.t(key));
   },
 
   feedback(foot, isCorrect, giveUp, cur) {
@@ -134,7 +212,7 @@ EGL_Engine.register({
         <div class="g-feedback is-ok">${icons.check}
           <div class="g-feedback-text"><strong>${esc(tt('spelling.feedback.correctTitle'))}</strong><span>${esc(cur.word)}</span></div>
         </div>`;
-      this.later(() => this.next(), 1000);
+      this.later(() => this.advance(), 1000);
     } else {
       const titleKey = giveUp ? 'spelling.feedback.giveUpTitle' : 'spelling.feedback.wrongTitle';
       foot.innerHTML = `
@@ -144,16 +222,14 @@ EGL_Engine.register({
           <button class="btn btn-primary" type="button" id="btn-sp-next">${esc(tt('spelling.btn.continue'))} ${icons.arrow}</button>
         </div>`;
       const nextBtn = foot.querySelector('#btn-sp-next');
-      nextBtn.onclick = () => this.next();
+      nextBtn.onclick = () => this.advance();
       this.later(() => nextBtn.focus(), 80);
     }
   },
 
   next() {
-    if (this.advanced) return;
-    this.advanced = true;
-    this.idx++;
-    this.render();
+    // Back-compat alias.
+    return this.advance();
   },
 
   cleanup() {

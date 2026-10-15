@@ -14,6 +14,10 @@ EGL_Engine.register({
     this.answered = false;
     this.advanced = false;
     this._timers = new Set();
+    // Smart Retry: missed words resurface after a few others (same statement kept).
+    this.retry = (typeof EGL_Retry !== 'undefined') ? EGL_Retry.create({ gap: 4, maxRetries: 2 }) : null;
+    this.retryEntry = null;
+    this.isRetry = false;
 
     // T / ← = true, F / → = false
     this._onKey = (e) => {
@@ -54,9 +58,46 @@ EGL_Engine.register({
     if (speakBtn && this.q) speakBtn.setAttribute('aria-label', tt('trueFalse.pronounce', { word: this.q.cur.word }));
   },
 
+  // Next item: due retry first (after gap), else next unseen word.
+  // Retry reuses the same statement (same isTrue/shown) — semantics preserved.
+  advance() {
+    if (this.advanced) return false;
+    this.advanced = true;
+    const remaining = this.words.length - (this.idx + 1);
+    const dueKey = this.retry ? this.retry.due(Math.max(0, remaining)) : null;
+    if (dueKey) {
+      const entry = this.retry.takeDue(dueKey);
+      const w = this.words.find(x => x.word === dueKey);
+      if (w && entry) {
+        this.retryEntry = entry;
+        this.isRetry = true;
+        this.renderRetry(w);
+        return true;
+      }
+    }
+    this.retryEntry = null;
+    this.isRetry = false;
+    this.idx++;
+    this.render();
+    return true;
+  },
+
   render() {
     const total = this.words.length;
     if (this.idx >= total) {
+      if (this.retry && this.retry.pending.length) {
+        const dueKey = this.retry.due(0);
+        if (dueKey) {
+          const entry = this.retry.takeDue(dueKey);
+          const w = this.words.find(x => x.word === dueKey);
+          if (w && entry) {
+            this.retryEntry = entry;
+            this.isRetry = true;
+            this.renderRetry(w);
+            return;
+          }
+        }
+      }
       this.engine.setProgress(total, total);
       return this.engine.endSession();
     }
@@ -67,12 +108,21 @@ EGL_Engine.register({
     const i18n = (typeof EGL_I18n !== 'undefined') ? EGL_I18n : null;
     const tt = (k, p) => i18n ? i18n.t(k, p) : k;
 
-    let isTrue = (Math.random() > 0.5);
-    let shown = cur.meaning;
-    if (!isTrue) {
-      const d = this.engine.getDistractors(cur, 1)[0];
-      if (d && d.meaning !== cur.meaning) shown = d.meaning;
-      else isTrue = true;
+    // Retry: replay the exact same statement (same word, same shown meaning,
+    // same correct answer) — only the chrome re-renders.
+    const prev = this.isRetry && this.q && this.q.cur && this.q.cur.word === cur.word ? this.q : null;
+    let isTrue, shown;
+    if (prev) {
+      isTrue = prev.isTrue;
+      shown = prev.shown;
+    } else {
+      isTrue = (Math.random() > 0.5);
+      shown = cur.meaning;
+      if (!isTrue) {
+        const d = this.engine.getDistractors(cur, 1)[0];
+        if (d && d.meaning !== cur.meaning) shown = d.meaning;
+        else isTrue = true;
+      }
     }
 
     this.q = { cur, isTrue, shown };
@@ -112,6 +162,14 @@ EGL_Engine.register({
     this.container.querySelector('#btn-tf-false').onclick = () => this.answer(false);
   },
 
+  // Retry render: same statement, fresh chrome. Sets isRetry from entry.
+  renderRetry(w) {
+    // Point idx at the retried word so progress stays consistent, then reuse
+    // the retry-preserving branch in render().
+    this.idx = this.words.indexOf(w);
+    this.render();
+  },
+
   answer(userChoice) {
     if (this.answered || !this.q) return;
     this.answered = true;
@@ -136,7 +194,7 @@ EGL_Engine.register({
     picked.classList.add('is-picked');
     other.classList.add('is-dim');
 
-    this.engine.recordAnswer(isCorrect, cur);
+    this.answerCurrent(isCorrect, cur);
 
     const foot = this.container.querySelector('#tf-foot');
     const detail = isTrue
@@ -148,7 +206,7 @@ EGL_Engine.register({
         <div class="g-feedback is-ok">${icons.check}
           <div class="g-feedback-text"><strong>${esc(tt('trueFalse.feedback.correctTitle'))}</strong><span>${detail}</span></div>
         </div>`;
-      this.later(() => this.next(), 1000);
+      this.later(() => this.advance(), 1000);
     } else {
       foot.innerHTML = `
         <div class="g-feedback is-bad">${icons.cross}
@@ -156,16 +214,44 @@ EGL_Engine.register({
           <button class="btn btn-primary" type="button" id="btn-tf-next">${esc(tt('trueFalse.feedback.continue'))} ${icons.arrow}</button>
         </div>`;
       const nextBtn = foot.querySelector('#btn-tf-next');
-      nextBtn.onclick = () => this.next();
+      nextBtn.onclick = () => this.advance();
       this.later(() => nextBtn.focus(), 80);
     }
   },
 
+  // Retry-aware scoring: first-try uses the normal engine path;
+  // retry fixes update mastery but restore score/combo (no point farming).
+  answerCurrent(isCorrect, cur) {
+    const s = this.engine.activeSession;
+    if (!this.retry || !this.isRetry) {
+      if (!isCorrect && this.retry) this.retry.schedule(cur.word);
+      else if (this.retry) this.retry.noteFirstTryCorrect();
+      this.engine.recordAnswer(isCorrect, cur);
+      if (!isCorrect && this.retry) this.retryNote();
+      return;
+    }
+    const prevScore = s ? s.score : 0;
+    const prevCombo = s ? s.combo : 0;
+    this.engine.recordAnswer(isCorrect, cur);
+    if (s) { s.score = prevScore; s.combo = isCorrect ? prevCombo : 0; this.engine.updateStatsUI(); }
+    this.retry.resolve(cur.word, isCorrect, this.retryEntry);
+    if (isCorrect) this.retryToast('retry.toast.fixed');
+    else this.retryNote();
+  },
+
+  retryNote() {
+    const i18n = (typeof EGL_I18n !== 'undefined') ? EGL_I18n : null;
+    if (i18n) EGL_Utils.toast(i18n.t('retry.toast.soon'));
+  },
+
+  retryToast(key) {
+    const i18n = (typeof EGL_I18n !== 'undefined') ? EGL_I18n : null;
+    if (i18n) EGL_Utils.toast(i18n.t(key));
+  },
+
   next() {
-    if (this.advanced) return;
-    this.advanced = true;
-    this.idx++;
-    this.render();
+    // Back-compat alias.
+    return this.advance();
   },
 
   cleanup() {

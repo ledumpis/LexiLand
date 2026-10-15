@@ -7,7 +7,9 @@ EGL_Engine.register({
   init(container, { words, engine }) {
     this.container = container;
     this.engine = engine;
-    this.activeWords = words.slice(0, 5);
+    // Fresh sampling per round: pick 5 words from the full Unit pool,
+    // preferring words not seen in recent rounds (anti-repeat).
+    this.activeWords = this.pickFreshWords(words, 5);
     this.total = this.activeWords.length;
     this.matchedCount = 0;
     this.misses = 0;
@@ -63,6 +65,48 @@ EGL_Engine.register({
   later(fn, ms) {
     const t = setTimeout(() => { this._timers.delete(t); if (this.active) fn(); }, ms);
     this._timers.add(t);
+  },
+
+  // --- Fresh sampling + anti-repeat (per game, per unit pool) ---
+  // History is keyed by the unit's vocabulary signature so different Units
+  // never share history and Daily Life / other games are unaffected.
+  // Only new localStorage key: 'egl_wm_recent'. Nothing else is touched.
+  historyKey(pool) {
+    const sig = pool.map(w => w.word).sort().join('|');
+    let h = 0;
+    for (let i = 0; i < sig.length; i++) {
+      h = ((h << 5) - h + sig.charCodeAt(i)) | 0;
+    }
+    return 'egl_wm_recent_' + Math.abs(h).toString(36);
+  },
+
+  readHistory(pool) {
+    try {
+      const raw = localStorage.getItem(this.historyKey(pool));
+      const arr = raw ? JSON.parse(raw) : [];
+      return Array.isArray(arr) ? arr.filter(w => typeof w === 'string') : [];
+    } catch (e) {
+      return [];
+    }
+  },
+
+  writeHistory(pool, recentWords) {
+    try {
+      localStorage.setItem(this.historyKey(pool), JSON.stringify(recentWords.slice(-15)));
+    } catch (e) { /* ignore quota */ }
+  },
+
+  pickFreshWords(pool, count) {
+    const safePool = Array.isArray(pool) ? pool.filter(w => w && w.word && w.meaning) : [];
+    const need = Math.max(1, Math.min(count, safePool.length));
+    if (!safePool.length) return [];
+    if (safePool.length <= need) return EGL_Utils.shuffle(safePool);
+    const recent = this.readHistory(safePool);
+    const fresh = safePool.filter(w => recent.indexOf(w.word) === -1);
+    const source = fresh.length >= need ? fresh : safePool;
+    const picked = EGL_Utils.shuffle(source).slice(0, need);
+    this.writeHistory(safePool, recent.concat(picked.map(w => w.word)));
+    return picked;
   },
 
   patchLanguage() {
